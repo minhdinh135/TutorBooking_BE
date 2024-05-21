@@ -18,14 +18,12 @@ public partial class User : IdentityUser<int>
 
     public List<Credential>? Credentials { get; set; }
 
-    public List<Post>? Posts { get; set; }
-
     public List<Service>? Services { get; set; }
 
     public List<Feedback>? StudentFeedbacks { get; set; }
 
     public List<Feedback>? TutorFeedbacks { get; set; }
 
-    public List<Order>? Orders { get; set; }
+    public List<Booking>? Bookings { get; set; }
 
 }

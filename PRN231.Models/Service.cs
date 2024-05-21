@@ -10,11 +10,13 @@ public partial class Service
 
     public string Name { get; set; }
 
+    public string Title { get; set; }
+
+    public string Thumbnail { get; set; }
+
     public string Content { get; set; }
 
-    public DateTime StartTime { get; set; }
-
-    public DateTime EndTime { get; set; }
+    public string Duration { get; set; }
 
     public decimal Price { get; set; }
 
@@ -28,5 +30,5 @@ public partial class Service
 
     public Subject Subject { get; set; }
 
-    public List<Order> Orders { get; set; }
+    public List<Schedule> Schedules { get; set; }
 }

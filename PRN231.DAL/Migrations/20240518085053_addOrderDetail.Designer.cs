@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PRN231.DAL;
 
@@ -11,9 +12,11 @@ using PRN231.DAL;
 namespace PRN231.DAL.Migrations
 {
     [DbContext(typeof(SmartHeadContext))]
-    partial class SmartHeadContextModelSnapshot : ModelSnapshot
+    [Migration("20240518085053_addOrderDetail")]
+    partial class addOrderDetail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -125,40 +128,6 @@ namespace PRN231.DAL.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("PRN231.Models.Booking", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("Bookings");
-                });
-
             modelBuilder.Entity("PRN231.Models.Credential", b =>
                 {
                     b.Property<int>("Id")
@@ -237,6 +206,76 @@ namespace PRN231.DAL.Migrations
                     b.ToTable("Feedbacks");
                 });
 
+            modelBuilder.Entity("PRN231.Models.Order", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("PRN231.Models.OrderDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DayOfWeek")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderDetails");
+                });
+
             modelBuilder.Entity("PRN231.Models.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -265,51 +304,6 @@ namespace PRN231.DAL.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-                });
-
-            modelBuilder.Entity("PRN231.Models.Schedule", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BookingId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DayOfWeek")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingId");
-
-                    b.HasIndex("ServiceId");
-
-                    b.ToTable("Schedule");
                 });
 
             modelBuilder.Entity("PRN231.Models.Service", b =>
@@ -537,17 +531,6 @@ namespace PRN231.DAL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PRN231.Models.Booking", b =>
-                {
-                    b.HasOne("PRN231.Models.User", "Student")
-                        .WithMany("Bookings")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("PRN231.Models.Credential", b =>
                 {
                     b.HasOne("PRN231.Models.User", "Tutor")
@@ -578,23 +561,34 @@ namespace PRN231.DAL.Migrations
                     b.Navigation("Tutor");
                 });
 
-            modelBuilder.Entity("PRN231.Models.Schedule", b =>
+            modelBuilder.Entity("PRN231.Models.Order", b =>
                 {
-                    b.HasOne("PRN231.Models.Booking", "Booking")
-                        .WithMany("Schedules")
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("PRN231.Models.Service", "Service")
-                        .WithMany("Schedules")
+                        .WithMany("Orders")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Booking");
+                    b.HasOne("PRN231.Models.User", "Student")
+                        .WithMany("Orders")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Service");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("PRN231.Models.OrderDetail", b =>
+                {
+                    b.HasOne("PRN231.Models.Order", "Order")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("PRN231.Models.Service", b =>
@@ -616,14 +610,14 @@ namespace PRN231.DAL.Migrations
                     b.Navigation("Tutor");
                 });
 
-            modelBuilder.Entity("PRN231.Models.Booking", b =>
+            modelBuilder.Entity("PRN231.Models.Order", b =>
                 {
-                    b.Navigation("Schedules");
+                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("PRN231.Models.Service", b =>
                 {
-                    b.Navigation("Schedules");
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("PRN231.Models.Subject", b =>
@@ -633,9 +627,9 @@ namespace PRN231.DAL.Migrations
 
             modelBuilder.Entity("PRN231.Models.User", b =>
                 {
-                    b.Navigation("Bookings");
-
                     b.Navigation("Credentials");
+
+                    b.Navigation("Orders");
 
                     b.Navigation("Services");
 

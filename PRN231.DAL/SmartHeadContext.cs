@@ -22,9 +22,9 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
 
     public virtual DbSet<Feedback> Feedbacks { get; set; }
 
-    public virtual DbSet<Order> Orders { get; set; }
+    public virtual DbSet<Booking> Bookings { get; set; }
 
-    public virtual DbSet<Post> Posts { get; set; }
+    public virtual DbSet<Schedule> Schedule { get; set; }
 
     public virtual DbSet<Service> Services { get; set; }
 
@@ -54,11 +54,13 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
             .WithMany(x => x.Services)
             .HasForeignKey(f => f.SubjectId)
             .OnDelete(DeleteBehavior.NoAction);
-        modelBuilder.Entity<Order>()
+
+        modelBuilder.Entity<Schedule>()
             .HasOne(f => f.Service)
-            .WithMany(x => x.Orders)
+            .WithMany(x => x.Schedules)
             .HasForeignKey(f => f.ServiceId)
             .OnDelete(DeleteBehavior.NoAction);
+
 
         /*modelBuilder.Entity<User>()
             .HasMany(f => f.StudentFeedbacks)

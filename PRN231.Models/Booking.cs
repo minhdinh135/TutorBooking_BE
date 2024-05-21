@@ -1,18 +1,14 @@
 namespace PRN231.Models;
 
-public partial class Order
+public partial class Booking
 {
     public int Id { get; set; }
-
-    public int ServiceId { get; set; }
 
     public int StudentId { get; set; }
 
     public decimal Price { get; set; }
 
     public string PaymentMethod { get; set; }
-
-    public int Rating { get; set; }
 
     public DateTime CreatedDate { get; set; }
 
@@ -22,5 +18,5 @@ public partial class Order
 
     public User Student { get; set; }
 
-    public Service Service { get; set; }
+    public List<Schedule> Schedules { get; set; }
 }
