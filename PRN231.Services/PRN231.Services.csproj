@@ -5,5 +5,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="AutoMapper" Version="13.0.1" />
+	  <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\PRN231.Models\PRN231.Models.csproj" />
+	  <ProjectReference Include="..\PRN231.Repositories\PRN231.Repositories.csproj" />
+	</ItemGroup>
 </Project>
