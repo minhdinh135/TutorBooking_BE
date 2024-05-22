@@ -8,6 +8,7 @@ namespace EXE101.Models.DTOs
 
         public string Password { get; set; }
 
+        public string Phone { get; set; }
         public string Address { get; set; }
 
         public string Avatar { get; set; }

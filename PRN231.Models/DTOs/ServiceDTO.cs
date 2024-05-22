@@ -26,14 +26,6 @@ namespace PRN231.Models.DTOs
 
         public decimal Price { get; set; }
 
-        public DateTime CreatedDate { get; set; }
-
-        public DateTime UpdatedDate { get; set; }
-
         public bool Status { get; set; }
-
-        public User Tutor { get; set; }
-
-        public Subject Subject { get; set; }
     }
 }
