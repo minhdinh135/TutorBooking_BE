@@ -16,12 +16,7 @@ namespace PRN231.Models.DTOs
 
         public string PaymentMethod { get; set; }
 
-        public DateTime CreatedDate { get; set; }
-
-        public DateTime UpdatedDate { get; set; }
-
         public bool Status { get; set; }
 
-        public User Student { get; set; }
     }
 }

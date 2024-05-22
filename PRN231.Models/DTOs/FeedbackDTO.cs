@@ -14,14 +14,6 @@ namespace EXE101.Models.DTOs
 
         public int Rating { get; set; }
 
-        public DateTime CreatedDate { get; set; }
-
-        public DateTime UpdatedDate { get; set; }
-
         public bool Status { get; set; }
-
-        public User Tutor { get; set; }
-
-        public User Student { get; set; }
     }
 }
