@@ -14,6 +14,9 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using Microsoft.Extensions.FileProviders;
 using PRN231.Models.AutoMapper;
+using PRN231.Models;
+using Microsoft.AspNetCore.Identity;
+using BirthdayParty.API;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options => options.SuppressInputFormatterBuffering = true)
@@ -36,6 +39,27 @@ builder.Services.AddSingleton<IMapper>(sp =>
 
     return config.CreateMapper();
 });
+
+
+builder.Services.AddScoped<JWTService>();
+
+builder.Services.AddIdentityCore<User>(options =>
+{
+    //password config
+    options.Password.RequiredLength = 3;
+    options.Password.RequiredUniqueChars = 0;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    //email config
+})
+.AddRoles<Role>()
+.AddRoleManager<RoleManager<Role>>()
+.AddEntityFrameworkStores<SmartHeadContext>()
+.AddSignInManager<SignInManager<User>>()
+.AddUserManager<UserManager<User>>()
+.AddDefaultTokenProviders(); //token for email confirmation
+
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -132,7 +156,7 @@ app.MapControllers();
 
 app.Run();
 
-var summaries = new[]
+/*var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
@@ -157,4 +181,4 @@ app.Run();
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+}*/
