@@ -14,10 +14,6 @@ namespace PRN231.Models.DTOs
 
         public string Level { get; set; }
 
-        public DateTime CreatedDate { get; set; }
-
-        public DateTime UpdatedDate { get; set; }
-
         public bool Status { get; set; }
 
     }

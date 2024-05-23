@@ -22,14 +22,6 @@ namespace PRN231.Models.DTOs
 
         public DateTime EndTime { get; set; }
 
-        public DateTime CreatedDate { get; set; }
-
-        public DateTime UpdatedDate { get; set; }
-
         public bool Status { get; set; }
-
-        public Service Service { get; set; }
-
-        public Booking Booking { get; set; }
     }
 }

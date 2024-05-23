@@ -8,9 +8,11 @@ using System.Security.Cryptography;
 using EXE101.Services.Interfaces;
 using EXE101.Models;
 using EXE101.Models.DTOs;
-using EXE101.Services.Utils;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using PRN231.Models;
+using Microsoft.AspNetCore.Identity;
+using BirthdayParty.API;
 
 namespace EXE101.API.Controllers
 {
@@ -21,97 +23,63 @@ namespace EXE101.API.Controllers
         private readonly ILogger<AuthenticationController> _logger;
         private readonly IGenericService<User, UserDTO> _userService;
         private readonly IGenericService<Role, RoleDTO> _roleService;
+        private readonly SignInManager<User> _signIn;
+        private readonly UserManager<User> _manager;
+        private readonly RoleManager<Role> _roleManager;
         public IConfiguration _configuration;
+        private readonly JWTService _jwtService;
 
         public AuthenticationController(IConfiguration config, ILogger<AuthenticationController> logger,
                 IGenericService<User,UserDTO> userService,
-                IGenericService<Role, RoleDTO> roleService)
+                IGenericService<Role, RoleDTO> roleService,
+                UserManager<User> manager,
+                RoleManager<Role> roleManager, SignInManager<User> signIn,
+                JWTService jwtService)
         {
             _logger = logger;
             _configuration = config;
             _userService = userService;
             _roleService = roleService;
+            _jwtService = jwtService;
+            _manager = manager;
+            _roleManager = roleManager;
+            _signIn = signIn;
         }
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDTO login)
         {
-            var users = await _userService.GetAll();
-            var userLogin = users.Where(u => u.Email == login.Email).FirstOrDefault();
-            if(userLogin == null) return Unauthorized(new { Message = "Email not found" });
-            var roles = await _roleService.GetAll();
-            roles = roles.Where(r => r.UserId == userLogin.Id).ToList();
-            if(PasswordManager.VerifyPassword(login.Password, userLogin.HashPassword)){
-                if(roles.Count() == 0) 
-                {
-                    await _roleService.Add(new RoleDTO { Name = RoleEnum.Client, UserId = userLogin.Id.Value });
-                    JwtDTO token = JwtService.CreateJwt(_configuration, userLogin);
-                    return Ok(token);
-                }
-                else if(roles.Any(r => r.Name == RoleEnum.Admin))
-                {
-                    JwtDTO token = JwtService.CreateJwt(_configuration, userLogin, RoleEnum.Admin);
-                    return Ok(token);
-                }
-                else if(roles.Any(r => r.Name == RoleEnum.Client))
-                {
-                    JwtDTO token = JwtService.CreateJwt(_configuration, userLogin);
-                    return Ok(token);
-                }
-            }
-            return Unauthorized(new { Message = "Wrong password" }); 
+            var user = await _manager.FindByEmailAsync(login.Email);
+            if (user == null) return Unauthorized("Invalid email!!!");
+            var result = await _signIn.CheckPasswordSignInAsync(user, login.Password, false);
+            if (!result.Succeeded) return Unauthorized("Invalid email or password!!!");
+            var roleList = await _manager.GetRolesAsync(user);
+            var role = roleList.FirstOrDefault() ?? "";
+            var userInfo = new UserDTO();
+            var token = _jwtService.CreateJwt(user, role);
+            return Ok(token);
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register(RegisterDTO register)
+        public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO)
         {
-            try{
-                if(!ModelState.IsValid){
-                    var error = ErrorHandler.GetErrorMessage(ModelState);
-                    return BadRequest(new {Message = error});
-                }
-                var userDTO = new UserDTO {
-                    Email = register.Email,
-                    UserName = register.Name,
-                    PhoneNumber = "000",
-                    HashPassword = PasswordManager.HashPassword(register.Password),
-                    Address = string.Empty,
-                    DateOfBirth = DateTime.Now,
-                };
-                var user = await _userService.Add(userDTO);
-                JwtDTO token = JwtService.CreateJwt(_configuration, user);
-                await _roleService.Add(new RoleDTO { Name = RoleEnum.Client, UserId = user.Id.Value });
-                return Ok(token);
+            if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
+            {
+                return BadRequest("Email already exists!!!");
             }
-            catch(Exception ex){
-                return BadRequest(new {Message = ex.Message});
-            }
-        }
-
-        [HttpPost("RegisterAdmin")]
-        public async Task<IActionResult> RegisterAdmin(RegisterDTO register)
-        {
-            try{
-                if(!ModelState.IsValid){
-                    var error = ErrorHandler.GetErrorMessage(ModelState);
-                    return BadRequest(new {Message = error});
-                }
-                var userDTO = new UserDTO {
-                    Email = register.Email,
-                    UserName = register.Name,
-                    PhoneNumber = "000",
-                    HashPassword = PasswordManager.HashPassword(register.Password),
-                    Address = string.Empty,
-                    DateOfBirth = DateTime.Now,
-                };
-                var user = await _userService.Add(userDTO);
-                JwtDTO token = JwtService.CreateJwt(_configuration, user, RoleEnum.Admin);
-                await _roleService.Add(new RoleDTO { Name = RoleEnum.Admin, UserId = user.Id.Value });
-                return Ok(token);
-            }
-            catch(Exception ex){
-                return BadRequest(new {Message = ex.Message});
-            }
+            var user = new User
+            {
+                UserName = registerDTO.Name,
+                Email = registerDTO.Email,
+                EmailConfirmed = true,
+            };
+            var result = await _manager.CreateAsync(user, registerDTO.Password);
+            if (!result.Succeeded) return BadRequest(result.Errors);
+            bool roleExists = await _roleManager.RoleExistsAsync("Customer");
+            if (!roleExists) await _roleManager.CreateAsync(new Role("Customer"));
+            await _manager.AddToRoleAsync(user, "Customer");
+            var token = _jwtService.CreateJwt(user, "Customer");
+            return Ok(token);
         }
 
         [HttpGet("JwtDecode")]
