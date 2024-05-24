@@ -1,19 +1,25 @@
 using AutoMapper;
-using EXE101.Repository.Implementations;
-using EXE101.Repository.Interfaces;
-using EXE101.Services.Implementations;
-using EXE101.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PRN231.DAL;
 using System.Text.Json.Serialization;
-using EXE101.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using Microsoft.Extensions.FileProviders;
 using PRN231.Models.AutoMapper;
+using PRN231.Repositories.Interfaces;
+using PRN231.Repositories.Implementations;
+using PRN231.Services;
+using PRN231.Services.Implementation;
+using Services.Implementations;
+using PRN231.Repository.Implementations;
+using PRN231.Repository.Interfaces;
+using PRN231.Services.Implementations;
+using PRN231.Services.Interfaces;
+using PRN231.Models;
+using PRN231.Models.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options => options.SuppressInputFormatterBuffering = true)
@@ -46,6 +52,12 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddTransient(typeof(IGenericService<,>), typeof(GenericService<,>));
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+// Repositories DI
+builder.Services.AddScoped<IGenericRepository<Booking>, BookingRepository>();
+
+// Services DI
+builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IServiceService, ServiceService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
@@ -113,12 +125,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(
-           Path.Combine(builder.Environment.ContentRootPath, "UploadedFiles")),
-    RequestPath = ""
-});
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new PhysicalFileProvider(
+//           Path.Combine(builder.Environment.ContentRootPath, "UploadedFiles")),
+//    RequestPath = ""
+//});
 
 app.UseHttpsRedirection();
 app.UseCors("MyAllowPolicy");

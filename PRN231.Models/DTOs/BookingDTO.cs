@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PRN231.Models.DTOs
 {
-    internal class BookingDTO
+    public class BookingDTO
     {
     }
 }

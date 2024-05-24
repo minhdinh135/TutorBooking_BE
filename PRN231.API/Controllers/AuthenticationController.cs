@@ -5,12 +5,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Security.Cryptography;
-using EXE101.Services.Interfaces;
 using EXE101.Models;
 using EXE101.Models.DTOs;
-using EXE101.Services.Utils;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using PRN231.Models;
+using PRN231.Services.Interfaces;
 
 namespace EXE101.API.Controllers
 {
@@ -40,25 +40,25 @@ namespace EXE101.API.Controllers
             var userLogin = users.Where(u => u.Email == login.Email).FirstOrDefault();
             if(userLogin == null) return Unauthorized(new { Message = "Email not found" });
             var roles = await _roleService.GetAll();
-            roles = roles.Where(r => r.UserId == userLogin.Id).ToList();
-            if(PasswordManager.VerifyPassword(login.Password, userLogin.HashPassword)){
-                if(roles.Count() == 0) 
-                {
-                    await _roleService.Add(new RoleDTO { Name = RoleEnum.Client, UserId = userLogin.Id.Value });
-                    JwtDTO token = JwtService.CreateJwt(_configuration, userLogin);
-                    return Ok(token);
-                }
-                else if(roles.Any(r => r.Name == RoleEnum.Admin))
-                {
-                    JwtDTO token = JwtService.CreateJwt(_configuration, userLogin, RoleEnum.Admin);
-                    return Ok(token);
-                }
-                else if(roles.Any(r => r.Name == RoleEnum.Client))
-                {
-                    JwtDTO token = JwtService.CreateJwt(_configuration, userLogin);
-                    return Ok(token);
-                }
-            }
+            //roles = roles.Where(r => r.UserId == userLogin.Id).ToList();
+            //if(PasswordManager.VerifyPassword(login.Password, userLogin.HashPassword)){
+            //    if(roles.Count() == 0) 
+            //    {
+            //        //await _roleService.Add(new RoleDTO { Name = RoleEnum.Client, UserId = userLogin.Id.Value });
+            //        JwtDTO token = JwtService.CreateJwt(_configuration, userLogin);
+            //        return Ok(token);
+            //    }
+            //    else if(roles.Any(r => r.Name == RoleEnum.Admin))
+            //    {
+            //        JwtDTO token = JwtService.CreateJwt(_configuration, userLogin, RoleEnum.Admin);
+            //        return Ok(token);
+            //    }
+            //    else if(roles.Any(r => r.Name == RoleEnum.Client))
+            //    {
+            //        JwtDTO token = JwtService.CreateJwt(_configuration, userLogin);
+            //        return Ok(token);
+            //    }
+            //}
             return Unauthorized(new { Message = "Wrong password" }); 
         }
 
@@ -74,13 +74,13 @@ namespace EXE101.API.Controllers
                     Email = register.Email,
                     UserName = register.Name,
                     PhoneNumber = "000",
-                    HashPassword = PasswordManager.HashPassword(register.Password),
+                    //HashPassword = PasswordManager.HashPassword(register.Password),
                     Address = string.Empty,
                     DateOfBirth = DateTime.Now,
                 };
                 var user = await _userService.Add(userDTO);
                 JwtDTO token = JwtService.CreateJwt(_configuration, user);
-                await _roleService.Add(new RoleDTO { Name = RoleEnum.Client, UserId = user.Id.Value });
+                //await _roleService.Add(new RoleDTO { Name = RoleEnum.Client, UserId = user.Id.Value });
                 return Ok(token);
             }
             catch(Exception ex){
@@ -100,13 +100,13 @@ namespace EXE101.API.Controllers
                     Email = register.Email,
                     UserName = register.Name,
                     PhoneNumber = "000",
-                    HashPassword = PasswordManager.HashPassword(register.Password),
+                    //HashPassword = PasswordManager.HashPassword(register.Password),
                     Address = string.Empty,
                     DateOfBirth = DateTime.Now,
                 };
                 var user = await _userService.Add(userDTO);
                 JwtDTO token = JwtService.CreateJwt(_configuration, user, RoleEnum.Admin);
-                await _roleService.Add(new RoleDTO { Name = RoleEnum.Admin, UserId = user.Id.Value });
+                //await _roleService.Add(new RoleDTO { Name = RoleEnum.Admin, UserId = user.Id.Value });
                 return Ok(token);
             }
             catch(Exception ex){

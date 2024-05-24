@@ -1,10 +1,9 @@
-using EXE101.Models;
-using EXE101.Repository.Interfaces;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PRN231.DAL;
+using PRN231.Repository.Interfaces;
 
-namespace EXE101.Repository.Implementations
+namespace PRN231.Repository.Implementations
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {

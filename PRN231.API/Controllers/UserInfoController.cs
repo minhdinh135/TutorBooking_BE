@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using EXE101.Models;
-using EXE101.Services.Interfaces;
 using EXE101.Models.DTOs;
+using PRN231.Models;
+using PRN231.Services.Interfaces;
 
 namespace EXE101.API.Controllers
 {
@@ -10,12 +11,12 @@ namespace EXE101.API.Controllers
     [Route("api/[controller]")]
     public class UserInfoController : ControllerBase
     {
-        private readonly IGenericService<UserInfo, UserInfoDTO> _userInfoService;
+        private readonly IGenericService<User, UserInfoDTO> _userInfoService;
         private readonly ILogger<UserInfoController> _logger;
         public IConfiguration _configuration;
 
         public UserInfoController(IConfiguration config, ILogger<UserInfoController> logger,
-                IGenericService<UserInfo, UserInfoDTO> userInfoService)
+                IGenericService<User, UserInfoDTO> userInfoService)
         {
             _logger = logger;
             _configuration = config;
@@ -33,7 +34,7 @@ namespace EXE101.API.Controllers
         //[Authorize]
         public async Task<IActionResult> GetAllWithUserId(Guid userId){
             var customerList = await _userInfoService.GetAll();
-            customerList = customerList.Where(x => x.UserId == userId).ToList();
+            //customerList = customerList.Where(x => x.UserId == userId).ToList();
             return Ok(customerList);
         }
 

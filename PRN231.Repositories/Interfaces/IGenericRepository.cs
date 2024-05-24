@@ -1,4 +1,4 @@
-namespace EXE101.Repository.Interfaces
+namespace PRN231.Repository.Interfaces
 {
     public interface IGenericRepository<T> where T : class
     {
