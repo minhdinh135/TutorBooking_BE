@@ -1,11 +1,19 @@
+using PRN231.Models;
+
 namespace EXE101.Models.DTOs
 {
     public class FeedbackDTO
     {
-        public Guid? Id { get; set; } 
+        public int Id { get; set; }
 
-        public required string Message { get; set; }
+        public int TutorId { get; set; }
 
-        public required Guid ProductId { get; set; }
+        public int StudentId { get; set; }
+
+        public string Content { get; set; }
+
+        public int Rating { get; set; }
+
+        public bool Status { get; set; }
     }
 }

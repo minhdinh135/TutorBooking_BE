@@ -52,7 +52,7 @@ namespace Services.Implementations
             }
         }
 
-        public async Task<T> Delete(params Guid[] keys)
+        public async Task<T> Delete(params int[] keys)
         {
             var entity = await _genericRepository.Get(keys);
             if (entity == null) return null;
@@ -66,7 +66,7 @@ namespace Services.Implementations
             return entities;
         }
 
-        public async Task<T> Get(params Guid[] keys)
+        public async Task<T> Get(params int[] keys)
         {
             var entity = await _genericRepository.Get(keys);     
             return entity;

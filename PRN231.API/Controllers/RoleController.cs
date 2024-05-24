@@ -32,7 +32,7 @@ namespace EXE101.API.Controllers
 
         [HttpGet("Get")]
         //[Authorize]
-        public async Task<IActionResult> Get(Guid id){
+        public async Task<IActionResult> Get(int id){
             var customerList = await _roleService.Get(id);
             return Ok(customerList);
         }
@@ -53,7 +53,7 @@ namespace EXE101.API.Controllers
 
         [HttpDelete("Delete")]
         //[Authorize]
-        public async Task<IActionResult> Delete([FromBody]Guid id){
+        public async Task<IActionResult> Delete([FromBody]int id){
             var brand = await _roleService.Delete(id);
             return Ok(brand);
         }

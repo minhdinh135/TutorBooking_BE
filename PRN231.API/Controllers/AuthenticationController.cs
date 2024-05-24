@@ -5,12 +5,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Security.Cryptography;
-using EXE101.Models;
 using EXE101.Models.DTOs;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRN231.Models;
 using PRN231.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using BirthdayParty.API;
 
 namespace EXE101.API.Controllers
 {
@@ -21,16 +22,27 @@ namespace EXE101.API.Controllers
         private readonly ILogger<AuthenticationController> _logger;
         private readonly IGenericService<User, UserDTO> _userService;
         private readonly IGenericService<Role, RoleDTO> _roleService;
+        private readonly SignInManager<User> _signIn;
+        private readonly UserManager<User> _manager;
+        private readonly RoleManager<Role> _roleManager;
         public IConfiguration _configuration;
+        private readonly JWTService _jwtService;
 
         public AuthenticationController(IConfiguration config, ILogger<AuthenticationController> logger,
                 IGenericService<User,UserDTO> userService,
-                IGenericService<Role, RoleDTO> roleService)
+                IGenericService<Role, RoleDTO> roleService,
+                UserManager<User> manager,
+                RoleManager<Role> roleManager, SignInManager<User> signIn,
+                JWTService jwtService)
         {
             _logger = logger;
             _configuration = config;
             _userService = userService;
             _roleService = roleService;
+            _jwtService = jwtService;
+            _manager = manager;
+            _roleManager = roleManager;
+            _signIn = signIn;
         }
 
         [HttpPost("Login")]
@@ -72,11 +84,11 @@ namespace EXE101.API.Controllers
                 }
                 var userDTO = new UserDTO {
                     Email = register.Email,
-                    UserName = register.Name,
-                    PhoneNumber = "000",
+                    //UserName = register.Name,
+                    //PhoneNumber = "000",
                     //HashPassword = PasswordManager.HashPassword(register.Password),
                     Address = string.Empty,
-                    DateOfBirth = DateTime.Now,
+                    //DateOfBirth = DateTime.Now,
                 };
                 var user = await _userService.Add(userDTO);
                 JwtDTO token = JwtService.CreateJwt(_configuration, user);
@@ -98,11 +110,11 @@ namespace EXE101.API.Controllers
                 }
                 var userDTO = new UserDTO {
                     Email = register.Email,
-                    UserName = register.Name,
-                    PhoneNumber = "000",
+                    //UserName = register.Name,
+                    //PhoneNumber = "000",
                     //HashPassword = PasswordManager.HashPassword(register.Password),
                     Address = string.Empty,
-                    DateOfBirth = DateTime.Now,
+                    //DateOfBirth = DateTime.Now,
                 };
                 var user = await _userService.Add(userDTO);
                 JwtDTO token = JwtService.CreateJwt(_configuration, user, RoleEnum.Admin);
