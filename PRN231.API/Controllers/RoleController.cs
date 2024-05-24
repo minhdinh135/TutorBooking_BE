@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using EXE101.Models;
-using EXE101.Services.Interfaces;
 using EXE101.Models.DTOs;
 using PRN231.Models;
+using PRN231.Services.Interfaces;
 
 namespace EXE101.API.Controllers
 {
