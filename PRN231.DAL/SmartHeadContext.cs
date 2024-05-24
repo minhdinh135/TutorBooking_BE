@@ -31,7 +31,7 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
     public virtual DbSet<Subject> Subjects { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
-        optionsBuilder.UseSqlServer("Data Source=(local);Database=SmartHead;User ID=sa;Password=12345;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+        optionsBuilder.UseSqlServer("Data Source=(local);Database=SmartHead;User ID=sa;Password=1234567890;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

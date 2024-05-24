@@ -74,56 +74,60 @@ namespace EXE101.API.Controllers
             return Unauthorized(new { Message = "Wrong password" }); 
         }
 
-        [HttpPost("Register")]
-        public async Task<IActionResult> Register(RegisterDTO register)
+        [HttpPost("RegisterStudent")]
+        public async Task<ActionResult<UserDTO>> RegisterStudent(RegisterDTO registerDTO)
         {
-            try{
-                if(!ModelState.IsValid){
-                    var error = ErrorHandler.GetErrorMessage(ModelState);
-                    return BadRequest(new {Message = error});
-                }
-                var userDTO = new UserDTO {
-                    Email = register.Email,
-                    //UserName = register.Name,
-                    //PhoneNumber = "000",
-                    //HashPassword = PasswordManager.HashPassword(register.Password),
-                    Address = string.Empty,
-                    //DateOfBirth = DateTime.Now,
-                };
-                var user = await _userService.Add(userDTO);
-                JwtDTO token = JwtService.CreateJwt(_configuration, user);
-                //await _roleService.Add(new RoleDTO { Name = RoleEnum.Client, UserId = user.Id.Value });
-                return Ok(token);
+            if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
+            {
+                return BadRequest("Email already exists!!!");
             }
-            catch(Exception ex){
-                return BadRequest(new {Message = ex.Message});
-            }
+            var user = new User
+            {
+                UserName = registerDTO.Name,
+                Email = registerDTO.Email,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                Status = true,
+                Gender = "Male",
+                Address = "Sai Gon",
+                Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
+            };
+            var result = await _manager.CreateAsync(user, registerDTO.Password);
+            if (!result.Succeeded) return BadRequest(result.Errors);
+            bool roleExists = await _roleManager.RoleExistsAsync("Student");
+            if (!roleExists) await _roleManager.CreateAsync(new Role("Student"));
+            await _manager.AddToRoleAsync(user, "Student");
+            var token = _jwtService.CreateJwt(user, "Student");
+            return Ok(token);
         }
 
-        [HttpPost("RegisterAdmin")]
-        public async Task<IActionResult> RegisterAdmin(RegisterDTO register)
+        [HttpPost("RegisterTutor")]
+        public async Task<ActionResult<UserDTO>> RegisterTutor(RegisterDTO registerDTO)
         {
-            try{
-                if(!ModelState.IsValid){
-                    var error = ErrorHandler.GetErrorMessage(ModelState);
-                    return BadRequest(new {Message = error});
-                }
-                var userDTO = new UserDTO {
-                    Email = register.Email,
-                    //UserName = register.Name,
-                    //PhoneNumber = "000",
-                    //HashPassword = PasswordManager.HashPassword(register.Password),
-                    Address = string.Empty,
-                    //DateOfBirth = DateTime.Now,
-                };
-                var user = await _userService.Add(userDTO);
-                JwtDTO token = JwtService.CreateJwt(_configuration, user, RoleEnum.Admin);
-                //await _roleService.Add(new RoleDTO { Name = RoleEnum.Admin, UserId = user.Id.Value });
-                return Ok(token);
+            if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
+            {
+                return BadRequest("Email already exists!!!");
             }
-            catch(Exception ex){
-                return BadRequest(new {Message = ex.Message});
-            }
+            var user = new User
+            {
+                UserName = registerDTO.Name,
+                Email = registerDTO.Email,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                Status = true,
+                Gender = "Male",
+                Address = "Sai Gon",
+                Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
+            };
+            var result = await _manager.CreateAsync(user, registerDTO.Password);
+            if (!result.Succeeded) return BadRequest(result.Errors);
+            bool roleExists = await _roleManager.RoleExistsAsync("Tutor");
+            if (!roleExists) await _roleManager.CreateAsync(new Role("Tutor"));
+            await _manager.AddToRoleAsync(user, "Tutor");
+            var token = _jwtService.CreateJwt(user, "Tutor");
+            return Ok(token);
         }
 
         [HttpGet("JwtDecode")]

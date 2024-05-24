@@ -55,7 +55,7 @@ namespace PRN231.API.Controllers
 
         [HttpDelete("Delete")]
         //[Authorize]
-        public async Task<IActionResult> Delete([FromBody] int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var brand = await _userService.Delete(id);
             return Ok(brand);

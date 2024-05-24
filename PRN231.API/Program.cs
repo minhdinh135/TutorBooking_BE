@@ -20,6 +20,8 @@ using PRN231.Services.Implementations;
 using PRN231.Services.Interfaces;
 using PRN231.Models;
 using PRN231.Models.DTOs;
+using Microsoft.AspNetCore.Identity;
+using BirthdayParty.API;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options => options.SuppressInputFormatterBuffering = true)
@@ -43,6 +45,27 @@ builder.Services.AddSingleton<IMapper>(sp =>
     return config.CreateMapper();
 });
 
+
+builder.Services.AddScoped<JWTService>();
+
+builder.Services.AddIdentityCore<User>(options =>
+{
+    //password config
+    options.Password.RequiredLength = 3;
+    options.Password.RequiredUniqueChars = 0;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    //email config
+})
+.AddRoles<Role>()
+.AddRoleManager<RoleManager<Role>>()
+.AddEntityFrameworkStores<SmartHeadContext>()
+.AddSignInManager<SignInManager<User>>()
+.AddUserManager<UserManager<User>>()
+.AddDefaultTokenProviders(); //token for email confirmation
+
+
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -51,6 +74,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddTransient(typeof(IGenericService<,>), typeof(GenericService<,>));
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 
 // Repositories DI
 builder.Services.AddScoped<IGenericRepository<Booking>, BookingRepository>();
@@ -125,12 +149,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseStaticFiles(new StaticFileOptions
-//{
-//    FileProvider = new PhysicalFileProvider(
-//           Path.Combine(builder.Environment.ContentRootPath, "UploadedFiles")),
-//    RequestPath = ""
-//});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, "UploadedFiles")),
+    RequestPath = ""
+});
 
 app.UseHttpsRedirection();
 app.UseCors("MyAllowPolicy");
@@ -144,7 +168,7 @@ app.MapControllers();
 
 app.Run();
 
-var summaries = new[]
+/*var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
@@ -169,4 +193,4 @@ app.Run();
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+}*/
