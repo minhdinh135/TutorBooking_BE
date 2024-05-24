@@ -1,7 +1,7 @@
 ﻿using EXE101.Models.DTOs;
-using EXE101.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using PRN231.Models;
+using PRN231.Services.Interfaces;
 
 namespace PRN231.API.Controllers
 {
@@ -31,7 +31,7 @@ namespace PRN231.API.Controllers
 
         [HttpGet("Get")]
         //[Authorize]
-        public async Task<IActionResult> Get(Guid id)
+        public async Task<IActionResult> Get(int id)
         {
             var customerList = await _userService.Get(id);
             return Ok(customerList);
@@ -55,7 +55,7 @@ namespace PRN231.API.Controllers
 
         [HttpDelete("Delete")]
         //[Authorize]
-        public async Task<IActionResult> Delete([FromBody] Guid id)
+        public async Task<IActionResult> Delete([FromBody] int id)
         {
             var brand = await _userService.Delete(id);
             return Ok(brand);
