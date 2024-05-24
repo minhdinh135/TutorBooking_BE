@@ -18,7 +18,7 @@ namespace EXE101.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthenticationController : ControllerBase
+    public class AuthenticationController : ControllerBase //tri
     {
         private readonly ILogger<AuthenticationController> _logger;
         private readonly IGenericService<User, UserDTO> _userService;

@@ -8,7 +8,7 @@ namespace PRN231.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ScheduleController:ControllerBase
+    public class ScheduleController:ControllerBase //lam
     {
         private readonly IGenericService<Schedule, ScheduleDTO> _scheduleService;
         private readonly ILogger<ScheduleController> _logger;

@@ -9,7 +9,7 @@ namespace EXE101.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class RoleController : ControllerBase
+    public class RoleController : ControllerBase //tri
     {
         private readonly IGenericService<Role, RoleDTO> _roleService;
         private readonly ILogger<RoleController> _logger;
