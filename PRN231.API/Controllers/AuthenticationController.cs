@@ -9,9 +9,9 @@ using EXE101.Models.DTOs;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRN231.Models;
-using PRN231.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using BirthdayParty.API;
+using PRN231.Services.Interfaces;
 
 namespace EXE101.API.Controllers
 {
@@ -48,30 +48,15 @@ namespace EXE101.API.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDTO login)
         {
-            var users = await _userService.GetAll();
-            var userLogin = users.Where(u => u.Email == login.Email).FirstOrDefault();
-            if(userLogin == null) return Unauthorized(new { Message = "Email not found" });
-            var roles = await _roleService.GetAll();
-            //roles = roles.Where(r => r.UserId == userLogin.Id).ToList();
-            //if(PasswordManager.VerifyPassword(login.Password, userLogin.HashPassword)){
-            //    if(roles.Count() == 0) 
-            //    {
-            //        //await _roleService.Add(new RoleDTO { Name = RoleEnum.Client, UserId = userLogin.Id.Value });
-            //        JwtDTO token = JwtService.CreateJwt(_configuration, userLogin);
-            //        return Ok(token);
-            //    }
-            //    else if(roles.Any(r => r.Name == RoleEnum.Admin))
-            //    {
-            //        JwtDTO token = JwtService.CreateJwt(_configuration, userLogin, RoleEnum.Admin);
-            //        return Ok(token);
-            //    }
-            //    else if(roles.Any(r => r.Name == RoleEnum.Client))
-            //    {
-            //        JwtDTO token = JwtService.CreateJwt(_configuration, userLogin);
-            //        return Ok(token);
-            //    }
-            //}
-            return Unauthorized(new { Message = "Wrong password" }); 
+            var user = await _manager.FindByEmailAsync(login.Email);
+            if (user == null) return Unauthorized("Invalid email!!!");
+            var result = await _signIn.CheckPasswordSignInAsync(user, login.Password, false);
+            if (!result.Succeeded) return Unauthorized("Invalid email or password!!!");
+            var roleList = await _manager.GetRolesAsync(user);
+            var role = roleList.FirstOrDefault() ?? "";
+            var userInfo = new UserDTO();
+            var token = _jwtService.CreateJwt(user, role);
+            return Ok(token);
         }
 
         [HttpPost("RegisterStudent")]
