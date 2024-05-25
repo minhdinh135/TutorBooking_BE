@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PRN231.Constant\PRN231.Constant.csproj" />
     <ProjectReference Include="..\PRN231.Models\PRN231.Models.csproj" />
   </ItemGroup>
 
