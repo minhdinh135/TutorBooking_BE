@@ -65,7 +65,6 @@ namespace PRN231.Services.Implementation
             try
             {
                 Booking existingBooking = _bookingRepository.GetAll().Result.FirstOrDefault(b => b.Id ==  updateBookingRequest.BookingId);
-                existingBooking.StudentId = updateBookingRequest.StudentId;
                 existingBooking.Price = updateBookingRequest.Price;
                 existingBooking.PaymentMethod = updateBookingRequest.PaymentMethod;
                 existingBooking.Status = updateBookingRequest.Status;
