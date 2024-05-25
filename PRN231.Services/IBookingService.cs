@@ -13,5 +13,6 @@ namespace PRN231.Services
     {
         Task<List<Booking>> GetAllBookings();
         Task<CreateBookingResponse> CreateBooking(CreateBookingRequest createBookingRequest);
+        Task<UpdateBookingResponse> UpdateBooking(UpdateBookingRequest updateBookingRequest);
     }
 }
