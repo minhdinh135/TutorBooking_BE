@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace BirthdayParty.API
+namespace PRN231.API
 {
     public class JWTService
     {
