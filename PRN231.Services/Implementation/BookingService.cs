@@ -59,5 +59,33 @@ namespace PRN231.Services.Implementation
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<UpdateBookingResponse> UpdateBooking(UpdateBookingRequest updateBookingRequest)
+        {
+            try
+            {
+                Booking existingBooking = _bookingRepository.GetAll().Result.FirstOrDefault(b => b.Id ==  updateBookingRequest.BookingId);
+                existingBooking.StudentId = updateBookingRequest.StudentId;
+                existingBooking.Price = updateBookingRequest.Price;
+                existingBooking.PaymentMethod = updateBookingRequest.PaymentMethod;
+                existingBooking.Status = updateBookingRequest.Status;
+
+                Booking updatedBooking = await _bookingRepository.Update(existingBooking);
+
+                UpdateBookingResponse bookingResponse = new UpdateBookingResponse
+                {
+                    StudentId = updatedBooking.StudentId,
+                    Price = updatedBooking.Price,
+                    PaymentMethod = updatedBooking.PaymentMethod,
+                    Status = updatedBooking.Status
+                };
+
+                return bookingResponse;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
