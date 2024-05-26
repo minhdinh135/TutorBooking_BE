@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using Microsoft.Extensions.FileProviders;
 using PRN231.Models.AutoMapper;
-using PRN231.Repositories.Interfaces;
 using PRN231.Repositories.Implementations;
 using PRN231.Services;
 using PRN231.Services.Implementation;
@@ -19,9 +17,8 @@ using PRN231.Repository.Interfaces;
 using PRN231.Services.Implementations;
 using PRN231.Services.Interfaces;
 using PRN231.Models;
-using PRN231.Models.DTOs;
 using Microsoft.AspNetCore.Identity;
-using BirthdayParty.API;
+using PRN231.API;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options => options.SuppressInputFormatterBuffering = true)
@@ -178,30 +175,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-/*var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}*/

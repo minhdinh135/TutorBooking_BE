@@ -5,16 +5,16 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Security.Cryptography;
-using EXE101.Models.DTOs;
+using PRN231.Models.DTOs;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRN231.Models;
 using Microsoft.AspNetCore.Identity;
-using BirthdayParty.API;
 using PRN231.Services.Interfaces;
 using PRN231.Models.DTOs;
+using PRN231.Constant;
 
-namespace EXE101.API.Controllers
+namespace PRN231.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -180,29 +180,5 @@ namespace EXE101.API.Controllers
                 string Token = new JwtSecurityTokenHandler().WriteToken(token);
                 return new JwtDTO{Token = Token};
         }
-    }
-
-    public class LoginDTO{
-        public required string Email { get; set; }
-        public required string Password {get;set;}
-    }
-
-    public class RegisterDTO{
-        [MinLength(3, ErrorMessage = "Name must be at least 3 characters")]
-        public required string Name { get; set; }
-        [MinLength(3, ErrorMessage = "Email must be at least 3 characters")]
-        public required string Email { get; set; }
-        [MinLength(3, ErrorMessage = "Password must be at least 3 characters")]
-        public required string Password {get;set;}
-    }
-
-    public class RoleEnum
-    {
-        public const string Admin = "Admin";
-        public const string Client = "Client";
-    }
-
-    public class JwtDTO{
-        public string Token {get;set;} =null!;
     }
 }
