@@ -12,6 +12,7 @@ using PRN231.Models;
 using Microsoft.AspNetCore.Identity;
 using BirthdayParty.API;
 using PRN231.Services.Interfaces;
+using PRN231.Models.DTOs;
 
 namespace EXE101.API.Controllers
 {
