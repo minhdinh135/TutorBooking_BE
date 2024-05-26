@@ -42,8 +42,19 @@ builder.Services.AddSingleton<IMapper>(sp =>
     return config.CreateMapper();
 });
 
-
 builder.Services.AddScoped<JWTService>();
+builder.Services.Configure<ApiBehaviorOptions>(options
+    => options.SuppressModelStateInvalidFilter = true);
+builder.Services.AddSingleton<IMapper>(sp =>
+{
+    var config = new MapperConfiguration(cfg =>
+    {
+        // Configure your mapping profiles
+        cfg.AddProfile<MappingProfile>();
+    });
+
+    return config.CreateMapper();
+});
 
 builder.Services.AddIdentityCore<User>(options =>
 {
