@@ -48,6 +48,12 @@ builder.Services.AddSingleton<IMapper>(sp =>
 
 builder.Services.AddScoped<JWTService>();
 
+//Otp
+builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddTransient<OtpService>();
+builder.Services.AddDistributedMemoryCache(); // Add in-memory distributed cache
+
+
 builder.Services.AddIdentityCore<User>(options =>
 {
     //password config
@@ -75,6 +81,12 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddTransient(typeof(IGenericService<,>), typeof(GenericService<,>));
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(5);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // Repositories DI
 builder.Services.AddScoped<IGenericRepository<Booking>, BookingRepository>();
@@ -163,6 +175,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+app.UseSession();
 
 app.MapControllers();
 

@@ -7,11 +7,14 @@ using System.Text;
 using System.Security.Cryptography;
 using EXE101.Models.DTOs;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRN231.Models;
 using Microsoft.AspNetCore.Identity;
 using BirthdayParty.API;
 using PRN231.Services.Interfaces;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using PRN231.Services;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using PRN231.Services.Implementation;
 
 namespace EXE101.API.Controllers
 {
@@ -25,6 +28,10 @@ namespace EXE101.API.Controllers
         private readonly SignInManager<User> _signIn;
         private readonly UserManager<User> _manager;
         private readonly RoleManager<Role> _roleManager;
+
+        private readonly IEmailService _emailSender;
+        private readonly OtpService _otpService;
+
         public IConfiguration _configuration;
         private readonly JWTService _jwtService;
 
@@ -33,6 +40,8 @@ namespace EXE101.API.Controllers
                 IGenericService<Role, RoleDTO> roleService,
                 UserManager<User> manager,
                 RoleManager<Role> roleManager, SignInManager<User> signIn,
+                IEmailService emailSender,
+                OtpService otpService,
                 JWTService jwtService)
         {
             _logger = logger;
@@ -43,6 +52,47 @@ namespace EXE101.API.Controllers
             _manager = manager;
             _roleManager = roleManager;
             _signIn = signIn;
+            _emailSender = emailSender;
+            _otpService = otpService;
+        }
+
+        [HttpPost("SendMail")]
+        public async Task<IActionResult> SendMail()
+        {
+            var receiver = "tridmse173029@fpt.edu.vn";
+            var subject = "Test";
+            var message = "Hello";
+
+            await _emailSender.SendEmailAsync(receiver, subject, message);
+            return Ok();
+        }
+
+        [HttpPost("request-otp")]
+        public IActionResult RequestOtp([FromBody] string email)
+        {
+            var otp = _otpService.GenerateOtp();
+            var hashedOtp = _otpService.HashOtp(otp);
+
+            HttpContext.Session.SetString($"HashedOtp_{email}", hashedOtp);
+            _emailSender.SendEmailAsync(email, "OTP", otp);
+
+            return Ok(new { Message = "OTP sent to email" });
+        }
+
+        [HttpPost("verify-otp")]
+        public IActionResult VerifyOtp([FromBody] VerifyOtpModel model)
+        {
+            var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{model.Email}");
+            var hashedUserOtp = _otpService.HashOtp(model.Otp);
+
+            if (hashedOtp != null && hashedUserOtp == hashedOtp)
+            {
+                return Ok(new { Message = "OTP verified successfully!" });
+            }
+            else
+            {
+                return Unauthorized(new { Message = "Invalid OTP. Please try again." });
+            }
         }
 
         [HttpPost("Login")]
@@ -179,6 +229,12 @@ namespace EXE101.API.Controllers
                 string Token = new JwtSecurityTokenHandler().WriteToken(token);
                 return new JwtDTO{Token = Token};
         }
+    }
+
+    public class VerifyOtpModel
+    {
+        public string Email { get; set; }
+        public string Otp { get; set; }
     }
 
     public class LoginDTO{
