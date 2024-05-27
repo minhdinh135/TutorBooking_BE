@@ -19,6 +19,7 @@ using PRN231.Services.Interfaces;
 using PRN231.Models;
 using Microsoft.AspNetCore.Identity;
 using PRN231.API;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options => options.SuppressInputFormatterBuffering = true)
@@ -157,12 +158,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseStaticFiles(new StaticFileOptions
-//{
-//    FileProvider = new PhysicalFileProvider(
-//           Path.Combine(builder.Environment.ContentRootPath, "UploadedFiles")),
-//    RequestPath = ""
-//});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, "UploadedFiles")),
+    RequestPath = ""
+});
 
 app.UseHttpsRedirection();
 app.UseCors("MyAllowPolicy");

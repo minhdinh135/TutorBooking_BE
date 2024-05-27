@@ -21,4 +21,8 @@
     <ProjectReference Include="..\PRN231.Services\PRN231.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UploadedFiles\" />
+  </ItemGroup>
+
 </Project>
