@@ -5,18 +5,17 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Security.Cryptography;
-using EXE101.Models.DTOs;
+using PRN231.Models.DTOs;
 using System.ComponentModel.DataAnnotations;
 using PRN231.Models;
 using Microsoft.AspNetCore.Identity;
-using BirthdayParty.API;
 using PRN231.Services.Interfaces;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using PRN231.Services;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRN231.Services.Implementation;
 
-namespace EXE101.API.Controllers
+namespace PRN231.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -68,13 +67,19 @@ namespace EXE101.API.Controllers
         }
 
         [HttpPost("request-otp")]
-        public IActionResult RequestOtp([FromBody] string email)
+        public async Task<IActionResult> RequestOtp([FromBody] RequestOtpModel model)
         {
+            /*if (await _manager.FindByEmailAsync(email) != null)
+            {
+                return BadRequest("Email already exists!!!");
+            }*/
             var otp = _otpService.GenerateOtp();
             var hashedOtp = _otpService.HashOtp(otp);
 
-            HttpContext.Session.SetString($"HashedOtp_{email}", hashedOtp);
-            _emailSender.SendEmailAsync(email, "OTP", otp);
+            HttpContext.Session.SetString($"HashedOtp_{model.Email}", hashedOtp);
+            Console.WriteLine(model.Email);
+            //Console.WriteLine(HttpContext.Session.GetString($"HashedOtp_{email}"));
+            await _emailSender.SendEmailAsync(model.Email, "OTP", otp);
 
             return Ok(new { Message = "OTP sent to email" });
         }
@@ -82,8 +87,30 @@ namespace EXE101.API.Controllers
         [HttpPost("verify-otp")]
         public IActionResult VerifyOtp([FromBody] VerifyOtpModel model)
         {
+            Console.WriteLine(model.Email);
+
+            // Get the current HTTP context
+            //HttpContext context = HttpContext;
+        
+            // Check if the session is available
+            /*if (context.Session != null)
+            {
+                // Iterate through all session keys
+                foreach (var (key, value) in context.Items)
+                {
+                    // Log the key and value to the console
+                    Console.WriteLine($"Session Key: {key}, Value: {value}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Session is not available.");
+            }*/
             var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{model.Email}");
             var hashedUserOtp = _otpService.HashOtp(model.Otp);
+
+            Console.WriteLine(hashedOtp);
+            Console.WriteLine(hashedUserOtp);
 
             if (hashedOtp != null && hashedUserOtp == hashedOtp)
             {
@@ -116,6 +143,15 @@ namespace EXE101.API.Controllers
             {
                 return BadRequest("Email already exists!!!");
             }
+            //check Otp
+            var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{registerDTO.Email}");
+            var hashedUserOtp = _otpService.HashOtp(registerDTO.Otp);
+
+            if (hashedOtp == null || hashedUserOtp != hashedOtp)
+            {
+                return Unauthorized(new { Message = "Invalid OTP. Please try again." });
+            }
+            //create user
             var user = new User
             {
                 UserName = registerDTO.Name,
@@ -144,6 +180,15 @@ namespace EXE101.API.Controllers
             {
                 return BadRequest("Email already exists!!!");
             }
+            //check Otp
+            var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{registerDTO.Email}");
+            var hashedUserOtp = _otpService.HashOtp(registerDTO.Otp);
+
+            if (hashedOtp == null || hashedUserOtp != hashedOtp)
+            {
+                return Unauthorized(new { Message = "Invalid OTP. Please try again." });
+            }
+            //create user
             var user = new User
             {
                 UserName = registerDTO.Name,
@@ -237,6 +282,11 @@ namespace EXE101.API.Controllers
         public string Otp { get; set; }
     }
 
+    public class RequestOtpModel
+    {
+        public string Email { get; set; }
+    }
+
     public class LoginDTO{
         public required string Email { get; set; }
         public required string Password {get;set;}
@@ -249,6 +299,8 @@ namespace EXE101.API.Controllers
         public required string Email { get; set; }
         [MinLength(3, ErrorMessage = "Password must be at least 3 characters")]
         public required string Password {get;set;}
+        
+        public required string Otp {get;set;}
     }
 
     public class RoleEnum
