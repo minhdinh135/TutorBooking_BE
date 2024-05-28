@@ -5,6 +5,8 @@ using PRN231.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
+using PRN231.Services;
+using PRN231.Repository.Interfaces;
 
 namespace PRN231.API.Controllers
 {
@@ -13,16 +15,60 @@ namespace PRN231.API.Controllers
     public class CredentialController : ControllerBase
     {
         private readonly IGenericService<Credential, CredentialDTO> _credentialService;
+        private readonly IGenericRepository<Credential> _credentialRepo;
         private readonly ILogger<CredentialController> _logger;
         public IConfiguration _configuration;
+        private readonly IFileStorageService _fileStorageService;
+
 
         public CredentialController(IConfiguration config, ILogger<CredentialController> logger,
-                IGenericService<Credential, CredentialDTO> credentialService)
+                IGenericRepository<Credential> credentialRepo,
+                IGenericService<Credential, CredentialDTO> credentialService,
+                IFileStorageService fileStorageService)
         {
             _logger = logger;
             _configuration = config;
             _credentialService = credentialService;
+            _credentialRepo = credentialRepo;
+            _fileStorageService = fileStorageService;
+
         }
+
+        [HttpPost("UploadImage")]
+        public async Task<IActionResult> UploadImage([FromForm] CredentialImageDTO credentialImage)
+        {
+            //try
+            //{
+            var credential = await _credentialRepo.Get(credentialImage.CredentialId);
+            Console.WriteLine(credential);
+
+
+            // Delete old file if exists
+            if (!string.IsNullOrEmpty(credential.Image) && credential.Image.Contains("http://localhost:5176"))
+                {
+                    await _fileStorageService.DeleteFileAsync(Path.GetFileName(credential.Image));
+                }
+
+                // Store file
+                string filePath = await _fileStorageService.StoreFileAsync(credentialImage.File);
+                if (filePath == null)
+                {
+                    return BadRequest("Failed to store file.");
+                }
+
+                // Update credential image
+                credential.Image = $"http://localhost:5176/{filePath}";
+                var updatedCredential = await _credentialRepo.Update(credential);
+
+                return Ok(updatedCredential);
+            
+            //}
+            //catch (Exception ex)
+            //{
+            //    return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            //}
+        }
+
 
         [HttpGet("GetAll")]
         //[Authorize]
