@@ -24,14 +24,18 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
 
     public virtual DbSet<Booking> Bookings { get; set; }
 
-    public virtual DbSet<Schedule> Schedule { get; set; }
+    public virtual DbSet<BookingUser> BookingUsers { get; set; }
 
-    public virtual DbSet<Service> Services { get; set; }
+    public virtual DbSet<Level> Levels { get; set; }
+
+    public virtual DbSet<SubjectLevel> SubjectLevels { get; set; }
+
+    public virtual DbSet<Schedule> Schedules { get; set; }
 
     public virtual DbSet<Subject> Subjects { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
-        optionsBuilder.UseSqlServer("Data Source=(local);Database=SmartHead;User ID=sa;Password=12345;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+        optionsBuilder.UseSqlServer("Data Source=(local);Database=SmartHead;User ID=sa;Password=1234567890;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -49,7 +53,42 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
             .HasForeignKey(f => f.TutorId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<Service>()
+        modelBuilder.Entity<Credential>()
+            .HasOne(f => f.Subject)
+            .WithOne(x => x.Credential)
+            .HasForeignKey<Subject>(x => x.CredentialId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Subject>()
+            .HasOne(f => f.Credential)
+            .WithOne(x => x.Subject)
+            .HasForeignKey<Credential>(x => x.SubjectId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<BookingUser>()
+            .HasOne(f => f.Booking)
+            .WithMany(x => x.BookingUsers)
+            .HasForeignKey(f => f.BookingId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<BookingUser>()
+            .HasOne(f => f.User)
+            .WithMany(x => x.BookingUsers)
+            .HasForeignKey(f => f.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<SubjectLevel>()
+            .HasOne(f => f.Subject)
+            .WithMany(x => x.SubjectLevels)
+            .HasForeignKey(f => f.SubjectId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<SubjectLevel>()
+            .HasOne(f => f.Level)
+            .WithMany(x => x.SubjectLevels)
+            .HasForeignKey(f => f.LevelId)
+            .OnDelete(DeleteBehavior.NoAction);
+        /*modelBuilder.Entity<Service>()
             .HasOne(f => f.Subject)
             .WithMany(x => x.Services)
             .HasForeignKey(f => f.SubjectId)
@@ -59,7 +98,7 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
             .HasOne(f => f.Service)
             .WithMany(x => x.Schedules)
             .HasForeignKey(f => f.ServiceId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.NoAction);*/
 
 
         /*modelBuilder.Entity<User>()
