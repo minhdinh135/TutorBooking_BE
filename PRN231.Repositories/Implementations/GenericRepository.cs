@@ -1,3 +1,6 @@
+using PRN231.Models;
+using PRN231.Repository.Interfaces;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PRN231.DAL;
 using PRN231.Repository.Interfaces;

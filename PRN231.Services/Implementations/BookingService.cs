@@ -1,9 +1,16 @@
-﻿using PRN231.Models;
+﻿using PRN231.Constant;
+using PRN231.Models;
 using PRN231.Models.DTOs.Request;
 using PRN231.Models.DTOs.Response;
 using PRN231.Repository.Interfaces;
+using PRN231.Services.Implementations;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace PRN231.Services.Implementation
+namespace PRN231.Services.Implementations
 {
     public class BookingService : IBookingService
     {
@@ -28,7 +35,7 @@ namespace PRN231.Services.Implementation
                 PaymentMethod = createBookingRequest.PaymentMethod,
                 CreatedDate = DateTime.Now, 
                 UpdatedDate = DateTime.Now,
-                Status = true
+                Status = BookingStatusConstant.PENDING
             };
 
             try

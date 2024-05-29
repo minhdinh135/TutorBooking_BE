@@ -1,24 +1,24 @@
 using AutoMapper;
+using PRN231.Repository.Implementations;
+using PRN231.Repository.Interfaces;
+using PRN231.Services.Implementations;
+using PRN231.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PRN231.DAL;
 using System.Text.Json.Serialization;
+using PRN231.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using PRN231.Models.AutoMapper;
 using PRN231.Repositories.Implementations;
-using PRN231.Services;
-using PRN231.Services.Implementation;
-using Services.Implementations;
-using PRN231.Repository.Implementations;
-using PRN231.Repository.Interfaces;
-using PRN231.Services.Implementations;
-using PRN231.Services.Interfaces;
 using PRN231.Models;
 using Microsoft.AspNetCore.Identity;
 using PRN231.API;
+using Microsoft.Extensions.FileProviders;
+using PRN231.Services.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options => options.SuppressInputFormatterBuffering = true)
@@ -56,6 +56,12 @@ builder.Services.AddSingleton<IMapper>(sp =>
     return config.CreateMapper();
 });
 
+//Otp
+builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddTransient<OtpService>();
+builder.Services.AddDistributedMemoryCache(); // Add in-memory distributed cache
+
+
 builder.Services.AddIdentityCore<User>(options =>
 {
     //password config
@@ -78,11 +84,19 @@ builder.Services.AddIdentityCore<User>(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddTransient<IFileStorageService, FileStorageService>();
 builder.Services.AddTransient(typeof(IGenericService<,>), typeof(GenericService<,>));
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(5);
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Ensure cookies are sent over HTTPS
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // Repositories DI
 builder.Services.AddScoped<IGenericRepository<Booking>, BookingRepository>();
@@ -140,9 +154,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddCors(options => {
     options.AddPolicy(name: "MyAllowPolicy",
               policy => {
-                  policy.AllowAnyOrigin()
+                  policy.WithOrigins("http://localhost:3000")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials();
               });
 });
 builder.Services.AddAuthorization();
@@ -156,12 +171,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseStaticFiles(new StaticFileOptions
-//{
-//    FileProvider = new PhysicalFileProvider(
-//           Path.Combine(builder.Environment.ContentRootPath, "UploadedFiles")),
-//    RequestPath = ""
-//});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, "UploadedFiles")),
+    RequestPath = ""
+});
 
 app.UseHttpsRedirection();
 app.UseCors("MyAllowPolicy");
@@ -170,6 +185,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+app.UseSession();
 
 app.MapControllers();
 

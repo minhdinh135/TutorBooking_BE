@@ -1,8 +1,10 @@
-﻿using EXE101.Models.DTOs;
+﻿using PRN231.Models.DTOs;
+using PRN231.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using PRN231.Models;
 using PRN231.Models.DTOs;
 using PRN231.Repository.Interfaces;
+using PRN231.Services;
 using PRN231.Services.Interfaces;
 using System.Xml;
 
@@ -16,15 +18,43 @@ namespace PRN231.API.Controllers
         private readonly IGenericRepository<User> _userRepo;
         private readonly ILogger<UserController> _logger;
         public IConfiguration _configuration;
+        private readonly IFileStorageService _fileStorageService;
 
         public UserController(IConfiguration config, ILogger<UserController> logger,
-                IGenericService<User, UserDTO> userService, IGenericRepository<User> userRepo)
+                IGenericService<User, UserDTO> userService, IGenericRepository<User> userRepo,
+                IFileStorageService fileStorageService)
         {
             _logger = logger;
             _configuration = config;
             _userService = userService;
             _userRepo = userRepo;
+            _fileStorageService = fileStorageService;
         }
+
+        [HttpPost("UploadAvatar")]
+        public async Task<IActionResult> UploadAvatar([FromForm] AvatarDTO avatar)
+        {
+            var user = await _userRepo.Get(avatar.UserId);
+            //Delete old file
+            if (user.Avatar.Contains("http://localhost:5176"))
+            {
+                await _fileStorageService.DeleteFileAsync(Path.GetFileName(user.Avatar));
+            }
+
+            Console.WriteLine(Path.GetFileName(user.Avatar));
+            //store file 
+            string filePath = await _fileStorageService.StoreFileAsync(avatar.File);
+            if (filePath == null)
+            {
+                return BadRequest();
+            }
+            //update user avatar
+            user.Avatar = $"http://localhost:5176/{filePath}";
+            var updatedUser = await _userRepo.Update(user);
+
+            return Ok(updatedUser);
+        }
+
 
         [HttpGet("GetAll")]
         //[Authorize]
@@ -80,6 +110,12 @@ namespace PRN231.API.Controllers
             var brand = await _userService.Delete(id);
             return Ok(brand);
         }
+        
+    }
 
+    public class AvatarDTO
+    {
+        public int UserId { get; set; }
+        public IFormFile File { get; set; }
     }
 }

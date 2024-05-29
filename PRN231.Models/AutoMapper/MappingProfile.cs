@@ -3,6 +3,7 @@ using PRN231.Models.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +15,13 @@ namespace PRN231.Models.AutoMapper
 
             CreateMap<User, UserDTO>();
             CreateMap<UserDTO, User>();
+
+            CreateMap<Credential, CredentialDTO>();
+            CreateMap<CredentialDTO, Credential>();
+            
+            CreateMap<TutorRequestDTO, User>().ReverseMap();
+            CreateMap<TutorRequestDTO, Subject>().ReverseMap();
+            CreateMap<TutorRequestDTO, Schedule>().ReverseMap();
         }
     }
 }
