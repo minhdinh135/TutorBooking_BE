@@ -7,12 +7,13 @@ using System.Text;
 using System.Security.Cryptography;
 using PRN231.Models.DTOs;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRN231.Models;
 using Microsoft.AspNetCore.Identity;
 using PRN231.Services.Interfaces;
-using PRN231.Models.DTOs;
-using PRN231.Constant;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using PRN231.Services;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using PRN231.Services.Implementation;
 
 namespace PRN231.API.Controllers
 {
@@ -26,6 +27,10 @@ namespace PRN231.API.Controllers
         private readonly SignInManager<User> _signIn;
         private readonly UserManager<User> _manager;
         private readonly RoleManager<Role> _roleManager;
+
+        private readonly IEmailService _emailSender;
+        private readonly OtpService _otpService;
+
         public IConfiguration _configuration;
         private readonly JWTService _jwtService;
 
@@ -34,6 +39,8 @@ namespace PRN231.API.Controllers
                 IGenericService<Role, RoleDTO> roleService,
                 UserManager<User> manager,
                 RoleManager<Role> roleManager, SignInManager<User> signIn,
+                IEmailService emailSender,
+                OtpService otpService,
                 JWTService jwtService)
         {
             _logger = logger;
@@ -44,6 +51,75 @@ namespace PRN231.API.Controllers
             _manager = manager;
             _roleManager = roleManager;
             _signIn = signIn;
+            _emailSender = emailSender;
+            _otpService = otpService;
+        }
+
+        [HttpPost("SendMail")]
+        public async Task<IActionResult> SendMail()
+        {
+            var receiver = "tridmse173029@fpt.edu.vn";
+            var subject = "Test";
+            var message = "Hello";
+
+            await _emailSender.SendEmailAsync(receiver, subject, message);
+            return Ok();
+        }
+
+        [HttpPost("request-otp")]
+        public async Task<IActionResult> RequestOtp([FromBody] RequestOtpModel model)
+        {
+            /*if (await _manager.FindByEmailAsync(email) != null)
+            {
+                return BadRequest("Email already exists!!!");
+            }*/
+            var otp = _otpService.GenerateOtp();
+            var hashedOtp = _otpService.HashOtp(otp);
+
+            HttpContext.Session.SetString($"HashedOtp_{model.Email}", hashedOtp);
+            Console.WriteLine(model.Email);
+            //Console.WriteLine(HttpContext.Session.GetString($"HashedOtp_{email}"));
+            await _emailSender.SendEmailAsync(model.Email, "OTP", otp);
+
+            return Ok(new { Message = "OTP sent to email" });
+        }
+
+        [HttpPost("verify-otp")]
+        public IActionResult VerifyOtp([FromBody] VerifyOtpModel model)
+        {
+            Console.WriteLine(model.Email);
+
+            // Get the current HTTP context
+            //HttpContext context = HttpContext;
+        
+            // Check if the session is available
+            /*if (context.Session != null)
+            {
+                // Iterate through all session keys
+                foreach (var (key, value) in context.Items)
+                {
+                    // Log the key and value to the console
+                    Console.WriteLine($"Session Key: {key}, Value: {value}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Session is not available.");
+            }*/
+            var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{model.Email}");
+            var hashedUserOtp = _otpService.HashOtp(model.Otp);
+
+            Console.WriteLine(hashedOtp);
+            Console.WriteLine(hashedUserOtp);
+
+            if (hashedOtp != null && hashedUserOtp == hashedOtp)
+            {
+                return Ok(new { Message = "OTP verified successfully!" });
+            }
+            else
+            {
+                return Unauthorized(new { Message = "Invalid OTP. Please try again." });
+            }
         }
 
         [HttpPost("Login")]
@@ -67,6 +143,15 @@ namespace PRN231.API.Controllers
             {
                 return BadRequest("Email already exists!!!");
             }
+            //check Otp
+            var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{registerDTO.Email}");
+            var hashedUserOtp = _otpService.HashOtp(registerDTO.Otp);
+
+            if (hashedOtp == null || hashedUserOtp != hashedOtp)
+            {
+                return Unauthorized(new { Message = "Invalid OTP. Please try again." });
+            }
+            //create user
             var user = new User
             {
                 UserName = registerDTO.Name,
@@ -95,6 +180,15 @@ namespace PRN231.API.Controllers
             {
                 return BadRequest("Email already exists!!!");
             }
+            //check Otp
+            var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{registerDTO.Email}");
+            var hashedUserOtp = _otpService.HashOtp(registerDTO.Otp);
+
+            if (hashedOtp == null || hashedUserOtp != hashedOtp)
+            {
+                return Unauthorized(new { Message = "Invalid OTP. Please try again." });
+            }
+            //create user
             var user = new User
             {
                 UserName = registerDTO.Name,
@@ -180,5 +274,42 @@ namespace PRN231.API.Controllers
                 string Token = new JwtSecurityTokenHandler().WriteToken(token);
                 return new JwtDTO{Token = Token};
         }
+    }
+
+    public class VerifyOtpModel
+    {
+        public string Email { get; set; }
+        public string Otp { get; set; }
+    }
+
+    public class RequestOtpModel
+    {
+        public string Email { get; set; }
+    }
+
+    public class LoginDTO{
+        public required string Email { get; set; }
+        public required string Password {get;set;}
+    }
+
+    public class RegisterDTO{
+        [MinLength(3, ErrorMessage = "Name must be at least 3 characters")]
+        public required string Name { get; set; }
+        [MinLength(3, ErrorMessage = "Email must be at least 3 characters")]
+        public required string Email { get; set; }
+        [MinLength(3, ErrorMessage = "Password must be at least 3 characters")]
+        public required string Password {get;set;}
+        
+        public required string Otp {get;set;}
+    }
+
+    public class RoleEnum
+    {
+        public const string Admin = "Admin";
+        public const string Client = "Client";
+    }
+
+    public class JwtDTO{
+        public string Token {get;set;} =null!;
     }
 }
