@@ -3,6 +3,7 @@ using PRN231.Repository.Interfaces;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PRN231.DAL;
+using PRN231.Repository.Interfaces;
 
 namespace PRN231.Repository.Implementations
 {

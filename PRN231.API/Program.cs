@@ -12,8 +12,19 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using Microsoft.Extensions.FileProviders;
 using PRN231.Models.AutoMapper;
+using PRN231.Repositories.Implementations;
+using PRN231.Services;
+using PRN231.Services.Implementation;
+using Services.Implementations;
+using PRN231.Repository.Implementations;
+using PRN231.Repository.Interfaces;
+using PRN231.Services.Implementations;
+using PRN231.Services.Interfaces;
+using PRN231.Models;
+using Microsoft.AspNetCore.Identity;
+using PRN231.API;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options => options.SuppressInputFormatterBuffering = true)
@@ -37,6 +48,38 @@ builder.Services.AddSingleton<IMapper>(sp =>
     return config.CreateMapper();
 });
 
+builder.Services.AddScoped<JWTService>();
+builder.Services.Configure<ApiBehaviorOptions>(options
+    => options.SuppressModelStateInvalidFilter = true);
+builder.Services.AddSingleton<IMapper>(sp =>
+{
+    var config = new MapperConfiguration(cfg =>
+    {
+        // Configure your mapping profiles
+        cfg.AddProfile<MappingProfile>();
+    });
+
+    return config.CreateMapper();
+});
+
+builder.Services.AddIdentityCore<User>(options =>
+{
+    //password config
+    options.Password.RequiredLength = 3;
+    options.Password.RequiredUniqueChars = 0;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    //email config
+})
+.AddRoles<Role>()
+.AddRoleManager<RoleManager<Role>>()
+.AddEntityFrameworkStores<SmartHeadContext>()
+.AddSignInManager<SignInManager<User>>()
+.AddUserManager<UserManager<User>>()
+.AddDefaultTokenProviders(); //token for email confirmation
+
+
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -47,6 +90,12 @@ builder.Services.AddTransient(typeof(IGenericService<,>), typeof(GenericService<
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 
+// Repositories DI
+builder.Services.AddScoped<IGenericRepository<Booking>, BookingRepository>();
+
+// Services DI
+builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IServiceService, ServiceService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
@@ -132,30 +181,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

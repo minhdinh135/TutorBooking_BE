@@ -11,6 +11,13 @@ namespace PRN231.Models.AutoMapper
 {
     public class MappingProfile:Profile
     {
+        public MappingProfile() {
+
+            CreateMap<User, UserDTO>();
+            CreateMap<UserDTO, User>();
+
+            CreateMap<Credential, CredentialDTO>();
+            CreateMap<CredentialDTO, Credential>();
         public MappingProfile() 
         {
             //Account

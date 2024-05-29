@@ -12,7 +12,9 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRN231.Models;
 using Microsoft.AspNetCore.Identity;
-using BirthdayParty.API;
+using PRN231.Services.Interfaces;
+using PRN231.Models.DTOs;
+using PRN231.Constant;
 
 namespace PRN231.API.Controllers
 {
@@ -60,8 +62,8 @@ namespace PRN231.API.Controllers
             return Ok(token);
         }
 
-        [HttpPost("Register")]
-        public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO)
+        [HttpPost("RegisterStudent")]
+        public async Task<ActionResult<UserDTO>> RegisterStudent(RegisterDTO registerDTO)
         {
             if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
             {
@@ -72,13 +74,47 @@ namespace PRN231.API.Controllers
                 UserName = registerDTO.Name,
                 Email = registerDTO.Email,
                 EmailConfirmed = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                Status = true,
+                Gender = "Male",
+                Address = "Sai Gon",
+                Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
             };
             var result = await _manager.CreateAsync(user, registerDTO.Password);
             if (!result.Succeeded) return BadRequest(result.Errors);
-            bool roleExists = await _roleManager.RoleExistsAsync("Customer");
-            if (!roleExists) await _roleManager.CreateAsync(new Role("Customer"));
-            await _manager.AddToRoleAsync(user, "Customer");
-            var token = _jwtService.CreateJwt(user, "Customer");
+            bool roleExists = await _roleManager.RoleExistsAsync("Student");
+            if (!roleExists) await _roleManager.CreateAsync(new Role("Student"));
+            await _manager.AddToRoleAsync(user, "Student");
+            var token = _jwtService.CreateJwt(user, "Student");
+            return Ok(token);
+        }
+
+        [HttpPost("RegisterTutor")]
+        public async Task<ActionResult<UserDTO>> RegisterTutor(RegisterDTO registerDTO)
+        {
+            if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
+            {
+                return BadRequest("Email already exists!!!");
+            }
+            var user = new User
+            {
+                UserName = registerDTO.Name,
+                Email = registerDTO.Email,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                Status = true,
+                Gender = "Male",
+                Address = "Sai Gon",
+                Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
+            };
+            var result = await _manager.CreateAsync(user, registerDTO.Password);
+            if (!result.Succeeded) return BadRequest(result.Errors);
+            bool roleExists = await _roleManager.RoleExistsAsync("Tutor");
+            if (!roleExists) await _roleManager.CreateAsync(new Role("Tutor"));
+            await _manager.AddToRoleAsync(user, "Tutor");
+            var token = _jwtService.CreateJwt(user, "Tutor");
             return Ok(token);
         }
 
@@ -146,29 +182,5 @@ namespace PRN231.API.Controllers
                 string Token = new JwtSecurityTokenHandler().WriteToken(token);
                 return new JwtDTO{Token = Token};
         }
-    }
-
-    public class LoginDTO{
-        public required string Email { get; set; }
-        public required string Password {get;set;}
-    }
-
-    public class RegisterDTO{
-        [MinLength(3, ErrorMessage = "Name must be at least 3 characters")]
-        public required string Name { get; set; }
-        [MinLength(3, ErrorMessage = "Email must be at least 3 characters")]
-        public required string Email { get; set; }
-        [MinLength(3, ErrorMessage = "Password must be at least 3 characters")]
-        public required string Password {get;set;}
-    }
-
-    public class RoleEnum
-    {
-        public const string Admin = "Admin";
-        public const string Client = "Client";
-    }
-
-    public class JwtDTO{
-        public string Token {get;set;} =null!;
     }
 }

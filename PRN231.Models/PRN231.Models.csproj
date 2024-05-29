@@ -15,4 +15,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PRN231.Constant\PRN231.Constant.csproj" />
+  </ItemGroup>
+
 </Project>

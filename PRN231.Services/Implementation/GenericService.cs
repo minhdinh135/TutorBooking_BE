@@ -4,6 +4,8 @@ using PRN231.Repository.Interfaces;
 using PRN231.Services.Interfaces;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using PRN231.Repository.Interfaces;
+using PRN231.Services.Interfaces;
 
 namespace PRN231.Services.Implementations
 {
