@@ -1,5 +1,5 @@
-﻿using EXE101.Models.DTOs;
-using EXE101.Services.Interfaces;
+﻿using PRN231.Models.DTOs;
+using PRN231.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using PRN231.Models;
 using PRN231.Models.DTOs;
@@ -8,7 +8,7 @@ namespace PRN231.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ScheduleController:ControllerBase //lam
+    public class ScheduleController:ControllerBase
     {
         private readonly IGenericService<Schedule, ScheduleDTO> _scheduleService;
         private readonly ILogger<ScheduleController> _logger;

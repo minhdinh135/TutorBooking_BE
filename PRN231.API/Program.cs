@@ -1,13 +1,13 @@
 using AutoMapper;
-using EXE101.Repository.Implementations;
-using EXE101.Repository.Interfaces;
-using EXE101.Services.Implementations;
-using EXE101.Services;
+using PRN231.Repository.Implementations;
+using PRN231.Repository.Interfaces;
+using PRN231.Services.Implementations;
+using PRN231.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PRN231.DAL;
 using System.Text.Json.Serialization;
-using EXE101.Services.Interfaces;
+using PRN231.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -45,6 +45,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddTransient(typeof(IGenericService<,>), typeof(GenericService<,>));
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 
 
 builder.Services.AddEndpointsApiExplorer();

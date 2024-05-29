@@ -1,4 +1,4 @@
-namespace EXE101.Services.Interfaces
+namespace PRN231.Services.Interfaces
 {
     public interface IGenericService<T, D> where T : class
     {

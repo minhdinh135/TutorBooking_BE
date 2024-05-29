@@ -1,4 +1,4 @@
-namespace EXE101.Models.DTOs
+namespace PRN231.Models.DTOs
 {
     public class UserDTO
     {

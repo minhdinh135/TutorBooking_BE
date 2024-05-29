@@ -1,14 +1,14 @@
-﻿using EXE101.Services.Interfaces;
+﻿using PRN231.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using PRN231.Models.DTOs;
 using PRN231.Models;
-using EXE101.Models.DTOs;
+using PRN231.Models.DTOs;
 
 namespace PRN231.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class FeedbackController : ControllerBase //tuan
+    public class FeedbackController : ControllerBase
     {
         private readonly IGenericService<Feedback, FeedbackDTO> _feedbackService;
         private readonly ILogger<FeedbackController> _logger;

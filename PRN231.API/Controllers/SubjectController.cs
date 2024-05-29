@@ -1,4 +1,4 @@
-﻿using EXE101.Services.Interfaces;
+﻿using PRN231.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using PRN231.Models.DTOs;
 using PRN231.Models;
@@ -7,7 +7,7 @@ namespace PRN231.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SubjectController : ControllerBase //tuan
+    public class SubjectController : ControllerBase
     {
         private readonly IGenericService<Subject, SubjectDTO> _subjectService;
         private readonly ILogger<SubjectController> _logger;

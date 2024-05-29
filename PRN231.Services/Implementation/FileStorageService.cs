@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EXE101.Services.Implementations;
+namespace PRN231.Services.Implementations;
 public class FileStorageService : IFileStorageService
 {
     private readonly string _storagePath;

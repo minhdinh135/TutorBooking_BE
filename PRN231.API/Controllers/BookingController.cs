@@ -1,6 +1,6 @@
 ﻿namespace PRN231.API.Controllers
 {
-    public class BookingController //minh
+    public class BookingController
     {
     }
 }

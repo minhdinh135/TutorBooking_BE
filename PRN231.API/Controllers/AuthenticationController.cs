@@ -5,20 +5,20 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Security.Cryptography;
-using EXE101.Services.Interfaces;
-using EXE101.Models;
-using EXE101.Models.DTOs;
+using PRN231.Services.Interfaces;
+using PRN231.Models;
+using PRN231.Models.DTOs;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRN231.Models;
 using Microsoft.AspNetCore.Identity;
 using BirthdayParty.API;
 
-namespace EXE101.API.Controllers
+namespace PRN231.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthenticationController : ControllerBase //tri
+    public class AuthenticationController : ControllerBase
     {
         private readonly ILogger<AuthenticationController> _logger;
         private readonly IGenericService<User, UserDTO> _userService;

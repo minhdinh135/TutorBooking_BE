@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using EXE101.Models;
-using EXE101.Services.Interfaces;
-using EXE101.Models.DTOs;
+using PRN231.Models;
+using PRN231.Services.Interfaces;
+using PRN231.Models.DTOs;
 using PRN231.Models;
 
 namespace EXE101.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class RoleController : ControllerBase //tri
+    public class RoleController : ControllerBase
     {
         private readonly IGenericService<Role, RoleDTO> _roleService;
         private readonly ILogger<RoleController> _logger;

@@ -1,5 +1,5 @@
-﻿using EXE101.Models.DTOs;
-using EXE101.Services.Interfaces;
+﻿using PRN231.Models.DTOs;
+using PRN231.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using PRN231.Models;
 
@@ -7,7 +7,7 @@ namespace PRN231.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController:ControllerBase //lam
+    public class UserController:ControllerBase
     {
         private readonly IGenericService<User, UserDTO> _userService;
         private readonly ILogger<UserController> _logger;
