@@ -9,8 +9,8 @@ using System.Net;
 namespace PRN231.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class BookingController
+    [Route("api/[controller]")]
+    public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
 
@@ -26,7 +26,7 @@ namespace PRN231.API.Controllers
 
             var response = new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookings);
 
-            return response;
+            return Ok(response);
         }
 
         [HttpPost("Create")]
@@ -36,10 +36,10 @@ namespace PRN231.API.Controllers
             {
                 CreateBookingResponse bookingResponse = await _bookingService.CreateBooking(request);
 
-                return new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookingResponse);
+                return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookingResponse));
             } catch (Exception ex)
             {
-                return new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null);
+                return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
             }
         }
 
@@ -50,11 +50,11 @@ namespace PRN231.API.Controllers
             {
                 UpdateBookingResponse bookingResponse = await _bookingService.UpdateBooking(request);
 
-                return new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookingResponse);
+                return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookingResponse));
             }
             catch (Exception ex)
             {
-                return new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null);
+                return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
             }
         }
     }

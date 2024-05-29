@@ -1,4 +1,3 @@
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PRN231.DAL;
 using PRN231.Repository.Interfaces;
