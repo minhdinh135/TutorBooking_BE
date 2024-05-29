@@ -15,6 +15,8 @@ namespace PRN231.API.Controllers
     public class UserController:ControllerBase
     {
         private readonly IGenericService<User, UserDTO> _userService;
+        private readonly IGenericService<Service, ServiceDTO> _serviceService;
+        private readonly IGenericService<Subject, SubjectDTO> _subjectService;
         private readonly IGenericRepository<User> _userRepo;
         private readonly ILogger<UserController> _logger;
         public IConfiguration _configuration;
@@ -22,12 +24,16 @@ namespace PRN231.API.Controllers
 
         public UserController(IConfiguration config, ILogger<UserController> logger,
                 IGenericService<User, UserDTO> userService, IGenericRepository<User> userRepo,
-                IFileStorageService fileStorageService)
+                IGenericService<Service, ServiceDTO> serviceService, IGenericRepository<Service> serviceRepo,
+        IGenericService<Subject, SubjectDTO> subjectService, IGenericRepository<Subject> subjectRepo,
+        IFileStorageService fileStorageService)
         {
             _logger = logger;
             _configuration = config;
             _userService = userService;
             _userRepo = userRepo;
+            _serviceService = serviceService;
+            _subjectService = subjectService;
             _fileStorageService = fileStorageService;
         }
 

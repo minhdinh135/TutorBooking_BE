@@ -21,7 +21,9 @@ namespace PRN231.Models.AutoMapper
             
             CreateMap<TutorRequestDTO, User>().ReverseMap();
             CreateMap<TutorRequestDTO, Subject>().ReverseMap();
-            CreateMap<TutorRequestDTO, Schedule>().ReverseMap();
+
+            CreateMap<SubjectDTO, Subject>();
+            CreateMap<Subject, SubjectDTO>();
         }
     }
 }
