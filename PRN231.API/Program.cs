@@ -60,6 +60,12 @@ builder.Services.AddSingleton<IMapper>(sp =>
     return config.CreateMapper();
 });
 
+//Otp
+builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddTransient<OtpService>();
+builder.Services.AddDistributedMemoryCache(); // Add in-memory distributed cache
+
+
 builder.Services.AddIdentityCore<User>(options =>
 {
     //password config
@@ -82,18 +88,25 @@ builder.Services.AddIdentityCore<User>(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddTransient<IFileStorageService, FileStorageService>();
 builder.Services.AddTransient(typeof(IGenericService<,>), typeof(GenericService<,>));
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(5);
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Ensure cookies are sent over HTTPS
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // Repositories DI
 builder.Services.AddScoped<IGenericRepository<Booking>, BookingRepository>();
 
 // Services DI
 builder.Services.AddScoped<IBookingService, BookingService>();
-builder.Services.AddScoped<IServiceService, ServiceService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
@@ -145,9 +158,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddCors(options => {
     options.AddPolicy(name: "MyAllowPolicy",
               policy => {
-                  policy.AllowAnyOrigin()
+                  policy.WithOrigins("http://localhost:3000")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials();
               });
 });
 builder.Services.AddAuthorization();
@@ -175,6 +189,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+app.UseSession();
 
 app.MapControllers();
 

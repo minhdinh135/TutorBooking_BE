@@ -110,6 +110,12 @@ namespace PRN231.API.Controllers
             var brand = await _userService.Delete(id);
             return Ok(brand);
         }
+        
+    }
 
+    public class AvatarDTO
+    {
+        public int UserId { get; set; }
+        public IFormFile File { get; set; }
     }
 }
