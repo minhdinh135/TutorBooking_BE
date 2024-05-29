@@ -94,7 +94,7 @@ builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(5);
     options.Cookie.SameSite = SameSiteMode.None;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Ensure cookies are sent over HTTPS
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Ensure cookies are sent over HTTPS
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

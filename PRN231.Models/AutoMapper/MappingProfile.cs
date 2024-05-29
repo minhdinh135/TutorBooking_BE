@@ -14,6 +14,9 @@ namespace PRN231.Models.AutoMapper
 
             CreateMap<User, UserDTO>();
             CreateMap<UserDTO, User>();
+
+            CreateMap<Credential, CredentialDTO>();
+            CreateMap<CredentialDTO, Credential>();
         }
     }
 }

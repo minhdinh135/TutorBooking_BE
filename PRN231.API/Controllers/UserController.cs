@@ -30,6 +30,31 @@ namespace PRN231.API.Controllers
             _fileStorageService = fileStorageService;
         }
 
+        [HttpPost("UploadAvatar")]
+        public async Task<IActionResult> UploadAvatar([FromForm] AvatarDTO avatar)
+        {
+            var user = await _userRepo.Get(avatar.UserId);
+            //Delete old file
+            if (user.Avatar.Contains("http://localhost:5176"))
+            {
+                await _fileStorageService.DeleteFileAsync(Path.GetFileName(user.Avatar));
+            }
+
+            Console.WriteLine(Path.GetFileName(user.Avatar));
+            //store file 
+            string filePath = await _fileStorageService.StoreFileAsync(avatar.File);
+            if (filePath == null)
+            {
+                return BadRequest();
+            }
+            //update user avatar
+            user.Avatar = $"http://localhost:5176/{filePath}";
+            var updatedUser = await _userRepo.Update(user);
+
+            return Ok(updatedUser);
+        }
+
+
         [HttpGet("GetAll")]
         //[Authorize]
         public async Task<IActionResult> GetAll()
@@ -84,30 +109,7 @@ namespace PRN231.API.Controllers
             var brand = await _userService.Delete(id);
             return Ok(brand);
         }
-
-        [HttpPost("UploadAvatar")]
-        public async Task<IActionResult> UploadAvatar([FromForm] AvatarDTO avatar)
-        {   
-            var user = await _userRepo.Get(avatar.UserId);
-            //Delete old file
-            if(user.Avatar.Contains("http://localhost:5176"))
-            {
-                await _fileStorageService.DeleteFileAsync(Path.GetFileName(user.Avatar));
-            }
-
-            Console.WriteLine(Path.GetFileName(user.Avatar));
-            //store file 
-            string filePath = await _fileStorageService.StoreFileAsync(avatar.File);
-            if (filePath == null)
-            {
-                return BadRequest();
-            }
-            //update user avatar
-            user.Avatar = $"http://localhost:5176/{filePath}";
-            var updatedUser = await _userRepo.Update(user);
-
-            return Ok(new { filePath = user.Avatar });
-        }
+        
     }
 
     public class AvatarDTO
