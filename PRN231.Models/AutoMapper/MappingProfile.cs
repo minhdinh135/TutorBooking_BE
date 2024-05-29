@@ -18,9 +18,7 @@ namespace PRN231.Models.AutoMapper
 
             CreateMap<Credential, CredentialDTO>();
             CreateMap<CredentialDTO, Credential>();
-        public MappingProfile() 
-        {
-            //Account
+            
             CreateMap<TutorRequestDTO, User>().ReverseMap();
             CreateMap<TutorRequestDTO, Subject>().ReverseMap();
             CreateMap<TutorRequestDTO, Schedule>().ReverseMap();
