@@ -1,6 +1,6 @@
 using PRN231.Models;
 
-namespace EXE101.Models.DTOs
+namespace PRN231.Models.DTOs
 {
     public class FeedbackDTO
     {

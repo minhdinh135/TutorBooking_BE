@@ -1,10 +1,13 @@
 using AutoMapper;
+using PRN231.Models;
+using PRN231.Repository.Interfaces;
+using PRN231.Services.Interfaces;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PRN231.Repository.Interfaces;
 using PRN231.Services.Interfaces;
 
-namespace Services.Implementations
+namespace PRN231.Services.Implementations
 {
     public class GenericService<T, D> : IGenericService<T, D> where T : class
     {

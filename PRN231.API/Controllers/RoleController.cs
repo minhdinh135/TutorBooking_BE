@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using EXE101.Models;
-using EXE101.Models.DTOs;
+using PRN231.Models;
+using PRN231.Services.Interfaces;
+using PRN231.Models.DTOs;
 using PRN231.Models;
 using PRN231.Services.Interfaces;
 using PRN231.Models.DTOs;
