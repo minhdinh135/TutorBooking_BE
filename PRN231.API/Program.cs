@@ -104,7 +104,6 @@ builder.Services.AddScoped<IGenericRepository<Booking>, BookingRepository>();
 
 // Services DI
 builder.Services.AddScoped<IBookingService, BookingService>();
-builder.Services.AddScoped<IServiceService, ServiceService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(

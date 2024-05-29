@@ -1,18 +1,12 @@
 namespace PRN231.Models;
 
-public partial class Subject
+public partial class Subject : BaseModel
 {
-    public int Id { get; set; }
+    public int CredentialId { get; set; }
 
     public string Name { get; set; }
 
-    public string Level { get; set; }
+    public List<SubjectLevel> SubjectLevels{ get; set; }
 
-    public DateTime CreatedDate { get; set; }
-
-    public DateTime UpdatedDate { get; set; }
-
-    public bool Status { get; set; }
-
-    public List<Service> Services { get; set; }
+    public Credential Credential { get; set; }
 }
