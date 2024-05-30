@@ -33,7 +33,7 @@ namespace PRN231.Services.Implementations
                 StudentId = createBookingRequest.StudentId,
                 Price = createBookingRequest.Price,
                 PaymentMethod = createBookingRequest.PaymentMethod,
-                CreatedDate = DateTime.Now, 
+                CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now,
                 Status = BookingStatusConstant.PENDING
             };
