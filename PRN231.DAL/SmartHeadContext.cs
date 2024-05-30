@@ -58,17 +58,17 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
             .HasForeignKey(f => f.TutorId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<Credential>()
-            .HasOne(f => f.Subject)
-            .WithOne(x => x.Credential)
-            .HasForeignKey<Subject>(x => x.CredentialId)
-            .OnDelete(DeleteBehavior.NoAction);
+        // modelBuilder.Entity<Credential>()
+        //     .HasOne(f => f.Subject)
+        //     .WithOne(x => x.Credential)
+        //     .HasForeignKey<Subject>(x => x.CredentialId)
+        //     .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<Subject>()
-            .HasOne(f => f.Credential)
-            .WithOne(x => x.Subject)
-            .HasForeignKey<Credential>(x => x.SubjectId)
-            .OnDelete(DeleteBehavior.NoAction);
+        // modelBuilder.Entity<Subject>()
+        //     .HasOne(f => f.Credential)
+        //     .WithOne(x => x.Subject)
+        //     .HasForeignKey<Credential>(x => x.SubjectId)
+        //     .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<BookingUser>()
             .HasOne(f => f.Booking)
