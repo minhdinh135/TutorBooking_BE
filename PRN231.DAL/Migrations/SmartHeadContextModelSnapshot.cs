@@ -237,9 +237,7 @@ namespace PRN231.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubjectId")
-                        .IsUnique()
-                        .HasFilter("[SubjectId] IS NOT NULL");
+                    b.HasIndex("SubjectId");
 
                     b.HasIndex("TutorId");
 
@@ -397,9 +395,6 @@ namespace PRN231.DAL.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("CredentialId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -626,9 +621,8 @@ namespace PRN231.DAL.Migrations
             modelBuilder.Entity("PRN231.Models.Credential", b =>
                 {
                     b.HasOne("PRN231.Models.Subject", "Subject")
-                        .WithOne("Credential")
-                        .HasForeignKey("PRN231.Models.Credential", "SubjectId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .WithMany("Credentials")
+                        .HasForeignKey("SubjectId");
 
                     b.HasOne("PRN231.Models.User", "Tutor")
                         .WithMany("Credentials")
@@ -704,7 +698,7 @@ namespace PRN231.DAL.Migrations
 
             modelBuilder.Entity("PRN231.Models.Subject", b =>
                 {
-                    b.Navigation("Credential");
+                    b.Navigation("Credentials");
 
                     b.Navigation("SubjectLevels");
                 });
