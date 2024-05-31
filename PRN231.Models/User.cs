@@ -23,5 +23,4 @@ public partial class User : IdentityUser<int>
     public List<Feedback>? TutorFeedbacks { get; set; }
 
     public List<BookingUser>? BookingUsers { get; set; }
-
 }

@@ -4,7 +4,7 @@ public partial class Credential : BaseModel
 {
     public int TutorId { get; set; }
 
-    public int SubjectId { get; set; }
+    public int? SubjectId { get; set; }
 
     public string Name { get; set; }
 
@@ -14,5 +14,5 @@ public partial class Credential : BaseModel
 
     public User Tutor { get; set; }
 
-    public Subject Subject { get; set; }
+    public Subject? Subject { get; set; }
 }

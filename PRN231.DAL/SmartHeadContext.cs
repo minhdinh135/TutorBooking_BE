@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using PRN231.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace PRN231.DAL;
 
@@ -35,7 +36,11 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
     public virtual DbSet<Subject> Subjects { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
-        optionsBuilder.UseSqlServer("Data Source=(local);Database=SmartHead;User ID=sa;Password=12345;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+            .AddJsonFile("appsettings.json")
+            .Build();
+        optionsBuilder.UseSqlServer(configuration.GetConnectionString("Db"));
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,17 +58,17 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
             .HasForeignKey(f => f.TutorId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<Credential>()
-            .HasOne(f => f.Subject)
-            .WithOne(x => x.Credential)
-            .HasForeignKey<Subject>(x => x.CredentialId)
-            .OnDelete(DeleteBehavior.NoAction);
+        // modelBuilder.Entity<Credential>()
+        //     .HasOne(f => f.Subject)
+        //     .WithOne(x => x.Credential)
+        //     .HasForeignKey<Subject>(x => x.CredentialId)
+        //     .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<Subject>()
-            .HasOne(f => f.Credential)
-            .WithOne(x => x.Subject)
-            .HasForeignKey<Credential>(x => x.SubjectId)
-            .OnDelete(DeleteBehavior.NoAction);
+        // modelBuilder.Entity<Subject>()
+        //     .HasOne(f => f.Credential)
+        //     .WithOne(x => x.Subject)
+        //     .HasForeignKey<Credential>(x => x.SubjectId)
+        //     .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<BookingUser>()
             .HasOne(f => f.Booking)
