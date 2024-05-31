@@ -33,7 +33,7 @@ namespace PRN231.Services.Implementations
         {
             Booking booking = new Booking
             {
-                StudentId = createBookingRequest.StudentId,
+                //StudentId = createBookingRequest.StudentId,
                 Price = createBookingRequest.Price,
                 PaymentMethod = createBookingRequest.PaymentMethod,
                 CreatedDate = DateTime.Now,
@@ -47,7 +47,7 @@ namespace PRN231.Services.Implementations
 
                 CreateBookingResponse bookingResponse = new CreateBookingResponse
                 {
-                    StudentId = addedBooking.StudentId,
+                    //StudentId = addedBooking.StudentId,
                     Price = addedBooking.Price,
                     PaymentMethod = addedBooking.PaymentMethod
                 };
@@ -73,7 +73,7 @@ namespace PRN231.Services.Implementations
 
                 UpdateBookingResponse bookingResponse = new UpdateBookingResponse
                 {
-                    StudentId = updatedBooking.StudentId,
+                    //StudentId = updatedBooking.StudentId,
                     Price = updatedBooking.Price,
                     PaymentMethod = updatedBooking.PaymentMethod,
                     Status = updatedBooking.Status

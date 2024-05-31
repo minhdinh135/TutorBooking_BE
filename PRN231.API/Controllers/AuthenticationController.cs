@@ -68,18 +68,28 @@ namespace PRN231.API.Controllers
             return Ok();
         }
 
+        /*[HttpPost("CheckEmailExist")]
+        public async Task<ActionResult<UserDTO>> CheckEmailExist(string email)
+        {
+            if (await _manager.FindByEmailAsync(email) != null)
+            {
+                return BadRequest("Email already exists!!!");
+            }
+            return Ok();
+        }*/
+
         [HttpPost("request-otp")]
         public async Task<IActionResult> RequestOtp([FromBody] RequestOtpModel model)
         {
-            /*if (await _manager.FindByEmailAsync(email) != null)
+            if (await _manager.FindByEmailAsync(model.Email) != null)
             {
                 return BadRequest("Email already exists!!!");
-            }*/
+            }
             var otp = _otpService.GenerateOtp();
             var hashedOtp = _otpService.HashOtp(otp);
 
             HttpContext.Session.SetString($"HashedOtp_{model.Email}", hashedOtp);
-            Console.WriteLine(model.Email);
+            //Console.WriteLine(model.Email);
             //Console.WriteLine(HttpContext.Session.GetString($"HashedOtp_{email}"));
             await _emailSender.SendEmailAsync(model.Email, "OTP", otp);
 
@@ -89,7 +99,7 @@ namespace PRN231.API.Controllers
         [HttpPost("verify-otp")]
         public IActionResult VerifyOtp([FromBody] VerifyOtpModel model)
         {
-            Console.WriteLine(model.Email);
+            //Console.WriteLine(model.Email);
 
             // Get the current HTTP context
             //HttpContext context = HttpContext;
@@ -111,8 +121,8 @@ namespace PRN231.API.Controllers
             var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{model.Email}");
             var hashedUserOtp = _otpService.HashOtp(model.Otp);
 
-            Console.WriteLine(hashedOtp);
-            Console.WriteLine(hashedUserOtp);
+            //Console.WriteLine(hashedOtp);
+            //Console.WriteLine(hashedUserOtp);
 
             if (hashedOtp != null && hashedUserOtp == hashedOtp)
             {
@@ -162,8 +172,8 @@ namespace PRN231.API.Controllers
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 Status = true,
-                Gender = "Male",
-                Address = "Sai Gon",
+                Gender = registerDTO.Gender,
+                Address = registerDTO.Address,
                 Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
             };
             var result = await _manager.CreateAsync(user, registerDTO.Password);
@@ -199,8 +209,8 @@ namespace PRN231.API.Controllers
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 Status = true,
-                Gender = "Male",
-                Address = "Sai Gon",
+                Gender = registerDTO.Gender,
+                Address = registerDTO.Address,
                 Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
             };
             var result = await _manager.CreateAsync(user, registerDTO.Password);
@@ -301,6 +311,12 @@ namespace PRN231.API.Controllers
         public required string Email { get; set; }
         [MinLength(3, ErrorMessage = "Password must be at least 3 characters")]
         public required string Password {get;set;}
+
+        public string Address { get; set; }
+
+        public string PhoneNumber { get; set; }
+
+        public string Gender { get; set; }
         
         public required string Otp {get;set;}
     }
