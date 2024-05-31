@@ -14,16 +14,10 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using PRN231.Models.AutoMapper;
 using PRN231.Repositories.Implementations;
-using PRN231.Services;
-using PRN231.Services.Implementations;
-using PRN231.Repository.Implementations;
-using PRN231.Repository.Interfaces;
-using PRN231.Services.Interfaces;
 using PRN231.Models;
 using Microsoft.AspNetCore.Identity;
 using PRN231.API;
 using Microsoft.Extensions.FileProviders;
-using PRN231.Services.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options => options.SuppressInputFormatterBuffering = true)

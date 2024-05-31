@@ -2,7 +2,7 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 
-namespace PRN231.Services.Implementation
+namespace PRN231.Services.Implementations
 {
     public class EmailService : IEmailService
     {

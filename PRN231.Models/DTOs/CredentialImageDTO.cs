@@ -1,4 +1,6 @@
-﻿namespace PRN231.API.Controllers
+﻿using Microsoft.AspNetCore.Http;
+
+namespace PRN231.API.Controllers
 {
     public class CredentialImageDTO
     {

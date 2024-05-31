@@ -24,6 +24,9 @@ namespace PRN231.Models.AutoMapper
 
             CreateMap<SubjectDTO, Subject>();
             CreateMap<Subject, SubjectDTO>();
+
+            CreateMap<Level, LevelDTO>();
+            CreateMap<LevelDTO, Level>();
         }
     }
 }
