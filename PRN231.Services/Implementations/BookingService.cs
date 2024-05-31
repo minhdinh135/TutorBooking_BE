@@ -24,6 +24,7 @@ namespace PRN231.Services.Implementations
         {
             Booking booking = new Booking
             {
+                SubjectLevelId = createBookingRequest.SubjectLevelId,
                 Price = createBookingRequest.Price,
                 PaymentMethod = createBookingRequest.PaymentMethod,
                 CreatedDate = DateTime.Now,
@@ -37,6 +38,7 @@ namespace PRN231.Services.Implementations
 
                 CreateBookingResponse bookingResponse = new CreateBookingResponse
                 {
+                    SubjectLevelId = addedBooking.SubjectLevelId,
                     Price = addedBooking.Price,
                     PaymentMethod = addedBooking.PaymentMethod
                 };
@@ -53,7 +55,9 @@ namespace PRN231.Services.Implementations
         {
             try
             {
-                Booking existingBooking = _bookingRepository.GetAll().Result.FirstOrDefault(b => b.Id ==  updateBookingRequest.BookingId);
+                Booking existingBooking = _bookingRepository.GetAll().Result
+                    .FirstOrDefault(b => b.Id ==  updateBookingRequest.BookingId);
+                existingBooking.SubjectLevelId = updateBookingRequest.SubjectLevelId;
                 existingBooking.Price = updateBookingRequest.Price;
                 existingBooking.PaymentMethod = updateBookingRequest.PaymentMethod;
                 existingBooking.Status = updateBookingRequest.Status;
@@ -62,6 +66,7 @@ namespace PRN231.Services.Implementations
 
                 UpdateBookingResponse bookingResponse = new UpdateBookingResponse
                 {
+                    SubjectLevelId = updatedBooking.SubjectLevelId,
                     Price = updatedBooking.Price,
                     PaymentMethod = updatedBooking.PaymentMethod,
                     Status = updatedBooking.Status
