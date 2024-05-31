@@ -2,9 +2,6 @@
 using PRN231.Models;
 using PRN231.Models.DTOs;
 using PRN231.Services.Interfaces;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
-using System.Threading.Tasks;
 using PRN231.Services;
 using PRN231.Repository.Interfaces;
 

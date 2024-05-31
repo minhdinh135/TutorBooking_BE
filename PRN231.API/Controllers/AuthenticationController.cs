@@ -9,13 +9,11 @@ using PRN231.Services.Interfaces;
 using PRN231.Models;
 using PRN231.Models.DTOs;
 using System.ComponentModel.DataAnnotations;
-using PRN231.Models;
 using Microsoft.AspNetCore.Identity;
-using PRN231.Services.Interfaces;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using PRN231.Services;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using PRN231.Services.Implementation;
+using PRN231.Services.Implementations;
 
 namespace PRN231.API.Controllers
 {
