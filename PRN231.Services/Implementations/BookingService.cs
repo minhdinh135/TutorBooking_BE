@@ -3,12 +3,6 @@ using PRN231.Models;
 using PRN231.Models.DTOs.Request;
 using PRN231.Models.DTOs.Response;
 using PRN231.Repository.Interfaces;
-using PRN231.Services.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PRN231.Services.Implementations
 {
@@ -30,7 +24,6 @@ namespace PRN231.Services.Implementations
         {
             Booking booking = new Booking
             {
-                StudentId = createBookingRequest.StudentId,
                 Price = createBookingRequest.Price,
                 PaymentMethod = createBookingRequest.PaymentMethod,
                 CreatedDate = DateTime.Now,
@@ -44,7 +37,6 @@ namespace PRN231.Services.Implementations
 
                 CreateBookingResponse bookingResponse = new CreateBookingResponse
                 {
-                    StudentId = addedBooking.StudentId,
                     Price = addedBooking.Price,
                     PaymentMethod = addedBooking.PaymentMethod
                 };
@@ -70,7 +62,6 @@ namespace PRN231.Services.Implementations
 
                 UpdateBookingResponse bookingResponse = new UpdateBookingResponse
                 {
-                    StudentId = updatedBooking.StudentId,
                     Price = updatedBooking.Price,
                     PaymentMethod = updatedBooking.PaymentMethod,
                     Status = updatedBooking.Status

@@ -18,10 +18,18 @@ namespace PRN231.Models.AutoMapper
 
             CreateMap<Credential, CredentialDTO>();
             CreateMap<CredentialDTO, Credential>();
-            
-            CreateMap<TutorRequestDTO, User>().ReverseMap();
-            CreateMap<TutorRequestDTO, Subject>().ReverseMap();
-            CreateMap<TutorRequestDTO, Schedule>().ReverseMap();
+
+            CreateMap<SubjectDTO, Subject>();
+            CreateMap<Subject, SubjectDTO>();
+
+            CreateMap<Level, LevelDTO>();
+            CreateMap<LevelDTO, Level>();
+
+            CreateMap<ScheduleDTO, Schedule>();
+            CreateMap<Schedule, ScheduleDTO>();
+
+            CreateMap<FeedbackDTO, Feedback>();
+            CreateMap<Feedback, FeedbackDTO>();
         }
     }
 }
