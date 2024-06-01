@@ -53,12 +53,5 @@ namespace PRN231.API.Controllers
             return Ok(level);
         }
 
-        [HttpDelete("Delete")]
-        //[Authorize]
-        public async Task<IActionResult> Delete([FromBody] int id)
-        {
-            var level = await _levelService.Delete(id);
-            return Ok(level);
-        }
     }
 }
