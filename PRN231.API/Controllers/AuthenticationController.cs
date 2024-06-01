@@ -66,16 +66,6 @@ namespace PRN231.API.Controllers
             return Ok();
         }
 
-        /*[HttpPost("CheckEmailExist")]
-        public async Task<ActionResult<UserDTO>> CheckEmailExist(string email)
-        {
-            if (await _manager.FindByEmailAsync(email) != null)
-            {
-                return BadRequest("Email already exists!!!");
-            }
-            return Ok();
-        }*/
-
         [HttpPost("request-otp")]
         public async Task<IActionResult> RequestOtp([FromBody] RequestOtpModel model)
         {
@@ -97,30 +87,8 @@ namespace PRN231.API.Controllers
         [HttpPost("verify-otp")]
         public IActionResult VerifyOtp([FromBody] VerifyOtpModel model)
         {
-            //Console.WriteLine(model.Email);
-
-            // Get the current HTTP context
-            //HttpContext context = HttpContext;
-        
-            // Check if the session is available
-            /*if (context.Session != null)
-            {
-                // Iterate through all session keys
-                foreach (var (key, value) in context.Items)
-                {
-                    // Log the key and value to the console
-                    Console.WriteLine($"Session Key: {key}, Value: {value}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Session is not available.");
-            }*/
             var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{model.Email}");
             var hashedUserOtp = _otpService.HashOtp(model.Otp);
-
-            //Console.WriteLine(hashedOtp);
-            //Console.WriteLine(hashedUserOtp);
 
             if (hashedOtp != null && hashedUserOtp == hashedOtp)
             {
@@ -217,6 +185,80 @@ namespace PRN231.API.Controllers
             if (!roleExists) await _roleManager.CreateAsync(new Role("Tutor"));
             await _manager.AddToRoleAsync(user, "Tutor");
             var token = _jwtService.CreateJwt(user, "Tutor");
+            return Ok(token);
+        }
+
+        [HttpPost("RegisterAdmin")]
+        public async Task<ActionResult<UserDTO>> RegisterAdmin(RegisterDTO registerDTO)
+        {
+            if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
+            {
+                return BadRequest("Email already exists!!!");
+            }
+            //check Otp
+            /*var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{registerDTO.Email}");
+            var hashedUserOtp = _otpService.HashOtp(registerDTO.Otp);
+
+            if (hashedOtp == null || hashedUserOtp != hashedOtp)
+            {
+                return Unauthorized(new { Message = "Invalid OTP. Please try again." });
+            }*/
+            //create user
+            var user = new User
+            {
+                UserName = registerDTO.Name,
+                Email = registerDTO.Email,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                Status = true,
+                Gender = registerDTO.Gender,
+                Address = registerDTO.Address,
+                Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
+            };
+            var result = await _manager.CreateAsync(user, registerDTO.Password);
+            if (!result.Succeeded) return BadRequest(result.Errors);
+            bool roleExists = await _roleManager.RoleExistsAsync("Admin");
+            if (!roleExists) await _roleManager.CreateAsync(new Role("Admin"));
+            await _manager.AddToRoleAsync(user, "Admin");
+            var token = _jwtService.CreateJwt(user, "Admin");
+            return Ok(token);
+        }
+
+        [HttpPost("RegisterModerator")]
+        public async Task<ActionResult<UserDTO>> RegisterModerator(RegisterDTO registerDTO)
+        {
+            if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
+            {
+                return BadRequest("Email already exists!!!");
+            }
+            //check Otp
+            /*var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{registerDTO.Email}");
+            var hashedUserOtp = _otpService.HashOtp(registerDTO.Otp);
+
+            if (hashedOtp == null || hashedUserOtp != hashedOtp)
+            {
+                return Unauthorized(new { Message = "Invalid OTP. Please try again." });
+            }*/
+            //create user
+            var user = new User
+            {
+                UserName = registerDTO.Name,
+                Email = registerDTO.Email,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                Status = true,
+                Gender = registerDTO.Gender,
+                Address = registerDTO.Address,
+                Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
+            };
+            var result = await _manager.CreateAsync(user, registerDTO.Password);
+            if (!result.Succeeded) return BadRequest(result.Errors);
+            bool roleExists = await _roleManager.RoleExistsAsync("Moderator");
+            if (!roleExists) await _roleManager.CreateAsync(new Role("Moderator"));
+            await _manager.AddToRoleAsync(user, "Moderator");
+            var token = _jwtService.CreateJwt(user, "Moderator");
             return Ok(token);
         }
 
