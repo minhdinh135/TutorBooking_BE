@@ -4,6 +4,7 @@ using PRN231.Models.DTOs;
 using PRN231.Services.Interfaces;
 using PRN231.Services;
 using PRN231.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace PRN231.API.Controllers
 {
@@ -71,7 +72,7 @@ namespace PRN231.API.Controllers
         //[Authorize]
         public async Task<IActionResult> GetAll()
         {
-            var credentialList = await _credentialService.GetAll();
+            var credentialList = await _credentialRepo.GetAll(x => x.Include(a => a.Subject));
             return Ok(credentialList);
         }
 
