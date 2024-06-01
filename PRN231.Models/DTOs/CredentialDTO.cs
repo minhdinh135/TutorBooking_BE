@@ -18,7 +18,7 @@ namespace PRN231.Models.DTOs
 
         public string Image { get; set; }
 
-        public bool Status { get; set; }
+        public string Status { get; set; }
 
     }
 }
