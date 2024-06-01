@@ -9,10 +9,8 @@ namespace PRN231.Models.DTOs
     public class LevelDTO
     {
         public int Id { get; set; }
+
+        public string Status { get; set; }
         public string LevelName { get; set; }
-
-        public string SubjectName { get; set; }
-
-        public bool Status { get; set; }
     }
 }
