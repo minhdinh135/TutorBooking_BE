@@ -8,7 +8,7 @@ namespace PRN231.Models.DTOs.Request
 {
     public class CreateBookingRequest
     {
-        public int StudentId { get; set; }
+        public int SubjectLevelId { get; set; }
         public decimal Price { get; set; }
         public string PaymentMethod { get; set; }
     }

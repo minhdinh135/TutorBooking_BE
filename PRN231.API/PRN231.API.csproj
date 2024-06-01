@@ -29,10 +29,17 @@
     <Folder Include="UploadedFiles\" />
   </ItemGroup>
 
+<<<<<<< HEAD
   <ItemGroup>
     <None Include="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+=======
+  <ItemGroup>
+    <None Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+>>>>>>> c681fc488ff8a4373d76832cfdeba9665883d8a1
   </ItemGroup>
 
 </Project>
