@@ -21,17 +21,10 @@
     <ProjectReference Include="..\PRN231.Models\PRN231.Models.csproj" />
   </ItemGroup>
 
-<<<<<<< HEAD
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-=======
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
->>>>>>> c681fc488ff8a4373d76832cfdeba9665883d8a1
   </ItemGroup>
 
 </Project>
