@@ -97,11 +97,15 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// HttpContext
+builder.Services.AddHttpContextAccessor();
+
 // Repositories DI
 builder.Services.AddScoped<IGenericRepository<Booking>, BookingRepository>();
 
 // Services DI
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IVnPayService, VnPayService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
