@@ -18,6 +18,7 @@ using PRN231.Models;
 using Microsoft.AspNetCore.Identity;
 using PRN231.API;
 using Microsoft.Extensions.FileProviders;
+using PRN231.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options => options.SuppressInputFormatterBuffering = true)
@@ -101,7 +102,10 @@ builder.Services.AddSession(options =>
 builder.Services.AddHttpContextAccessor();
 
 // Repositories DI
-builder.Services.AddScoped<IGenericRepository<Booking>, BookingRepository>();
+//builder.Services.AddScoped<IGenericRepository<Booking>, BookingRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+builder.Services.AddScoped<IBookingUserRepository, BookingUserRepository>();
+builder.Services.AddScoped<ISubjectLevelRepository, SubjectLevelRepository>();
 
 // Services DI
 builder.Services.AddScoped<IBookingService, BookingService>();
