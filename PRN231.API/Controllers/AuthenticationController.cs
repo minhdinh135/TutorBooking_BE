@@ -29,7 +29,10 @@ namespace PRN231.API.Controllers
         private readonly RoleManager<Role> _roleManager;
 
         private readonly IEmailService _emailSender;
+        private readonly IGenericService<Credential, CredentialDTO> _credentialService;
         private readonly OtpService _otpService;
+
+        private readonly IFileStorageService _fileStorageService;
 
         public IConfiguration _configuration;
         private readonly JWTService _jwtService;
@@ -41,7 +44,9 @@ namespace PRN231.API.Controllers
                 RoleManager<Role> roleManager, SignInManager<User> signIn,
                 IEmailService emailSender,
                 OtpService otpService,
-                JWTService jwtService)
+                JWTService jwtService,
+                IGenericService<Credential, CredentialDTO> credentialService,
+                IFileStorageService fileStorageService)
         {
             _logger = logger;
             _configuration = config;
@@ -53,6 +58,8 @@ namespace PRN231.API.Controllers
             _signIn = signIn;
             _emailSender = emailSender;
             _otpService = otpService;
+            _credentialService = credentialService;
+            _fileStorageService = fileStorageService;
         }
 
         [HttpPost("SendMail")]
@@ -107,6 +114,7 @@ namespace PRN231.API.Controllers
             if (user == null) return Unauthorized("Invalid email!!!");
             var result = await _signIn.CheckPasswordSignInAsync(user, login.Password, false);
             if (!result.Succeeded) return Unauthorized("Invalid email or password!!!");
+            if(user.Status == "Inactive") return Unauthorized("Your account is inactive!!!");
             var roleList = await _manager.GetRolesAsync(user);
             var role = roleList.FirstOrDefault() ?? "";
             var userInfo = new UserDTO();
@@ -137,7 +145,7 @@ namespace PRN231.API.Controllers
                 EmailConfirmed = true,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
-                Status = true,
+                Status = "Active",
                 Gender = registerDTO.Gender,
                 Address = registerDTO.Address,
                 Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
@@ -152,7 +160,7 @@ namespace PRN231.API.Controllers
         }
 
         [HttpPost("RegisterTutor")]
-        public async Task<ActionResult<UserDTO>> RegisterTutor(RegisterDTO registerDTO)
+        public async Task<ActionResult<UserDTO>> RegisterTutor([FromForm] RegisterTutorDTO registerDTO)
         {
             if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
             {
@@ -174,7 +182,7 @@ namespace PRN231.API.Controllers
                 EmailConfirmed = true,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
-                Status = true,
+                Status = "Inactive",
                 Gender = registerDTO.Gender,
                 Address = registerDTO.Address,
                 Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
@@ -184,8 +192,29 @@ namespace PRN231.API.Controllers
             bool roleExists = await _roleManager.RoleExistsAsync("Tutor");
             if (!roleExists) await _roleManager.CreateAsync(new Role("Tutor"));
             await _manager.AddToRoleAsync(user, "Tutor");
-            var token = _jwtService.CreateJwt(user, "Tutor");
-            return Ok(token);
+            //add initial credential
+            // Store file
+            string filePath = await _fileStorageService.StoreFileAsync(registerDTO.CredentialImage);
+            if (filePath == null)
+            {
+                return BadRequest("Failed to store file.");
+            }
+
+            // Update credential image
+            var image = $"http://localhost:5176/{filePath}";
+
+            var credential = new CredentialDTO{
+                TutorId = user.Id,
+                Type = registerDTO.CredentialType,
+                Image = image,
+                Status = "Pending",
+                Name = registerDTO.CredentialName,
+                SubjectId = registerDTO.SubjectId
+            };
+            var credentialResult = await _credentialService.Add(credential);
+            if (credentialResult == null) return BadRequest("Failed to add credential.");
+            //var token = _jwtService.CreateJwt(user, "Tutor");
+            return Ok("Your account is being reviewed. You will receive an email when your account is approved.");
         }
 
         [HttpPost("RegisterAdmin")]
@@ -211,7 +240,7 @@ namespace PRN231.API.Controllers
                 EmailConfirmed = true,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
-                Status = true,
+                Status = "Active",
                 Gender = registerDTO.Gender,
                 Address = registerDTO.Address,
                 Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
@@ -248,7 +277,7 @@ namespace PRN231.API.Controllers
                 EmailConfirmed = true,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
-                Status = true,
+                Status = "Active",
                 Gender = registerDTO.Gender,
                 Address = registerDTO.Address,
                 Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
@@ -357,6 +386,31 @@ namespace PRN231.API.Controllers
         public string PhoneNumber { get; set; }
 
         public string Gender { get; set; }
+        
+        public required string Otp {get;set;}
+    }
+
+    public class RegisterTutorDTO{
+        [MinLength(3, ErrorMessage = "Name must be at least 3 characters")]
+        public required string Name { get; set; }
+        [MinLength(3, ErrorMessage = "Email must be at least 3 characters")]
+        public required string Email { get; set; }
+        [MinLength(3, ErrorMessage = "Password must be at least 3 characters")]
+        public required string Password {get;set;}
+
+        public string Address { get; set; }
+
+        public string PhoneNumber { get; set; }
+
+        public string Gender { get; set; }
+
+        public string CredentialName { get; set; }
+
+        public int SubjectId { get; set; }
+
+        public string CredentialType { get; set; }
+
+        public IFormFile CredentialImage { get; set; }
         
         public required string Otp {get;set;}
     }
