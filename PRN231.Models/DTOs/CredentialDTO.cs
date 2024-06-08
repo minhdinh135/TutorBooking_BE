@@ -12,7 +12,7 @@ namespace PRN231.Models.DTOs
 
         public int TutorId { get; set; }
 
-        public int SubjectId { get; set; }
+        public int? SubjectId { get; set; }
 
         public string Name { get; set; }
 

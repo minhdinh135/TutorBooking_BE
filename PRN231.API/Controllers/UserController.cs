@@ -7,6 +7,8 @@ using PRN231.Repository.Interfaces;
 using PRN231.Services;
 using PRN231.Services.Interfaces;
 using System.Xml;
+using Microsoft.AspNetCore.Identity;
+using System.Numerics;
 
 namespace PRN231.API.Controllers
 {
@@ -17,6 +19,7 @@ namespace PRN231.API.Controllers
         private readonly IGenericService<User, UserDTO> _userService;
         private readonly IGenericService<Subject, SubjectDTO> _subjectService;
         private readonly IGenericRepository<User> _userRepo;
+        private readonly UserManager<User> _UserManage;
         private readonly ILogger<UserController> _logger;
         public IConfiguration _configuration;
         private readonly IFileStorageService _fileStorageService;
@@ -24,7 +27,7 @@ namespace PRN231.API.Controllers
         public UserController(IConfiguration config, ILogger<UserController> logger,
                 IGenericService<User, UserDTO> userService, IGenericRepository<User> userRepo,
         IGenericService<Subject, SubjectDTO> subjectService, IGenericRepository<Subject> subjectRepo,
-        IFileStorageService fileStorageService)
+        IFileStorageService fileStorageService, UserManager<User> UserManage)
         {
             _logger = logger;
             _configuration = config;
@@ -32,6 +35,7 @@ namespace PRN231.API.Controllers
             _userRepo = userRepo;
             _subjectService = subjectService;
             _fileStorageService = fileStorageService;
+            _UserManage = UserManage;
         }
 
         [HttpPost("UploadAvatar")]
@@ -64,7 +68,26 @@ namespace PRN231.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var customerList = await _userService.GetAll();
-            return Ok(customerList);
+            var responseUserList = new List<ResponseUserDTO>();
+            foreach(var users in customerList)
+            {
+                var role = await _UserManage.GetRolesAsync(users);
+                var user = new ResponseUserDTO
+                {
+                Id = users.Id,
+                Name = users.UserName,
+                Email = users.Email,
+                Password = users.PasswordHash,
+                Role = role.FirstOrDefault(),
+                Phone = users.PhoneNumber,
+                Address = users.Address,
+                Avatar = users.Avatar,
+                Gender = users.Gender,
+                Status = users.Status,
+                            };
+                responseUserList.Add(user);
+            }
+            return Ok(responseUserList);
         }
 
         [HttpGet("Get")]
