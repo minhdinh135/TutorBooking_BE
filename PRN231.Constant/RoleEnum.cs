@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PRN231.Constant
+﻿namespace PRN231.Constant
 {
     public class RoleEnum
     {
-        public const string Admin = "Admin";
-        public const string Client = "Client";
+        public const string ADMIN = "ADMIN";
+        public const string MODERATOR = "MODERATOR";
+        public const string STUDENT = "STUDENT";
+        public const string TUTOR = "TUTOR";
     }
 }
