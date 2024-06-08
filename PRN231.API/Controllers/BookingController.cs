@@ -5,6 +5,7 @@ using PRN231.Models.DTOs.Request;
 using PRN231.Models.DTOs.Response;
 using PRN231.Services;
 using System.Net;
+using System.Runtime.InteropServices;
 
 namespace PRN231.API.Controllers
 {
@@ -27,6 +28,14 @@ namespace PRN231.API.Controllers
             var response = new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookings);
 
             return Ok(response);
+        }
+
+        [HttpGet("GetAllByStatus")]
+        public async Task<ActionResult<ApiResponse>> GetAllBookingsByStatus([FromQuery] string status)
+        {
+            List<Booking> bookings = await _bookingService.GetAllBookingsByStatus(status);
+
+            return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookings));
         }
 
         [HttpPost("Create")]
