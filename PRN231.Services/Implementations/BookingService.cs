@@ -1,4 +1,5 @@
-﻿using PRN231.Constant;
+﻿using Microsoft.EntityFrameworkCore;
+using PRN231.Constant;
 using PRN231.Models;
 using PRN231.Models.DTOs.Request;
 using PRN231.Models.DTOs.Response;
@@ -23,7 +24,20 @@ namespace PRN231.Services.Implementations
 
         public async Task<List<Booking>> GetAllBookings()
         {
-            return (List<Booking>)await _bookingRepository.GetAll();
+            return (List<Booking>)await _bookingRepository.GetAll(
+                    query => query.Include(b => b.SubjectLevel),
+                    query => query.Include(b => b.Schedules),
+                    query => query.Include(b => b.BookingUsers)
+                );
+        }
+
+        public async Task<List<Booking>> GetAllBookingsByStatus(string status)
+        {
+            return _bookingRepository.GetAllBookingsByStatus(status,
+                    query => query.Include(b => b.SubjectLevel),
+                    query => query.Include(b => b.Schedules),
+                    query => query.Include(b => b.BookingUsers)
+                );
         }
 
         public async Task<CreateBookingResponse> CreateBooking(CreateBookingRequest createBookingRequest)

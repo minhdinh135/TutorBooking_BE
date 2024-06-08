@@ -33,6 +33,11 @@ namespace PRN231.Repositories.Implementations
             return _genericRepository.GetAll(includes);
         }
 
+        public List<Booking> GetAllBookingsByStatus(string status, params Func<IQueryable<Booking>, IQueryable<Booking>>[] includes)
+        {
+            return _genericRepository.GetAll(includes).Result.Where(b => b.Status.Equals(status)).ToList();
+        }
+
         public Task<Booking> Update(Booking entity)
         {
             return _genericRepository.Update(entity);
