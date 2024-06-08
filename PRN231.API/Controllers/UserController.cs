@@ -9,6 +9,7 @@ using PRN231.Services.Interfaces;
 using System.Xml;
 using Microsoft.AspNetCore.Identity;
 using System.Numerics;
+using Microsoft.EntityFrameworkCore;
 
 namespace PRN231.API.Controllers
 {
@@ -67,7 +68,7 @@ namespace PRN231.API.Controllers
         //[Authorize]
         public async Task<IActionResult> GetAll()
         {
-            var customerList = await _userService.GetAll();
+            var customerList = await _userRepo.GetAll(x => x.Include(x => x.Credentials));
             var responseUserList = new List<ResponseUserDTO>();
             foreach(var users in customerList)
             {
@@ -84,6 +85,7 @@ namespace PRN231.API.Controllers
                 Avatar = users.Avatar,
                 Gender = users.Gender,
                 Status = users.Status,
+                Credentials = users.Credentials
                             };
                 responseUserList.Add(user);
             }
@@ -123,6 +125,7 @@ namespace PRN231.API.Controllers
             user.PhoneNumber = dto.PhoneNumber;
             user.Gender = dto.Gender;
             user.Avatar = dto.Avatar;
+            user.Status = dto.Status;
 
             var updatedUser = await _userRepo.Update(user);
             return Ok(updatedUser);

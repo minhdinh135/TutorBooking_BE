@@ -13,6 +13,7 @@ namespace PRN231.Models.DTOs
         public required string PhoneNumber { get; set; }
 
         public required string Gender { get; set; }
+        public required string Status { get; set; }
         public required string Avatar { get; set; }
     }
 }

@@ -73,6 +73,27 @@ namespace PRN231.API.Controllers
             return Ok();
         }
 
+        [HttpPost("SendStatusMail")]
+        public async Task<IActionResult> SendStatusMail(SendStatusEmailDTO dto)
+        {
+            var receiver = dto.Email;
+            var subject = "";
+            var message = "";
+            if(dto.Status == "Active")
+            {
+                subject = "Account activated";
+                message = "Your account has been activated. Please check!";
+            }
+            else
+            {
+                subject = "Account rejected";
+                message = "Your account has been rejected. Please check!";
+            }
+
+            await _emailSender.SendEmailAsync(receiver, subject, message);
+            return Ok();
+        }
+
         [HttpPost("request-otp")]
         public async Task<IActionResult> RequestOtp([FromBody] RequestOtpModel model)
         {
@@ -390,6 +411,12 @@ namespace PRN231.API.Controllers
         public string Gender { get; set; }
         
         public required string Otp {get;set;}
+    }
+
+    public class SendStatusEmailDTO
+    {
+        public string Email { get; set; }
+        public string Status { get; set; }
     }
 
     public class RegisterTutorDTO{
