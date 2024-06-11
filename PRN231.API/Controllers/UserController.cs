@@ -68,7 +68,8 @@ namespace PRN231.API.Controllers
         //[Authorize]
         public async Task<IActionResult> GetAll()
         {
-            var customerList = await _userRepo.GetAll(x => x.Include(x => x.Credentials));
+            var customerList = await _userRepo.GetAll(x => x.Include(x => x.Credentials), 
+                x => x.Include(x => x.BookingUsers));
             var responseUserList = new List<ResponseUserDTO>();
             foreach(var users in customerList)
             {
@@ -85,7 +86,8 @@ namespace PRN231.API.Controllers
                 Avatar = users.Avatar,
                 Gender = users.Gender,
                 Status = users.Status,
-                Credentials = users.Credentials
+                Credentials = users.Credentials,
+                BookingUsers = users.BookingUsers,
                             };
                 responseUserList.Add(user);
             }

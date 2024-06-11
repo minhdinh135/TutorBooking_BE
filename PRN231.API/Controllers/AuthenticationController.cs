@@ -73,6 +73,27 @@ namespace PRN231.API.Controllers
             return Ok();
         }
 
+        [HttpPost("SendStatusMailCredentials")]
+        public async Task<IActionResult> SendStatusMailCredentials(SendStatusEmailDTO dto)
+        {
+            var receiver = dto.Email;
+            var subject = "";
+            var message = "";
+            if (dto.Status == "Accepted")
+            {
+                subject = "Credential activated";
+                message = "Your credential has been accepted. Please check!";
+            }
+            else
+            {
+                subject = "Credential rejected";
+                message = "Your credential has been rejected. Please check!";
+            }
+
+            await _emailSender.SendEmailAsync(receiver, subject, message);
+            return Ok();
+        }
+
         [HttpPost("SendStatusMail")]
         public async Task<IActionResult> SendStatusMail(SendStatusEmailDTO dto)
         {
