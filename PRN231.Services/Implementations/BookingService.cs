@@ -22,16 +22,16 @@ namespace PRN231.Services.Implementations
             _subjectLevelRepository = subjectLevelRepository;
         }
 
-        public async Task<List<Booking>> GetAllBookings()
+        public async Task<IEnumerable<Booking>> GetAllBookings()
         {
-            return (List<Booking>)await _bookingRepository.GetAll(
+            return await _bookingRepository.GetAll(
                     query => query.Include(b => b.SubjectLevel),
                     query => query.Include(b => b.Schedules),
                     query => query.Include(b => b.BookingUsers)
                 );
         }
 
-        public async Task<List<Booking>> GetAllBookingsByStatus(string status)
+        public async Task<IEnumerable<Booking>> GetAllBookingsByStatus(string status)
         {
             return _bookingRepository.GetAllBookingsByStatus(status,
                     query => query.Include(b => b.SubjectLevel),
@@ -55,6 +55,7 @@ namespace PRN231.Services.Implementations
                 SubjectLevelId = subjectLevel.Id,
                 Price = 0,
                 PaymentMethod = PaymentMethodConstant.UNDEFINED,
+                Description = createBookingRequest.Description,
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now,
                 Status = BookingStatusConstant.PENDING
@@ -68,7 +69,6 @@ namespace PRN231.Services.Implementations
                 {
                     UserId = createBookingRequest.UserId,
                     BookingId = addedBooking.Id,
-                    Description = createBookingRequest.Description,
                     Role = RoleEnum.STUDENT,
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now,
@@ -82,7 +82,7 @@ namespace PRN231.Services.Implementations
                     SubjectLevelId = addedBooking.SubjectLevelId,
                     UserId = savedBookingUser.UserId,
                     Role = savedBookingUser.Role,
-                    Description = savedBookingUser.Description
+                    Description = addedBooking.Description
                 };
 
                 return bookingResponse;
@@ -102,6 +102,7 @@ namespace PRN231.Services.Implementations
                 existingBooking.SubjectLevelId = updateBookingRequest.SubjectLevelId;
                 existingBooking.Price = updateBookingRequest.Price;
                 existingBooking.PaymentMethod = updateBookingRequest.PaymentMethod;
+                existingBooking.Description = updateBookingRequest.Description;
                 existingBooking.Status = updateBookingRequest.Status;
 
                 Booking updatedBooking = await _bookingRepository.Update(existingBooking);
