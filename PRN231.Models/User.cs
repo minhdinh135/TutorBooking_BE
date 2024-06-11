@@ -14,7 +14,7 @@ public partial class User : IdentityUser<int>
 
     public DateTime UpdatedAt { get; set; }
 
-    public bool Status { get; set; }
+    public string Status { get; set; }
 
     public List<Credential>? Credentials { get; set; }
 

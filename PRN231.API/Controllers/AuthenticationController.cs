@@ -29,7 +29,10 @@ namespace PRN231.API.Controllers
         private readonly RoleManager<Role> _roleManager;
 
         private readonly IEmailService _emailSender;
+        private readonly IGenericService<Credential, CredentialDTO> _credentialService;
         private readonly OtpService _otpService;
+
+        private readonly IFileStorageService _fileStorageService;
 
         public IConfiguration _configuration;
         private readonly JWTService _jwtService;
@@ -41,7 +44,9 @@ namespace PRN231.API.Controllers
                 RoleManager<Role> roleManager, SignInManager<User> signIn,
                 IEmailService emailSender,
                 OtpService otpService,
-                JWTService jwtService)
+                JWTService jwtService,
+                IGenericService<Credential, CredentialDTO> credentialService,
+                IFileStorageService fileStorageService)
         {
             _logger = logger;
             _configuration = config;
@@ -53,6 +58,8 @@ namespace PRN231.API.Controllers
             _signIn = signIn;
             _emailSender = emailSender;
             _otpService = otpService;
+            _credentialService = credentialService;
+            _fileStorageService = fileStorageService;
         }
 
         [HttpPost("SendMail")]
@@ -66,18 +73,39 @@ namespace PRN231.API.Controllers
             return Ok();
         }
 
+        [HttpPost("SendStatusMail")]
+        public async Task<IActionResult> SendStatusMail(SendStatusEmailDTO dto)
+        {
+            var receiver = dto.Email;
+            var subject = "";
+            var message = "";
+            if(dto.Status == "Active")
+            {
+                subject = "Account activated";
+                message = "Your account has been activated. Please check!";
+            }
+            else
+            {
+                subject = "Account rejected";
+                message = "Your account has been rejected. Please check!";
+            }
+
+            await _emailSender.SendEmailAsync(receiver, subject, message);
+            return Ok();
+        }
+
         [HttpPost("request-otp")]
         public async Task<IActionResult> RequestOtp([FromBody] RequestOtpModel model)
         {
-            /*if (await _manager.FindByEmailAsync(email) != null)
+            if (await _manager.FindByEmailAsync(model.Email) != null)
             {
                 return BadRequest("Email already exists!!!");
-            }*/
+            }
             var otp = _otpService.GenerateOtp();
             var hashedOtp = _otpService.HashOtp(otp);
 
             HttpContext.Session.SetString($"HashedOtp_{model.Email}", hashedOtp);
-            Console.WriteLine(model.Email);
+            //Console.WriteLine(model.Email);
             //Console.WriteLine(HttpContext.Session.GetString($"HashedOtp_{email}"));
             await _emailSender.SendEmailAsync(model.Email, "OTP", otp);
 
@@ -87,30 +115,8 @@ namespace PRN231.API.Controllers
         [HttpPost("verify-otp")]
         public IActionResult VerifyOtp([FromBody] VerifyOtpModel model)
         {
-            Console.WriteLine(model.Email);
-
-            // Get the current HTTP context
-            //HttpContext context = HttpContext;
-        
-            // Check if the session is available
-            /*if (context.Session != null)
-            {
-                // Iterate through all session keys
-                foreach (var (key, value) in context.Items)
-                {
-                    // Log the key and value to the console
-                    Console.WriteLine($"Session Key: {key}, Value: {value}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Session is not available.");
-            }*/
             var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{model.Email}");
             var hashedUserOtp = _otpService.HashOtp(model.Otp);
-
-            Console.WriteLine(hashedOtp);
-            Console.WriteLine(hashedUserOtp);
 
             if (hashedOtp != null && hashedUserOtp == hashedOtp)
             {
@@ -129,6 +135,7 @@ namespace PRN231.API.Controllers
             if (user == null) return Unauthorized("Invalid email!!!");
             var result = await _signIn.CheckPasswordSignInAsync(user, login.Password, false);
             if (!result.Succeeded) return Unauthorized("Invalid email or password!!!");
+            if(user.Status == "Inactive") return Unauthorized("Your account is inactive!!!");
             var roleList = await _manager.GetRolesAsync(user);
             var role = roleList.FirstOrDefault() ?? "";
             var userInfo = new UserDTO();
@@ -159,9 +166,10 @@ namespace PRN231.API.Controllers
                 EmailConfirmed = true,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
-                Status = true,
-                Gender = "Male",
-                Address = "Sai Gon",
+                Status = "Active",
+                PhoneNumber = registerDTO.PhoneNumber,
+                Gender = registerDTO.Gender,
+                Address = registerDTO.Address,
                 Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
             };
             var result = await _manager.CreateAsync(user, registerDTO.Password);
@@ -174,7 +182,7 @@ namespace PRN231.API.Controllers
         }
 
         [HttpPost("RegisterTutor")]
-        public async Task<ActionResult<UserDTO>> RegisterTutor(RegisterDTO registerDTO)
+        public async Task<ActionResult<UserDTO>> RegisterTutor([FromForm] RegisterTutorDTO registerDTO)
         {
             if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
             {
@@ -196,9 +204,10 @@ namespace PRN231.API.Controllers
                 EmailConfirmed = true,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
-                Status = true,
-                Gender = "Male",
-                Address = "Sai Gon",
+                Status = "Inactive",
+                PhoneNumber = registerDTO.PhoneNumber,
+                Gender = registerDTO.Gender,
+                Address = registerDTO.Address,
                 Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
             };
             var result = await _manager.CreateAsync(user, registerDTO.Password);
@@ -206,7 +215,102 @@ namespace PRN231.API.Controllers
             bool roleExists = await _roleManager.RoleExistsAsync("Tutor");
             if (!roleExists) await _roleManager.CreateAsync(new Role("Tutor"));
             await _manager.AddToRoleAsync(user, "Tutor");
-            var token = _jwtService.CreateJwt(user, "Tutor");
+            //add initial credential
+            // Store file
+            string filePath = await _fileStorageService.StoreFileAsync(registerDTO.CredentialImage);
+            if (filePath == null)
+            {
+                return BadRequest("Failed to store file.");
+            }
+
+            // Update credential image
+            var image = $"http://localhost:5176/{filePath}";
+
+            var credential = new CredentialDTO{
+                TutorId = user.Id,
+                Type = registerDTO.CredentialType,
+                Image = image,
+                Status = "Pending",
+                Name = registerDTO.CredentialName,
+                SubjectId = registerDTO.SubjectId
+            };
+            var credentialResult = await _credentialService.Add(credential);
+            if (credentialResult == null) return BadRequest("Failed to add credential.");
+            //var token = _jwtService.CreateJwt(user, "Tutor");
+            return Ok("Your account is being reviewed. You will receive an email when your account is approved.");
+        }
+
+        [HttpPost("RegisterAdmin")]
+        public async Task<ActionResult<UserDTO>> RegisterAdmin(RegisterDTO registerDTO)
+        {
+            if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
+            {
+                return BadRequest("Email already exists!!!");
+            }
+            //check Otp
+            /*var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{registerDTO.Email}");
+            var hashedUserOtp = _otpService.HashOtp(registerDTO.Otp);
+
+            if (hashedOtp == null || hashedUserOtp != hashedOtp)
+            {
+                return Unauthorized(new { Message = "Invalid OTP. Please try again." });
+            }*/
+            //create user
+            var user = new User
+            {
+                UserName = registerDTO.Name,
+                Email = registerDTO.Email,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                Status = "Active",
+                Gender = registerDTO.Gender,
+                Address = registerDTO.Address,
+                Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
+            };
+            var result = await _manager.CreateAsync(user, registerDTO.Password);
+            if (!result.Succeeded) return BadRequest(result.Errors);
+            bool roleExists = await _roleManager.RoleExistsAsync("Admin");
+            if (!roleExists) await _roleManager.CreateAsync(new Role("Admin"));
+            await _manager.AddToRoleAsync(user, "Admin");
+            var token = _jwtService.CreateJwt(user, "Admin");
+            return Ok(token);
+        }
+
+        [HttpPost("RegisterModerator")]
+        public async Task<ActionResult<UserDTO>> RegisterModerator(RegisterDTO registerDTO)
+        {
+            if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
+            {
+                return BadRequest("Email already exists!!!");
+            }
+            //check Otp
+            /*var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{registerDTO.Email}");
+            var hashedUserOtp = _otpService.HashOtp(registerDTO.Otp);
+
+            if (hashedOtp == null || hashedUserOtp != hashedOtp)
+            {
+                return Unauthorized(new { Message = "Invalid OTP. Please try again." });
+            }*/
+            //create user
+            var user = new User
+            {
+                UserName = registerDTO.Name,
+                Email = registerDTO.Email,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                Status = "Active",
+                Gender = registerDTO.Gender,
+                Address = registerDTO.Address,
+                Avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg",
+            };
+            var result = await _manager.CreateAsync(user, registerDTO.Password);
+            if (!result.Succeeded) return BadRequest(result.Errors);
+            bool roleExists = await _roleManager.RoleExistsAsync("Moderator");
+            if (!roleExists) await _roleManager.CreateAsync(new Role("Moderator"));
+            await _manager.AddToRoleAsync(user, "Moderator");
+            var token = _jwtService.CreateJwt(user, "Moderator");
             return Ok(token);
         }
 
@@ -246,35 +350,35 @@ namespace PRN231.API.Controllers
         }
     }
 
-    public class JwtService{
-        public static JwtDTO CreateJwt(IConfiguration config, User user, string role = RoleEnum.Client){
-            //create claims details based on the user information
-                var claims = new[] {
-                    new Claim(JwtRegisteredClaimNames.Sub,
-                            config["Jwt:Subject"]),
-                        new Claim(JwtRegisteredClaimNames.Jti
-                                , Guid.NewGuid().ToString()),
-                        new Claim(JwtRegisteredClaimNames.Iat
-                                , DateTime.UtcNow.ToString()),
-                        new Claim("id", user.Id.ToString()),
-                        new Claim("email", user.Email),
-                        new Claim("role", role),
-                };
-                var key = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(config["Jwt:Key"]));
-                var signIn = new SigningCredentials(
-                        key, SecurityAlgorithms.HmacSha256);
-                var token = new JwtSecurityToken(
-                        config["Jwt:Issuer"],
-                        config["Jwt:Audience"],
-                        claims,
-                        expires: DateTime.UtcNow.AddMinutes(10),
-                        signingCredentials: signIn);
+    //public class JwtService{
+    //    public static JwtDTO CreateJwt(IConfiguration config, User user, string role = RoleEnum.Client){
+    //        //create claims details based on the user information
+    //            var claims = new[] {
+    //                new Claim(JwtRegisteredClaimNames.Sub,
+    //                        config["Jwt:Subject"]),
+    //                    new Claim(JwtRegisteredClaimNames.Jti
+    //                            , Guid.NewGuid().ToString()),
+    //                    new Claim(JwtRegisteredClaimNames.Iat
+    //                            , DateTime.UtcNow.ToString()),
+    //                    new Claim("id", user.Id.ToString()),
+    //                    new Claim("email", user.Email),
+    //                    new Claim("role", role),
+    //            };
+    //            var key = new SymmetricSecurityKey(
+    //                    Encoding.UTF8.GetBytes(config["Jwt:Key"]));
+    //            var signIn = new SigningCredentials(
+    //                    key, SecurityAlgorithms.HmacSha256);
+    //            var token = new JwtSecurityToken(
+    //                    config["Jwt:Issuer"],
+    //                    config["Jwt:Audience"],
+    //                    claims,
+    //                    expires: DateTime.UtcNow.AddMinutes(10),
+    //                    signingCredentials: signIn);
 
-                string Token = new JwtSecurityTokenHandler().WriteToken(token);
-                return new JwtDTO{Token = Token};
-        }
-    }
+    //            string Token = new JwtSecurityTokenHandler().WriteToken(token);
+    //            return new JwtDTO{Token = Token};
+    //    }
+    //}
 
     public class VerifyOtpModel
     {
@@ -299,6 +403,43 @@ namespace PRN231.API.Controllers
         public required string Email { get; set; }
         [MinLength(3, ErrorMessage = "Password must be at least 3 characters")]
         public required string Password {get;set;}
+
+        public string Address { get; set; }
+
+        public string PhoneNumber { get; set; }
+
+        public string Gender { get; set; }
+        
+        public required string Otp {get;set;}
+    }
+
+    public class SendStatusEmailDTO
+    {
+        public string Email { get; set; }
+        public string Status { get; set; }
+    }
+
+    public class RegisterTutorDTO{
+        [MinLength(3, ErrorMessage = "Name must be at least 3 characters")]
+        public required string Name { get; set; }
+        [MinLength(3, ErrorMessage = "Email must be at least 3 characters")]
+        public required string Email { get; set; }
+        [MinLength(3, ErrorMessage = "Password must be at least 3 characters")]
+        public required string Password {get;set;}
+
+        public string Address { get; set; }
+
+        public string PhoneNumber { get; set; }
+
+        public string Gender { get; set; }
+
+        public string CredentialName { get; set; }
+
+        public int SubjectId { get; set; }
+
+        public string CredentialType { get; set; }
+
+        public IFormFile CredentialImage { get; set; }
         
         public required string Otp {get;set;}
     }

@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PRN231.Models.DTOs.Response
+﻿namespace PRN231.Models.DTOs.Response
 {
     public class CreateBookingResponse
     {
-        public int StudentId { get; set; }
-        public decimal Price { get; set; }
-        public string PaymentMethod { get; set; }
+        public int SubjectLevelId { get; set; }
+
+        public int UserId { get; set; }
+
+        public string Role { get; set; }
+
+        public string Description { get; set; }
     }
 }
