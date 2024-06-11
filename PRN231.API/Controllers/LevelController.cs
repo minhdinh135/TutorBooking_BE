@@ -50,6 +50,13 @@ namespace PRN231.API.Controllers
         public async Task<IActionResult> Update(LevelDTO dto)
         {
             var level = await _levelService.Update(dto);
+
+            if (level == null)
+            {
+                return NotFound($"Level with ID {dto.Id} not found.");
+            }
+
+            level.LevelName = dto.LevelName;
             return Ok(level);
         }
 

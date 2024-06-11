@@ -14,5 +14,7 @@ namespace PRN231.Models.DTOs
         public string Description { get; set; }
         public string Location { get; set; }
         public DateTime RequestDate { get; set; }
+
+        public bool Status { get; set; }
     }
 }
