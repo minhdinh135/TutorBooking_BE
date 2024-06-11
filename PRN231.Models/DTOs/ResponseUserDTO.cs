@@ -25,6 +25,7 @@ namespace PRN231.Models.DTOs
         public string Gender { get; set; }
 
         public string Status { get; set; }
+        public List<BookingUser>? BookingUsers { get; set; }
         public List<Credential>? Credentials { get; set; }
     }
 }
