@@ -1,10 +1,11 @@
-using EXE101.Models;
-using EXE101.Repository.Interfaces;
+using PRN231.Models;
+using PRN231.Repository.Interfaces;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PRN231.DAL;
+using PRN231.Repository.Interfaces;
 
-namespace EXE101.Repository.Implementations
+namespace PRN231.Repository.Implementations
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
@@ -24,7 +25,7 @@ namespace EXE101.Repository.Implementations
             return entity;
         }
 
-        public async Task<T> Delete(params Guid[] keys)
+        public async Task<T> Delete(params int[] keys)
         {
             var entity = await Get(keys);
             _dbSet.Remove(entity);
@@ -48,7 +49,7 @@ namespace EXE101.Repository.Implementations
             return list;
         }
 
-        public async Task<T> Get(params Guid[] keys)
+        public async Task<T> Get(params int[] keys)
         {
             if (keys.Length == 1)
             {

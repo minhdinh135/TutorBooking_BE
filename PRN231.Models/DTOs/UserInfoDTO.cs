@@ -1,8 +1,8 @@
-namespace EXE101.Models.DTOs
+namespace PRN231.Models.DTOs
 {
     public class UserInfoDTO
     {
-        public Guid? Id { get; set; } 
+        public int Id { get; set; } 
 
         public required string ReceiverName { get; set; }
 
@@ -12,16 +12,8 @@ namespace EXE101.Models.DTOs
 
         public required string PhoneNumber { get; set; }
 
-        public string? AddressInfo { get; set; }
-
-        public string? AdditionalInfo { get; set; }
-
-        public bool IsSaved { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        //public required DateTime DateOfBirth { get; set; }
-
-        public required Guid UserId { get; set; }
+        public required string Gender { get; set; }
+        public required string Status { get; set; }
+        public required string Avatar { get; set; }
     }
 }

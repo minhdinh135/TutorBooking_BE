@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace PRN231.Models.DTOs
 {
-    internal class SubjectDTO
+    public class SubjectDTO
     {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+
+        public string Status { get; set; }
+
     }
 }
