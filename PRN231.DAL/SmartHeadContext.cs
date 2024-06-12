@@ -34,6 +34,8 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
     public virtual DbSet<Schedule> Schedules { get; set; }
 
     public virtual DbSet<Subject> Subjects { get; set; }
+    
+    public virtual DbSet<Post> Posts { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
         IConfigurationRoot configuration = new ConfigurationBuilder()

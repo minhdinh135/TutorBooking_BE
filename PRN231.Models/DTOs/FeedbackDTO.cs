@@ -14,6 +14,6 @@ namespace PRN231.Models.DTOs
 
         public int Rating { get; set; }
 
-        public bool Status { get; set; }
+        public string Status { get; set; }
     }
 }
