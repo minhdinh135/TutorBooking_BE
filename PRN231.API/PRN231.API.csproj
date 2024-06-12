@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <Folder Include="UploadedFiles\" />
+    <Folder Include="UploadedFiles\" />
   </ItemGroup>
 
   <ItemGroup>

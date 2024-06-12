@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using PRN231.Services;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRN231.Services.Implementations;
+using PRN231.Constant;
 
 namespace PRN231.API.Controllers
 {
@@ -143,7 +144,16 @@ namespace PRN231.API.Controllers
             return Ok(token);
         }
 
+        private void ConfigureAuthorizationPolicies(AuthorizationOptions options)
+        {
+            options.AddPolicy(RoleEnum.ADMIN, policy => policy.RequireRole(RoleEnum.ADMIN));
+            options.AddPolicy(RoleEnum.MODERATOR, policy => policy.RequireRole(RoleEnum.MODERATOR));
+            options.AddPolicy(RoleEnum.STUDENT, policy => policy.RequireRole(RoleEnum.STUDENT));
+            options.AddPolicy(RoleEnum.TUTOR, policy => policy.RequireRole(RoleEnum.TUTOR));
+        }
+
         [HttpPost("RegisterStudent")]
+        [AllowAnonymous]
         public async Task<ActionResult<UserDTO>> RegisterStudent(RegisterDTO registerDTO)
         {
             if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
@@ -182,6 +192,7 @@ namespace PRN231.API.Controllers
         }
 
         [HttpPost("RegisterTutor")]
+        [AllowAnonymous]
         public async Task<ActionResult<UserDTO>> RegisterTutor([FromForm] RegisterTutorDTO registerDTO)
         {
             if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
@@ -315,7 +326,7 @@ namespace PRN231.API.Controllers
         }
 
         [HttpGet("JwtDecode")]
-        [Authorize]
+        //[Authorize]
         public Task<IActionResult> JwtDecode(){
             string token = HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
             string header = token.Split(".")[0];
@@ -444,11 +455,11 @@ namespace PRN231.API.Controllers
         public required string Otp {get;set;}
     }
 
-    public class RoleEnum
-    {
-        public const string Admin = "Admin";
-        public const string Client = "Client";
-    }
+    //public class RoleEnum
+    //{
+    //    public const string Admin = "Admin";
+    //    public const string Client = "Client";
+    //}
 
     public class JwtDTO{
         public string Token {get;set;} =null!;
