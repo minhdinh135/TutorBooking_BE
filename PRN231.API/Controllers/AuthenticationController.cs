@@ -15,6 +15,7 @@ using PRN231.Services;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRN231.Services.Implementations;
 using PRN231.Constant;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace PRN231.API.Controllers
 {
@@ -288,6 +289,67 @@ namespace PRN231.API.Controllers
             return Ok(token);
         }
 
+        [HttpPost("ForgotPassword")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _manager.FindByEmailAsync(model.Email);
+            if (user == null || !(await _manager.IsEmailConfirmedAsync(user)))
+            {
+                return Ok(new { Message = "Password reset email sent if the email exists and is confirmed." });
+            }
+
+            var token = await _manager.GeneratePasswordResetTokenAsync(user);
+            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            var callbackUrl = Url.Action(
+                action: "ResetPassword",
+                controller: "Authentication",
+                values: new { token, email = user.Email },
+                protocol: Request.Scheme);
+
+            await _emailSender.SendEmailAsync(
+                user.Email,
+                "Reset Password",
+                $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+
+            return Ok(new { Message = "Password reset email sent if the email exists and is confirmed." });
+        }
+
+        [HttpPost("ResetPassword")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _manager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return Ok(new { Message = "Password reset successful if email and token were valid." });
+            }
+
+            var decodedTokenBytes = WebEncoders.Base64UrlDecode(model.Token);
+            var token = Encoding.UTF8.GetString(decodedTokenBytes);
+
+            var result = await _manager.ResetPasswordAsync(user, token, model.Password);
+            if (result.Succeeded)
+            {
+                return Ok(new { Message = "Password reset successful if email and token were valid." });
+            }
+            else
+            {
+                return BadRequest(new { Message = "Invalid token or expired token." });
+            }
+        }
+
         [HttpPost("RegisterModerator")]
         public async Task<ActionResult<UserDTO>> RegisterModerator(RegisterDTO registerDTO)
         {
@@ -391,6 +453,21 @@ namespace PRN231.API.Controllers
     //    }
     //}
 
+    public class ResetPasswordModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        public string Token { get; set; }
+
+        [Required]
+        public string Password { get; set; }
+
+        [Required]
+        public string ConfirmPassword { get; set; }
+    }
     public class VerifyOtpModel
     {
         public string Email { get; set; }
@@ -424,6 +501,13 @@ namespace PRN231.API.Controllers
         public required string Otp {get;set;}
     }
 
+
+    public class ForgotPasswordModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+    }
     public class SendStatusEmailDTO
     {
         public string Email { get; set; }

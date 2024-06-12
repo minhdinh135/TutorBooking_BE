@@ -80,7 +80,7 @@ namespace PRN231.API.Controllers
         }
 
 
-        [HttpPost("Update")]
+        [HttpPut("Update")]
         public async Task<IActionResult> Update([FromForm] PostDTO dto)
         {
 
