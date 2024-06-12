@@ -9,8 +9,8 @@ namespace PRN231.Services.Implementations
         public async Task SendEmailAsync(string mail, string subject, string message)
         {
             var email = new MimeMessage();
-            email.Sender = MailboxAddress.Parse("smarthead816@gmail.com");
-            email.From.Add(MailboxAddress.Parse("smarthead816@gmail.com"));
+            email.Sender = MailboxAddress.Parse("smartheadproject@gmail.com");
+            email.From.Add(MailboxAddress.Parse("smartheadproject@gmail.com"));
             email.To.Add(MailboxAddress.Parse(mail));
             email.Subject = subject;
             var builder = new BodyBuilder();
@@ -19,7 +19,7 @@ namespace PRN231.Services.Implementations
 
             using var smtp = new SmtpClient();
             smtp.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTlsWhenAvailable);
-            smtp.Authenticate("smarthead816@gmail.com", "wxnj pged bwnj tirq");
+            smtp.Authenticate("smartheadproject@gmail.com", "klkx pypc mper auyj");
 
             await smtp.SendAsync(email);
             smtp.Disconnect(true);

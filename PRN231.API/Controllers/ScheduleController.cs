@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using PRN231.Models;
 using PRN231.Models.DTOs;
 using PRN231.Services.Interfaces;
+using PRN231.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace PRN231.API.Controllers
 {
@@ -12,15 +14,18 @@ namespace PRN231.API.Controllers
     public class ScheduleController:ControllerBase
     {
         private readonly IGenericService<Schedule, ScheduleDTO> _scheduleService;
+        private readonly IGenericRepository<Schedule> _scheduleRepo;
         private readonly ILogger<ScheduleController> _logger;
         public IConfiguration _configuration;
 
         public ScheduleController(IConfiguration config, ILogger<ScheduleController> logger,
-                IGenericService<Schedule, ScheduleDTO> scheduleService)
+                IGenericService<Schedule, ScheduleDTO> scheduleService,
+                IGenericRepository<Schedule> scheduleRepo)
         {
             _logger = logger;
             _configuration = config;
             _scheduleService = scheduleService;
+            _scheduleRepo = scheduleRepo;
         }
 
         [HttpGet("GetAll")]
@@ -28,6 +33,22 @@ namespace PRN231.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var scheduleList = await _scheduleService.GetAll();
+            return Ok(scheduleList);
+        }
+
+        [HttpGet("GetAllByUserId")]
+        //[Authorize]
+        public async Task<IActionResult> GetAllByUserId(int userId)
+        {
+            var scheduleList = await _scheduleRepo.GetAll(x => x.Include(x => x.Booking)
+                    .ThenInclude(x => x.BookingUsers)
+                    .ThenInclude(x => x.User)
+                    , x => x.Include(x => x.Booking)
+                    .ThenInclude(x => x.SubjectLevel));
+            scheduleList = scheduleList.Where(x => 
+                    x.Booking.BookingUsers
+                    .Any(y => 
+                        y.UserId == userId));
             return Ok(scheduleList);
         }
 
