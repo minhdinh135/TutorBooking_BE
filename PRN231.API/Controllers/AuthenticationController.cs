@@ -105,6 +105,10 @@ namespace PRN231.API.Controllers
             {
                 subject = "Account activated";
                 message = "Your account has been activated. Please check!";
+            }else if(dto.Status == "Inactive")
+            {
+                subject = "Account inactive";
+                message = "Your account has been inactive. Please check!";
             }
             else
             {

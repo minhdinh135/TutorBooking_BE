@@ -64,6 +64,7 @@ builder.Services.AddDistributedMemoryCache(); // Add in-memory distributed cache
 
 builder.Services.AddIdentityCore<User>(options =>
 {
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
     //password config
     options.Password.RequiredLength = 3;
     options.Password.RequiredUniqueChars = 0;
