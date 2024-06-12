@@ -30,6 +30,9 @@ namespace PRN231.Models.AutoMapper
 
             CreateMap<FeedbackDTO, Feedback>();
             CreateMap<Feedback, FeedbackDTO>();
+
+            CreateMap<PostDTO, Post>();
+            CreateMap<Post, PostDTO>();
         }
     }
 }

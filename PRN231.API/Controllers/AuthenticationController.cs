@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using PRN231.Services;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRN231.Services.Implementations;
+using PRN231.Constant;
 
 namespace PRN231.API.Controllers
 {
@@ -164,7 +165,16 @@ namespace PRN231.API.Controllers
             return Ok(token);
         }
 
+        private void ConfigureAuthorizationPolicies(AuthorizationOptions options)
+        {
+            options.AddPolicy(RoleEnum.ADMIN, policy => policy.RequireRole(RoleEnum.ADMIN));
+            options.AddPolicy(RoleEnum.MODERATOR, policy => policy.RequireRole(RoleEnum.MODERATOR));
+            options.AddPolicy(RoleEnum.STUDENT, policy => policy.RequireRole(RoleEnum.STUDENT));
+            options.AddPolicy(RoleEnum.TUTOR, policy => policy.RequireRole(RoleEnum.TUTOR));
+        }
+
         [HttpPost("RegisterStudent")]
+        [AllowAnonymous]
         public async Task<ActionResult<UserDTO>> RegisterStudent(RegisterDTO registerDTO)
         {
             if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
@@ -203,6 +213,7 @@ namespace PRN231.API.Controllers
         }
 
         [HttpPost("RegisterTutor")]
+        [AllowAnonymous]
         public async Task<ActionResult<UserDTO>> RegisterTutor([FromForm] RegisterTutorDTO registerDTO)
         {
             if (await _manager.FindByEmailAsync(registerDTO.Email) != null)
@@ -336,7 +347,7 @@ namespace PRN231.API.Controllers
         }
 
         [HttpGet("JwtDecode")]
-        [Authorize]
+        //[Authorize]
         public Task<IActionResult> JwtDecode(){
             string token = HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
             string header = token.Split(".")[0];
@@ -371,35 +382,35 @@ namespace PRN231.API.Controllers
         }
     }
 
-    public class JwtService{
-        public static JwtDTO CreateJwt(IConfiguration config, User user, string role = RoleEnum.Client){
-            //create claims details based on the user information
-                var claims = new[] {
-                    new Claim(JwtRegisteredClaimNames.Sub,
-                            config["Jwt:Subject"]),
-                        new Claim(JwtRegisteredClaimNames.Jti
-                                , Guid.NewGuid().ToString()),
-                        new Claim(JwtRegisteredClaimNames.Iat
-                                , DateTime.UtcNow.ToString()),
-                        new Claim("id", user.Id.ToString()),
-                        new Claim("email", user.Email),
-                        new Claim("role", role),
-                };
-                var key = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(config["Jwt:Key"]));
-                var signIn = new SigningCredentials(
-                        key, SecurityAlgorithms.HmacSha256);
-                var token = new JwtSecurityToken(
-                        config["Jwt:Issuer"],
-                        config["Jwt:Audience"],
-                        claims,
-                        expires: DateTime.UtcNow.AddMinutes(10),
-                        signingCredentials: signIn);
+    //public class JwtService{
+    //    public static JwtDTO CreateJwt(IConfiguration config, User user, string role = RoleEnum.Client){
+    //        //create claims details based on the user information
+    //            var claims = new[] {
+    //                new Claim(JwtRegisteredClaimNames.Sub,
+    //                        config["Jwt:Subject"]),
+    //                    new Claim(JwtRegisteredClaimNames.Jti
+    //                            , Guid.NewGuid().ToString()),
+    //                    new Claim(JwtRegisteredClaimNames.Iat
+    //                            , DateTime.UtcNow.ToString()),
+    //                    new Claim("id", user.Id.ToString()),
+    //                    new Claim("email", user.Email),
+    //                    new Claim("role", role),
+    //            };
+    //            var key = new SymmetricSecurityKey(
+    //                    Encoding.UTF8.GetBytes(config["Jwt:Key"]));
+    //            var signIn = new SigningCredentials(
+    //                    key, SecurityAlgorithms.HmacSha256);
+    //            var token = new JwtSecurityToken(
+    //                    config["Jwt:Issuer"],
+    //                    config["Jwt:Audience"],
+    //                    claims,
+    //                    expires: DateTime.UtcNow.AddMinutes(10),
+    //                    signingCredentials: signIn);
 
-                string Token = new JwtSecurityTokenHandler().WriteToken(token);
-                return new JwtDTO{Token = Token};
-        }
-    }
+    //            string Token = new JwtSecurityTokenHandler().WriteToken(token);
+    //            return new JwtDTO{Token = Token};
+    //    }
+    //}
 
     public class VerifyOtpModel
     {
@@ -465,11 +476,11 @@ namespace PRN231.API.Controllers
         public required string Otp {get;set;}
     }
 
-    public class RoleEnum
-    {
-        public const string Admin = "Admin";
-        public const string Client = "Client";
-    }
+    //public class RoleEnum
+    //{
+    //    public const string Admin = "Admin";
+    //    public const string Client = "Client";
+    //}
 
     public class JwtDTO{
         public string Token {get;set;} =null!;
