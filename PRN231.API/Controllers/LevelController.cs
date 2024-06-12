@@ -2,6 +2,7 @@
 using PRN231.Models.DTOs;
 using PRN231.Models;
 using PRN231.Services.Interfaces;
+using PRN231.Repository.Interfaces;
 
 namespace PRN231.API.Controllers
 {
@@ -10,15 +11,21 @@ namespace PRN231.API.Controllers
     public class LevelController : ControllerBase
     {
         private readonly IGenericService<Level, LevelDTO> _levelService;
+        private readonly IGenericService<Subject, SubjectDTO> _subjectService;
+        private readonly IGenericRepository<SubjectLevel> _subjectLevelService;
         private readonly ILogger<LevelController> _logger;
         public IConfiguration _configuration;
 
         public LevelController(IConfiguration config, ILogger<LevelController> logger,
-                IGenericService<Level, LevelDTO> levelService)
+                IGenericService<Level, LevelDTO> levelService,
+                IGenericService<Subject, SubjectDTO> subjectService,
+                IGenericRepository<SubjectLevel> subjectLevelService)
         {
             _logger = logger;
             _configuration = config;
             _levelService = levelService;
+            _subjectLevelService = subjectLevelService;
+            _subjectService = subjectService;
         }
 
         [HttpGet("GetAll")]
@@ -42,6 +49,20 @@ namespace PRN231.API.Controllers
         public async Task<IActionResult> Add(LevelDTO dto)
         {
             var level = await _levelService.Add(dto);
+            var subjects = await _subjectService.GetAll();
+            foreach (var subject in subjects){
+                var subjectLevel = new SubjectLevel
+                {
+                    LevelId = level.Id,
+                    SubjectId = subject.Id,
+                    Description = subject.Name + " " + level.LevelName,
+                    Status = "Active",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+
+                };
+                await _subjectLevelService.Add(subjectLevel);
+            }
             return Ok(level);
         }
 

@@ -84,6 +84,15 @@ namespace PRN231.API.Controllers
             return Ok(credential);
         }
 
+        [HttpGet("GetByUserId")]
+        //[Authorize]
+        public async Task<IActionResult> GetCredentialsByUserId(int id)
+        {
+            var credential = await _credentialRepo.GetAll(x => x.Include(a => a.Subject));
+            credential = credential.Where(c => c.TutorId == id);
+            return Ok(credential);
+        }
+
         [HttpPost("Add")]
         //[Authorize]
         public async Task<IActionResult> Add(CredentialDTO dto)
@@ -102,7 +111,7 @@ namespace PRN231.API.Controllers
 
         [HttpDelete("Delete")]
         //[Authorize]
-        public async Task<IActionResult> Delete([FromBody] int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var credential = await _credentialService.Delete(id);
             return Ok(credential);

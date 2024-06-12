@@ -8,6 +8,8 @@ public partial class Booking : BaseModel
 
     public string PaymentMethod { get; set; }
 
+    public string? Description { get; set; }
+
     public SubjectLevel SubjectLevel { get; set; }
 
     public List<Schedule> Schedules { get; set; }
