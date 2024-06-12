@@ -25,19 +25,15 @@ namespace PRN231.Services.Implementations
         public async Task<IEnumerable<Booking>> GetAllBookings()
         {
             return await _bookingRepository.GetAll(
-                    query => query.Include(b => b.SubjectLevel),
-                    query => query.Include(b => b.Schedules),
-                    query => query.Include(b => b.BookingUsers)
+                    query => query.Include(b => b.SubjectLevel)
+                                  .Include(b => b.BookingUsers)
+                                  .Include(b => b.Schedules)
                 );
         }
 
         public async Task<IEnumerable<Booking>> GetAllBookingsByStatus(string status)
         {
-            return _bookingRepository.GetAllBookingsByStatus(status,
-                    query => query.Include(b => b.SubjectLevel),
-                    query => query.Include(b => b.Schedules),
-                    query => query.Include(b => b.BookingUsers)
-                );
+            return GetAllBookings().Result.Where(b => b.Status.Equals(status));
         }
 
         public async Task<CreateBookingResponse> CreateBooking(CreateBookingRequest createBookingRequest)
