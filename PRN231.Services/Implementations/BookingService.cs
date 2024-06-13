@@ -11,22 +11,18 @@ namespace PRN231.Services.Implementations
     {
         private readonly IBookingRepository _bookingRepository;
         private readonly IBookingUserRepository _bookingUserRepository;
-        private readonly ISubjectLevelRepository _subjectLevelRepository;
 
         public BookingService(IBookingRepository bookingRepository,
-            IBookingUserRepository bookingUserRepository,
-            ISubjectLevelRepository subjectLevelRepository)
+            IBookingUserRepository bookingUserRepository)
         {
             _bookingRepository = bookingRepository;
             _bookingUserRepository = bookingUserRepository;
-            _subjectLevelRepository = subjectLevelRepository;
         }
 
         public async Task<IEnumerable<Booking>> GetAllBookings()
         {
             return await _bookingRepository.GetAll(
-                    query => query.Include(b => b.SubjectLevel)
-                                  .Include(b => b.BookingUsers)
+                    query => query.Include(b => b.BookingUsers)
                                   .Include(b => b.Schedules)
                 );
         }
@@ -38,17 +34,10 @@ namespace PRN231.Services.Implementations
 
         public async Task<CreateBookingResponse> CreateBooking(CreateBookingRequest createBookingRequest)
         {
-            SubjectLevel subjectLevel = _subjectLevelRepository
-                .FindSubjectLevelBySubjectIdAndLevelId(createBookingRequest.SubjectId, createBookingRequest.LevelId);
-
-            if(subjectLevel == null)
-            {
-                throw new Exception("Subject Level not found");
-            }
-
             Booking booking = new Booking
             {
-                SubjectLevelId = subjectLevel.Id,
+                SubjectId = createBookingRequest.SubjectId,
+                LevelId = createBookingRequest.LevelId,
                 Price = 0,
                 PaymentMethod = PaymentMethodConstant.UNDEFINED,
                 Description = createBookingRequest.Description,
@@ -75,7 +64,8 @@ namespace PRN231.Services.Implementations
 
                 CreateBookingResponse bookingResponse = new CreateBookingResponse
                 {
-                    SubjectLevelId = addedBooking.SubjectLevelId,
+                    SubjectId = addedBooking.SubjectId,
+                    LevelId = addedBooking.LevelId,
                     UserId = savedBookingUser.UserId,
                     Role = savedBookingUser.Role,
                     Description = addedBooking.Description
@@ -95,7 +85,8 @@ namespace PRN231.Services.Implementations
             {
                 Booking existingBooking = _bookingRepository.GetAll().Result
                     .FirstOrDefault(b => b.Id ==  updateBookingRequest.BookingId);
-                existingBooking.SubjectLevelId = updateBookingRequest.SubjectLevelId;
+                existingBooking.SubjectId = updateBookingRequest.SubjectId;
+                existingBooking.LevelId = updateBookingRequest.LevelId;
                 existingBooking.Price = updateBookingRequest.Price;
                 existingBooking.PaymentMethod = updateBookingRequest.PaymentMethod;
                 existingBooking.Description = updateBookingRequest.Description;
@@ -105,7 +96,8 @@ namespace PRN231.Services.Implementations
 
                 UpdateBookingResponse bookingResponse = new UpdateBookingResponse
                 {
-                    SubjectLevelId = updatedBooking.SubjectLevelId,
+                    SubjectId = updatedBooking.SubjectId,
+                    LevelId = updatedBooking.LevelId,
                     Price = updatedBooking.Price,
                     PaymentMethod = updatedBooking.PaymentMethod,
                     Status = updatedBooking.Status
