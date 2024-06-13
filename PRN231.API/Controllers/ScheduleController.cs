@@ -43,8 +43,7 @@ namespace PRN231.API.Controllers
             var scheduleList = await _scheduleRepo.GetAll(x => x.Include(x => x.Booking)
                     .ThenInclude(x => x.BookingUsers)
                     .ThenInclude(x => x.User)
-                    , x => x.Include(x => x.Booking)
-                    .ThenInclude(x => x.SubjectLevel));
+                    , x => x.Include(x => x.Booking));
             scheduleList = scheduleList.Where(x => 
                     x.Booking.BookingUsers
                     .Any(y => 

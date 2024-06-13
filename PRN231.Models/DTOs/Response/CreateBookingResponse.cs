@@ -2,7 +2,9 @@
 {
     public class CreateBookingResponse
     {
-        public int SubjectLevelId { get; set; }
+        public int SubjectId { get; set; }
+
+        public int LevelId { get; set; }
 
         public int UserId { get; set; }
 

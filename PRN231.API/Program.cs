@@ -106,7 +106,6 @@ builder.Services.AddHttpContextAccessor();
 //builder.Services.AddScoped<IGenericRepository<Booking>, BookingRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IBookingUserRepository, BookingUserRepository>();
-builder.Services.AddScoped<ISubjectLevelRepository, SubjectLevelRepository>();
 
 // Services DI
 builder.Services.AddScoped<IBookingService, BookingService>();

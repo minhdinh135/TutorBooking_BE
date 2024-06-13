@@ -12,7 +12,11 @@ public partial class Schedule : BaseModel
 
     public DateTime StartTime { get; set; }
 
-    public DateTime EndTime { get; set; }
+    public int? SlotHour { get; set; }
+
+    public int? SlotMinute { get; set; }
+
+    public DateTime? EndTime { get; set; }
 
     public Booking Booking { get; set; }
 }
