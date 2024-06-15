@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PRN231.Constant;
 using PRN231.Models;
-using PRN231.Models.DTOs;
 using PRN231.Models.DTOs.Request;
 using PRN231.Models.DTOs.Response;
 using PRN231.Repositories.Interfaces;
@@ -42,7 +41,8 @@ namespace PRN231.Services.Implementations
             {
                 SubjectId = createBookingRequest.SubjectId,
                 LevelId = createBookingRequest.LevelId,
-                Price = 0,
+                PricePerSlot = 0,
+                NumOfSlots = createBookingRequest.NumOfSlots,
                 PaymentMethod = PaymentMethodConstant.UNDEFINED,
                 Description = createBookingRequest.Description,
                 CreatedDate = DateTime.Now,
@@ -72,7 +72,9 @@ namespace PRN231.Services.Implementations
                     LevelId = addedBooking.LevelId,
                     UserId = savedBookingUser.UserId,
                     Role = savedBookingUser.Role,
-                    Description = addedBooking.Description
+                    Description = addedBooking.Description,
+                    NumOfSlots = addedBooking.NumOfSlots,
+                    PricePerSlot = (decimal)addedBooking.PricePerSlot
                 };
 
                 return bookingResponse;
@@ -91,7 +93,7 @@ namespace PRN231.Services.Implementations
                     .FirstOrDefault(b => b.Id ==  updateBookingRequest.BookingId);
                 existingBooking.SubjectId = updateBookingRequest.SubjectId;
                 existingBooking.LevelId = updateBookingRequest.LevelId;
-                existingBooking.Price = updateBookingRequest.Price;
+                existingBooking.PricePerSlot = updateBookingRequest.PricePerSlot;
                 existingBooking.PaymentMethod = updateBookingRequest.PaymentMethod;
                 existingBooking.Description = updateBookingRequest.Description;
                 existingBooking.Status = updateBookingRequest.Status;
@@ -102,7 +104,8 @@ namespace PRN231.Services.Implementations
                 {
                     SubjectId = updatedBooking.SubjectId,
                     LevelId = updatedBooking.LevelId,
-                    Price = updatedBooking.Price,
+                    PricePerSlot = (decimal)updatedBooking.PricePerSlot,
+                    NumOfSlots = updatedBooking.NumOfSlots,
                     PaymentMethod = updatedBooking.PaymentMethod,
                     Status = updatedBooking.Status
                 };
@@ -115,7 +118,7 @@ namespace PRN231.Services.Implementations
             }
         }
 
-        public async Task<IEnumerable<BookingUserDTO>> GetAllTutorsByBooking(int bookingId)
+         public async Task<IEnumerable<BookingUserDTO>> GetAllTutorsByBooking(int bookingId)
         {
             var bookingUsers = await _bookingUserRepository.GetAll(
                 query => query.Where(bu => bu.BookingId == bookingId && bu.Role == RoleEnum.TUTOR)
