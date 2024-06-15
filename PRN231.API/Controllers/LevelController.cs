@@ -12,19 +12,16 @@ namespace PRN231.API.Controllers
     {
         private readonly IGenericService<Level, LevelDTO> _levelService;
         private readonly IGenericRepository<Level> _levelRepo;
-        private readonly IGenericService<Subject, SubjectDTO> _subjectService;
         private readonly ILogger<LevelController> _logger;
         public IConfiguration _configuration;
 
         public LevelController(IConfiguration config, ILogger<LevelController> logger,
                 IGenericService<Level, LevelDTO> levelService,
-                IGenericService<Subject, SubjectDTO> subjectService,
                 IGenericRepository<Level> levelRepo)
         {
             _logger = logger;
             _configuration = config;
             _levelService = levelService;
-            _subjectService = subjectService;
             _levelRepo = levelRepo;
 
         }
