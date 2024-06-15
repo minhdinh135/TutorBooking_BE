@@ -6,7 +6,9 @@ public partial class Booking : BaseModel
 
     public int LevelId { get; set; }
 
-    public decimal Price { get; set; }
+    public decimal? PricePerSlot { get; set; }
+
+    public int NumOfSlots { get; set; }
 
     public string? PaymentMethod { get; set; }
 

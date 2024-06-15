@@ -142,10 +142,13 @@ namespace PRN231.DAL.Migrations
                     b.Property<int>("LevelId")
                         .HasColumnType("int");
 
+                    b.Property<int>("NumOfSlots")
+                        .HasColumnType("int");
+
                     b.Property<string>("PaymentMethod")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Price")
+                    b.Property<decimal?>("PricePerSlot")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Status")
@@ -403,20 +406,12 @@ namespace PRN231.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ServiceId")
+                    b.Property<int>("DurationInSeconds")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SlotHour")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SlotMinute")
-                        .HasColumnType("int");
+                    b.Property<string>("Period")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");

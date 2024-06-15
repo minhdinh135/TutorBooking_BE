@@ -11,5 +11,9 @@
         public string Role { get; set; }
 
         public string Description { get; set; }
+
+        public int NumOfSlots { get; set; }
+
+        public decimal PricePerSlot { get; set; }
     }
 }

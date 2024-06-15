@@ -10,13 +10,13 @@ namespace PRN231.Models.DTOs
     {
         public int Id { get; set; }
 
-        public int ServiceId { get; set; }
-
         public int BookingId { get; set; }
 
-        public decimal Price { get; set; }
-
         public string DayOfWeek { get; set; }
+
+        public string Period { get; set; }
+
+        public int DurationInSeconds { get; set; }
 
         public DateTime StartTime { get; set; }
 
