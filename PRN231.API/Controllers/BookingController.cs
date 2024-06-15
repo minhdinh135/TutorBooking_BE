@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PRN231.Constant;
 using PRN231.Models;
+using PRN231.Models.DTOs;
 using PRN231.Models.DTOs.Request;
 using PRN231.Models.DTOs.Response;
 using PRN231.Services;
@@ -61,6 +62,43 @@ namespace PRN231.API.Controllers
                 return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookingResponse));
             }
             catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
+            }
+        }
+
+        [HttpPost("Apply")]
+        public async Task<ActionResult<ApiResponse>> ApplyToBooking([FromBody] ApplyBookingRequest request)
+        {
+            bool success = await _bookingService.ApplyToBooking(request.UserId, request.BookingId);
+
+            if (success)
+            {
+                return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, null));
+            }
+            else
+            {
+                return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
+            }
+        }
+
+        [HttpGet("GetTutorsByBooking/{bookingId}")]
+        public async Task<ActionResult<ApiResponse>> GetAllTutorsByBooking(int bookingId)
+        {
+            var tutors = await _bookingService.GetAllTutorsByBooking(bookingId);
+            return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, tutors));
+        }
+
+        [HttpPost("AcceptTutor")]
+        public async Task<ActionResult<ApiResponse>> AcceptTutor([FromBody] AcceptTutorRequest request)
+        {
+            bool success = await _bookingService.AcceptTutor(request.BookingId, request.TutorId);
+
+            if (success)
+            {
+                return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, null));
+            }
+            else
             {
                 return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
             }

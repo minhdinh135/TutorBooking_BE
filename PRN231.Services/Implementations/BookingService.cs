@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PRN231.Constant;
 using PRN231.Models;
+using PRN231.Models.DTOs;
 using PRN231.Models.DTOs.Request;
 using PRN231.Models.DTOs.Response;
 using PRN231.Repositories.Interfaces;
@@ -109,6 +110,68 @@ namespace PRN231.Services.Implementations
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        public async Task<IEnumerable<BookingUserDTO>> GetAllTutorsByBooking(int bookingId)
+        {
+            var bookingUsers = await _bookingUserRepository.GetAll(
+                query => query.Where(bu => bu.BookingId == bookingId && bu.Role == RoleEnum.TUTOR)
+            );
+
+            return bookingUsers.Select(bu => new BookingUserDTO
+            {
+                UserId = bu.UserId,
+                BookingId = bu.BookingId,
+                Role = bu.Role,
+                Status = bu.Status,
+                Description = bu.Description
+            });
+        }
+
+        public async Task<bool> ApplyToBooking(int userId, int bookingId)
+        {
+            BookingUser bookingUser = new BookingUser
+            {
+                UserId = userId,
+                BookingId = bookingId,
+                Role = RoleEnum.TUTOR,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now,
+                Status = BookingUserStatusConstant.PENDING
+            };
+
+            try
+            {
+                await _bookingUserRepository.Add(bookingUser);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> AcceptTutor(int bookingId, int tutorId)
+        {
+            var bookingUsers = await _bookingUserRepository.GetAll(
+                query => query.Where(bu => bu.BookingId == bookingId && bu.Role == RoleEnum.TUTOR)
+            );
+
+            foreach (var bu in bookingUsers)
+            {
+                if (bu.UserId == tutorId)
+                {
+                    bu.Status = BookingUserStatusConstant.APPROVED;
+                }
+                else
+                {
+                    bu.Status = BookingUserStatusConstant.REJECTED;
+                }
+
+                await _bookingUserRepository.Update(bu);
+            }
+
+            return true;
         }
     }
 }
