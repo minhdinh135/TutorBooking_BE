@@ -8,7 +8,7 @@ namespace PRN231.Models.DTOs
 {
     public static class BookingUserStatusConstant
     {
-        public const string PENDING = "PENDING";
+        public const string APPLIED = "APPLIED";
         public const string APPROVED = "APPROVED";
         public const string REJECTED = "REJECTED";
     }

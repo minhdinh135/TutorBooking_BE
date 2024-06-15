@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PRN231.Constant;
 using PRN231.Models;
+using PRN231.Models.DTOs;
 using PRN231.Models.DTOs.Request;
 using PRN231.Models.DTOs.Response;
 using PRN231.Repositories.Interfaces;
@@ -143,7 +144,7 @@ namespace PRN231.Services.Implementations
                 Role = RoleEnum.TUTOR,
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now,
-                Status = BookingUserStatusConstant.PENDING
+                Status = BookingUserStatusConstant.APPLIED
             };
 
             try

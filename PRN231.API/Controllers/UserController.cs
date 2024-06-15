@@ -98,8 +98,9 @@ namespace PRN231.API.Controllers
         //[Authorize]
         public async Task<IActionResult> Get(int id)
         {
-            var customerList = await _userService.Get(id);
-            return Ok(customerList);
+            var customerList = await _userRepo.GetAll(x => x.Include(x => x.Credentials));
+            var customer = customerList.FirstOrDefault(x => x.Id == id);
+            return Ok(customer);
         }
 
         [HttpPost("Add")]
