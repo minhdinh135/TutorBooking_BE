@@ -9,19 +9,16 @@ namespace PRN231.API.Controllers
     [Route("api/[controller]")]
     public class SubjectController : ControllerBase
     {
-        private readonly IGenericService<Level, LevelDTO> _levelService;
         private readonly IGenericService<Subject, SubjectDTO> _subjectService;
         private readonly ILogger<SubjectController> _logger;
         public IConfiguration _configuration;
 
         public SubjectController(IConfiguration config, ILogger<SubjectController> logger,
-                IGenericService<Subject, SubjectDTO> subjectService,
-                IGenericService<Level, LevelDTO> levelService)
+                IGenericService<Subject, SubjectDTO> subjectService)
         {
             _logger = logger;
             _configuration = config;
             _subjectService = subjectService;
-            _levelService = levelService;
         }
 
         [HttpGet("GetAll")]
