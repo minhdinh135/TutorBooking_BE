@@ -2,9 +2,12 @@
 {
     public class UpdateBookingResponse
     {
-        public int SubjectLevelId { get; set; }
-        public decimal Price { get; set; }
+        public int SubjectId { get; set; }
+        public int LevelId { get; set; }
+        public decimal PricePerSlot { get; set; }
         public string PaymentMethod { get; set; }
         public string Status { get; set; }
+        public int NumOfSlots { get; set; }
+
     }
 }

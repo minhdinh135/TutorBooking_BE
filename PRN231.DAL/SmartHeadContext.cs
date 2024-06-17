@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using PRN231.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -28,8 +26,6 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
     public virtual DbSet<BookingUser> BookingUsers { get; set; }
 
     public virtual DbSet<Level> Levels { get; set; }
-
-    public virtual DbSet<SubjectLevel> SubjectLevels { get; set; }
 
     public virtual DbSet<Schedule> Schedules { get; set; }
 
@@ -84,17 +80,6 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
             .HasForeignKey(f => f.UserId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<SubjectLevel>()
-            .HasOne(f => f.Subject)
-            .WithMany(x => x.SubjectLevels)
-            .HasForeignKey(f => f.SubjectId)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        modelBuilder.Entity<SubjectLevel>()
-            .HasOne(f => f.Level)
-            .WithMany(x => x.SubjectLevels)
-            .HasForeignKey(f => f.LevelId)
-            .OnDelete(DeleteBehavior.NoAction);
         /*modelBuilder.Entity<Service>()
             .HasOne(f => f.Subject)
             .WithMany(x => x.Services)

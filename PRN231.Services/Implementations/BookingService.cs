@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PRN231.Constant;
 using PRN231.Models;
+using PRN231.Models.DTOs;
 using PRN231.Models.DTOs.Request;
 using PRN231.Models.DTOs.Response;
 using PRN231.Repositories.Interfaces;
@@ -11,49 +12,38 @@ namespace PRN231.Services.Implementations
     {
         private readonly IBookingRepository _bookingRepository;
         private readonly IBookingUserRepository _bookingUserRepository;
-        private readonly ISubjectLevelRepository _subjectLevelRepository;
 
         public BookingService(IBookingRepository bookingRepository,
-            IBookingUserRepository bookingUserRepository,
-            ISubjectLevelRepository subjectLevelRepository)
+            IBookingUserRepository bookingUserRepository)
         {
             _bookingRepository = bookingRepository;
             _bookingUserRepository = bookingUserRepository;
-            _subjectLevelRepository = subjectLevelRepository;
         }
 
         public async Task<IEnumerable<Booking>> GetAllBookings()
         {
             return await _bookingRepository.GetAll(
-                    query => query.Include(b => b.SubjectLevel),
-                    query => query.Include(b => b.Schedules),
-                    query => query.Include(b => b.BookingUsers)
+                    query => query.Include(b => b.Subject)
+                                  .Include(b => b.Level)
+                                  .Include(b => b.BookingUsers)
+                                  .Include(b => b.Schedules)
+                                  
                 );
         }
 
         public async Task<IEnumerable<Booking>> GetAllBookingsByStatus(string status)
         {
-            return _bookingRepository.GetAllBookingsByStatus(status,
-                    query => query.Include(b => b.SubjectLevel),
-                    query => query.Include(b => b.Schedules),
-                    query => query.Include(b => b.BookingUsers)
-                );
+            return GetAllBookings().Result.Where(b => b.Status.Equals(status));
         }
 
         public async Task<CreateBookingResponse> CreateBooking(CreateBookingRequest createBookingRequest)
         {
-            SubjectLevel subjectLevel = _subjectLevelRepository
-                .FindSubjectLevelBySubjectIdAndLevelId(createBookingRequest.SubjectId, createBookingRequest.LevelId);
-
-            if(subjectLevel == null)
-            {
-                throw new Exception("Subject Level not found");
-            }
-
             Booking booking = new Booking
             {
-                SubjectLevelId = subjectLevel.Id,
-                Price = 0,
+                SubjectId = createBookingRequest.SubjectId,
+                LevelId = createBookingRequest.LevelId,
+                PricePerSlot = 0,
+                NumOfSlots = createBookingRequest.NumOfSlots,
                 PaymentMethod = PaymentMethodConstant.UNDEFINED,
                 Description = createBookingRequest.Description,
                 CreatedDate = DateTime.Now,
@@ -79,10 +69,13 @@ namespace PRN231.Services.Implementations
 
                 CreateBookingResponse bookingResponse = new CreateBookingResponse
                 {
-                    SubjectLevelId = addedBooking.SubjectLevelId,
+                    SubjectId = addedBooking.SubjectId,
+                    LevelId = addedBooking.LevelId,
                     UserId = savedBookingUser.UserId,
                     Role = savedBookingUser.Role,
-                    Description = addedBooking.Description
+                    Description = addedBooking.Description,
+                    NumOfSlots = addedBooking.NumOfSlots,
+                    PricePerSlot = (decimal)addedBooking.PricePerSlot
                 };
 
                 return bookingResponse;
@@ -99,8 +92,9 @@ namespace PRN231.Services.Implementations
             {
                 Booking existingBooking = _bookingRepository.GetAll().Result
                     .FirstOrDefault(b => b.Id ==  updateBookingRequest.BookingId);
-                existingBooking.SubjectLevelId = updateBookingRequest.SubjectLevelId;
-                existingBooking.Price = updateBookingRequest.Price;
+                existingBooking.SubjectId = updateBookingRequest.SubjectId;
+                existingBooking.LevelId = updateBookingRequest.LevelId;
+                existingBooking.PricePerSlot = updateBookingRequest.PricePerSlot;
                 existingBooking.PaymentMethod = updateBookingRequest.PaymentMethod;
                 existingBooking.Description = updateBookingRequest.Description;
                 existingBooking.Status = updateBookingRequest.Status;
@@ -109,8 +103,10 @@ namespace PRN231.Services.Implementations
 
                 UpdateBookingResponse bookingResponse = new UpdateBookingResponse
                 {
-                    SubjectLevelId = updatedBooking.SubjectLevelId,
-                    Price = updatedBooking.Price,
+                    SubjectId = updatedBooking.SubjectId,
+                    LevelId = updatedBooking.LevelId,
+                    PricePerSlot = (decimal)updatedBooking.PricePerSlot,
+                    NumOfSlots = updatedBooking.NumOfSlots,
                     PaymentMethod = updatedBooking.PaymentMethod,
                     Status = updatedBooking.Status
                 };
@@ -121,6 +117,68 @@ namespace PRN231.Services.Implementations
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+         public async Task<IEnumerable<BookingUserDTO>> GetAllTutorsByBooking(int bookingId)
+        {
+            var bookingUsers = await _bookingUserRepository.GetAll(
+                query => query.Where(bu => bu.BookingId == bookingId && bu.Role == RoleEnum.TUTOR)
+            );
+
+            return bookingUsers.Select(bu => new BookingUserDTO
+            {
+                UserId = bu.UserId,
+                BookingId = bu.BookingId,
+                Role = bu.Role,
+                Status = bu.Status,
+                Description = bu.Description
+            });
+        }
+
+        public async Task<bool> ApplyToBooking(int userId, int bookingId)
+        {
+            BookingUser bookingUser = new BookingUser
+            {
+                UserId = userId,
+                BookingId = bookingId,
+                Role = RoleEnum.TUTOR,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now,
+                Status = BookingUserStatusConstant.APPLIED
+            };
+
+            try
+            {
+                await _bookingUserRepository.Add(bookingUser);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> AcceptTutor(int bookingId, int tutorId)
+        {
+            var bookingUsers = await _bookingUserRepository.GetAll(
+                query => query.Where(bu => bu.BookingId == bookingId && bu.Role == RoleEnum.TUTOR)
+            );
+
+            foreach (var bu in bookingUsers)
+            {
+                if (bu.UserId == tutorId)
+                {
+                    bu.Status = BookingUserStatusConstant.APPROVED;
+                }
+                else
+                {
+                    bu.Status = BookingUserStatusConstant.REJECTED;
+                }
+
+                await _bookingUserRepository.Update(bu);
+            }
+
+            return true;
         }
     }
 }

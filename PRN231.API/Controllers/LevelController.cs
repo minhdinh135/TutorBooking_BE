@@ -11,21 +11,19 @@ namespace PRN231.API.Controllers
     public class LevelController : ControllerBase
     {
         private readonly IGenericService<Level, LevelDTO> _levelService;
-        private readonly IGenericService<Subject, SubjectDTO> _subjectService;
-        private readonly IGenericRepository<SubjectLevel> _subjectLevelService;
+        private readonly IGenericRepository<Level> _levelRepo;
         private readonly ILogger<LevelController> _logger;
         public IConfiguration _configuration;
 
         public LevelController(IConfiguration config, ILogger<LevelController> logger,
                 IGenericService<Level, LevelDTO> levelService,
-                IGenericService<Subject, SubjectDTO> subjectService,
-                IGenericRepository<SubjectLevel> subjectLevelService)
+                IGenericRepository<Level> levelRepo)
         {
             _logger = logger;
             _configuration = config;
             _levelService = levelService;
-            _subjectLevelService = subjectLevelService;
-            _subjectService = subjectService;
+            _levelRepo = levelRepo;
+
         }
 
         [HttpGet("GetAll")]
@@ -48,37 +46,49 @@ namespace PRN231.API.Controllers
         //[Authorize]
         public async Task<IActionResult> Add(LevelDTO dto)
         {
-            var level = await _levelService.Add(dto);
-            var subjects = await _subjectService.GetAll();
-            foreach (var subject in subjects){
-                var subjectLevel = new SubjectLevel
-                {
-                    LevelId = level.Id,
-                    SubjectId = subject.Id,
-                    Description = subject.Name + " " + level.LevelName,
-                    Status = "Active",
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
-
-                };
-                await _subjectLevelService.Add(subjectLevel);
+            if (ModelState.IsValid == false)
+            {
+                return BadRequest(ErrorHandler.GetErrorMessage(ModelState));
             }
-            return Ok(level);
+
+            try
+            {
+                var level = await _levelService.Add(dto);
+         
+                return Ok(level);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("Update")]
-        //[Authorize]
         public async Task<IActionResult> Update(LevelDTO dto)
         {
-            var level = await _levelService.Update(dto);
-
-            if (level == null)
+            if (ModelState.IsValid == false)
             {
-                return NotFound($"Level with ID {dto.Id} not found.");
+                return BadRequest(ErrorHandler.GetErrorMessage(ModelState));
             }
 
-            level.LevelName = dto.LevelName;
-            return Ok(level);
+            try
+            {
+                var existingLevels = await _levelService.GetAll();
+                existingLevels= existingLevels.Where(e => e.LevelName == dto.LevelName && e.Id != dto.Id);
+                if (existingLevels.Any())
+                {
+                    return BadRequest("This name is existed");
+                }
+                var levels = await _levelService.Get(dto.Id);
+                levels.LevelName = dto.LevelName; 
+                levels.Status = dto.Status;
+                var level = await _levelRepo.Update(levels);
+                return Ok(level);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
     }
