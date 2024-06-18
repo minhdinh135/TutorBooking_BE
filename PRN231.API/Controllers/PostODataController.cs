@@ -1,53 +1,43 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PRN231.Models.DTOs;
-using PRN231.Models;
-using PRN231.Services.Interfaces;
-using PRN231.Services;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 using PRN231.Constant;
-using AutoMapper;
+using PRN231.Models;
+using PRN231.Models.DTOs;
+using PRN231.Services;
+using PRN231.Services.Interfaces;
+using System.Linq;
 
-namespace PRN231.API.Controllers
+namespace PRN231.API.Controllers.OData
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class PostController : ControllerBase
+    public class PostODataController : ODataController
     {
         private readonly IGenericService<Post, PostDTO> _postService;
-        private readonly ILogger<PostController> _logger;
-        public IConfiguration _configuration;
         private readonly IFileStorageService _fileStorageService;
-        private readonly IMapper _mapper;
 
-        public PostController(IConfiguration config, ILogger<PostController> logger,
-                IGenericService<Post, PostDTO> postService,
-                IFileStorageService fileStorageService,
-                IMapper mapper)
+        public PostODataController(
+            IGenericService<Post, PostDTO> postService,
+            IFileStorageService fileStorageService)
         {
-            _logger = logger;
-            _configuration = config;
             _postService = postService;
             _fileStorageService = fileStorageService;
-            _mapper = mapper;
         }
 
-        [HttpGet("GetAll")]
-        //[Authorize]
-        public async Task<IActionResult> GetAll()
+        [EnableQuery]
+        public async Task<ActionResult<IQueryable<Post>>> Get()
         {
             var postList = await _postService.GetAll();
             return Ok(postList);
         }
 
-        [HttpGet("Get")]
-        //[Authorize]
-        public async Task<IActionResult> Get(int id)
+        [EnableQuery]
+        public async Task<ActionResult<Post>> Get(int key)
         {
-            var postList = await _postService.Get(id);
-            return Ok(postList);
+            var post = await _postService.Get(key);
+            return post != null ? Ok(post) : NotFound();
         }
 
-        [HttpPost("Add")]
-        public async Task<IActionResult> Add([FromForm] PostDTO dto)
+        public async Task<ActionResult<Post>> Post([FromForm] PostDTO dto)
         {
             string imageUrl = null;
             if (dto.ImageFile != null && dto.ImageFile.Length > 0)
@@ -62,30 +52,18 @@ namespace PRN231.API.Controllers
 
             dto.ImageUrl = imageUrl;
             dto.Status = StatusConstant.ACTIVE;
-            var addedDto = new PostDTO
-            {
-                Id = dto.Id,
-                Description = dto.Description,
-                Status = dto.Status,
-                ImageUrl = imageUrl,
-                Title = dto.Title,
-                UserId = dto.UserId
-            };
 
             var post = await _postService.Add(dto);
-
-            return Ok(post);
+            return Created(post);
         }
 
-
-        [HttpPut("Update")]
-        public async Task<IActionResult> Update([FromForm] PostDTO dto)
+        public async Task<IActionResult> Put(int key, [FromForm] PostDTO dto)
         {
+            if (key != dto.Id) return BadRequest();
 
             if (dto.ImageFile != null && dto.ImageFile.Length > 0)
             {
                 string newImageUrl = await _fileStorageService.StoreFileAsync(dto.ImageFile);
-
                 if (newImageUrl == null)
                 {
                     return BadRequest("Failed to store file.");
@@ -98,16 +76,21 @@ namespace PRN231.API.Controllers
                 }
 
                 dto.ImageUrl = newImageUrl;
-
             }
 
             dto.Status = StatusConstant.ACTIVE;
 
             var updatedPost = await _postService.Update(dto);
-
-            return Ok(updatedPost);
+            return Updated(updatedPost);
         }
 
+       public async Task<IActionResult> Delete(int key)
+        {
+            var post = await _postService.Get(key);
+            if (post == null) return NotFound();
 
+            await _postService.Delete(key);
+            return NoContent();
+        }
     }
 }

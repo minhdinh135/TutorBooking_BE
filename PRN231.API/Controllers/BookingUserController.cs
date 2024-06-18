@@ -1,14 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using PRN231.Models.DTOs;
 using PRN231.Models;
 using PRN231.Services.Interfaces;
 using PRN231.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace PRN231.API.Controllers
 {
     [ApiController]
