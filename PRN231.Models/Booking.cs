@@ -13,7 +13,6 @@ public partial class Booking : BaseModel
     public string? PaymentMethod { get; set; }
 
     public string? Description { get; set; }
-
     public Level Level { get; set; }
 
     public Subject Subject { get; set; }

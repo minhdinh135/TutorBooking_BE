@@ -30,7 +30,7 @@ namespace PRN231.API.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<ApiResponse>> GetAllBookings()
         {
-            IEnumerable<Booking> bookings = await _bookingService.GetAllBookings();
+            IEnumerable<BookingDto> bookings = await _bookingService.GetAllBookings();
 
             var response = new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookings);
 
@@ -40,7 +40,7 @@ namespace PRN231.API.Controllers
         [HttpGet("GetAllByStatus")]
         public async Task<ActionResult<ApiResponse>> GetAllBookingsByStatus([FromQuery] string status)
         {
-            IEnumerable<Booking> bookings = await _bookingService.GetAllBookingsByStatus(status);
+            IEnumerable<BookingDto> bookings = await _bookingService.GetAllBookingsByStatus(status);
 
             return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookings));
         }

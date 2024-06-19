@@ -1,9 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PRN231.Constant;
 using PRN231.Models;
+using PRN231.Models.DTOs;
 using PRN231.Models.DTOs.Request;
 using PRN231.Models.DTOs.Response;
 using PRN231.Repositories.Interfaces;
+using PRN231.Repository.Interfaces;
+using PRN231.Services.Interfaces;
 
 namespace PRN231.Services.Implementations
 {
@@ -11,26 +14,53 @@ namespace PRN231.Services.Implementations
     {
         private readonly IBookingRepository _bookingRepository;
         private readonly IBookingUserRepository _bookingUserRepository;
+        private readonly IGenericService<Schedule, ScheduleDTO> _scheduleService;
 
         public BookingService(IBookingRepository bookingRepository,
-            IBookingUserRepository bookingUserRepository)
+            IBookingUserRepository bookingUserRepository, IGenericService<Schedule, ScheduleDTO> scheduleService)
         {
             _bookingRepository = bookingRepository;
             _bookingUserRepository = bookingUserRepository;
+            _scheduleService = scheduleService;
         }
 
-        public async Task<IEnumerable<Booking>> GetAllBookings()
+        public async Task<IEnumerable<BookingDto>> GetAllBookings()
         {
-            return await _bookingRepository.GetAll(
+            var bookings = await _bookingRepository.GetAll(
                     query => query.Include(b => b.Subject)
                                   .Include(b => b.Level)
                                   .Include(b => b.BookingUsers)
-                                  .Include(b => b.Schedules)
-                                  
-                );
+                                  .Include(b => b.Schedules));
+
+            return bookings.Select(booking => new BookingDto
+            {
+                Id = booking.Id,
+                SubjectName = booking.Subject.Name,
+                LevelName = booking.Level.LevelName,
+                NumOfSlots = booking.NumOfSlots,
+                PricePerSlot = booking.PricePerSlot,
+                PaymentMethod = booking.PaymentMethod,
+                Description = booking.Description,
+                Status = booking.Status,
+                CreatedDate = booking.CreatedDate,
+                UpdatedDate = booking.UpdatedDate,
+                Schedules = booking.Schedules.Select(s => new ScheduleDTO {
+                    Id = s.Id,
+                    DayOfWeek = s.DayOfWeek,
+                    StartTime = s.StartTime,
+                    Duration = s.Duration,
+                }),
+                BookingUsers = booking.BookingUsers.Select(bu => new BookingUserDTO
+                {
+                    UserId = bu.UserId,
+                    Role = bu.Role,
+                    Description = bu.Description,
+                    Status = bu.Status
+                })
+            });
         }
 
-        public async Task<IEnumerable<Booking>> GetAllBookingsByStatus(string status)
+        public async Task<IEnumerable<BookingDto>> GetAllBookingsByStatus(string status)
         {
             return GetAllBookings().Result.Where(b => b.Status.Equals(status));
         }
@@ -41,7 +71,7 @@ namespace PRN231.Services.Implementations
             {
                 SubjectId = createBookingRequest.SubjectId,
                 LevelId = createBookingRequest.LevelId,
-                PricePerSlot = 0,
+                PricePerSlot = createBookingRequest.PricePerSlot,
                 NumOfSlots = createBookingRequest.NumOfSlots,
                 PaymentMethod = PaymentMethodConstant.UNDEFINED,
                 Description = createBookingRequest.Description,
@@ -66,15 +96,22 @@ namespace PRN231.Services.Implementations
 
                 BookingUser savedBookingUser = await _bookingUserRepository.Add(bookingUser);
 
+                //createBookingRequest.Schedules.ToList().ForEach(schedule =>
+                //{
+                //    _scheduleService.Add(schedule);
+                //});
+
                 CreateBookingResponse bookingResponse = new CreateBookingResponse
                 {
+                    Id = addedBooking.Id,
                     SubjectId = addedBooking.SubjectId,
                     LevelId = addedBooking.LevelId,
                     UserId = savedBookingUser.UserId,
                     Role = savedBookingUser.Role,
                     Description = addedBooking.Description,
                     NumOfSlots = addedBooking.NumOfSlots,
-                    PricePerSlot = (decimal)addedBooking.PricePerSlot
+                    PricePerSlot = (decimal)addedBooking.PricePerSlot,
+                    //Schedules = createBookingRequest.Schedules
                 };
 
                 return bookingResponse;
