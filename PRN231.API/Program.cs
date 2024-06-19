@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.Identity;
 using PRN231.API;
 using Microsoft.Extensions.FileProviders;
 using PRN231.Repositories.Interfaces;
+using Microsoft.AspNetCore.OData;
+using Microsoft.OData.ModelBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options => options.SuppressInputFormatterBuffering = true)
@@ -26,11 +28,29 @@ builder.Services.AddControllers(options => options.SuppressInputFormatterBufferi
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.MaxDepth = 64;
+    })
+    .AddOData(opt => {
+        var odataBuilder = new ODataConventionModelBuilder();
+
+        odataBuilder.EntitySet<Booking>("BookingOData");
+        odataBuilder.EntitySet<BookingUser>("BookingUserOData");
+        odataBuilder.EntitySet<Credential>("CredentialOData");
+        odataBuilder.EntitySet<Feedback>("FeedbackOData");
+        odataBuilder.EntitySet<Level>("LevelOData");
+        odataBuilder.EntitySet<Post>("PostOData");
+        odataBuilder.EntitySet<Role>("RoleOData");
+        odataBuilder.EntitySet<Schedule>("ScheduleOData");
+        odataBuilder.EntitySet<Subject>("SubjectOData");
+        odataBuilder.EntitySet<User>("UserOData");
+
+        opt.AddRouteComponents("odata", odataBuilder.GetEdmModel());
+        opt.Select().Filter().Expand().OrderBy().Count().SetMaxTop(100);
     });
+
 builder.Services.Configure<ApiBehaviorOptions>(options
     => options.SuppressModelStateInvalidFilter = true);
 builder.Services.AddDbContext<SmartHeadContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("Db")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Db")));
 builder.Services.AddSingleton<IMapper>(sp =>
 {
     var config = new MapperConfiguration(cfg =>
@@ -61,7 +81,6 @@ builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddTransient<OtpService>();
 builder.Services.AddDistributedMemoryCache(); // Add in-memory distributed cache
 
-
 builder.Services.AddIdentityCore<User>(options =>
 {
     options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
@@ -79,7 +98,6 @@ builder.Services.AddIdentityCore<User>(options =>
 .AddSignInManager<SignInManager<User>>()
 .AddUserManager<UserManager<User>>()
 .AddDefaultTokenProviders(); //token for email confirmation
-
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -160,12 +178,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddCors(options => {
     options.AddPolicy(name: "MyAllowPolicy",
-              policy => {
-                  policy.WithOrigins("http://localhost:3000")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
-              });
+        policy => {
+            policy.WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+        });
 });
 builder.Services.AddAuthorization();
 
@@ -181,7 +199,7 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-           Path.Combine(builder.Environment.ContentRootPath, "UploadedFiles")),
+        Path.Combine(builder.Environment.ContentRootPath, "UploadedFiles")),
     RequestPath = ""
 });
 

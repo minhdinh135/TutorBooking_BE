@@ -180,7 +180,7 @@ namespace PRN231.Services.Implementations
                 Role = RoleEnum.TUTOR,
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now,
-                Status = BookingUserStatusConstant.PENDING
+                Status = BookingUserStatusConstant.APPLIED
             };
 
             try
