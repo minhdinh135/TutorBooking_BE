@@ -6,11 +6,9 @@ public partial class Schedule : BaseModel
 
     public string DayOfWeek { get; set; }
 
-    public DateTime StartTime { get; set; }
+    public TimeOnly StartTime { get; set; }
 
-    public string Period { get; set; }
-
-    public int DurationInSeconds { get; set; }
+    public TimeOnly Duration { get; set; }
 
     public Booking Booking { get; set; }
 }

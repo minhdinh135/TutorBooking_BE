@@ -80,6 +80,11 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
             .HasForeignKey(f => f.UserId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        modelBuilder.Entity<Schedule>(entity =>
+        {
+            entity.Property(e => e.StartTime).HasColumnType("time");
+        });
+
         /*modelBuilder.Entity<Service>()
             .HasOne(f => f.Subject)
             .WithMany(x => x.Services)
