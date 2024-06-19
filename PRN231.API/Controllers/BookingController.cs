@@ -12,7 +12,6 @@ using System.Net;
 namespace PRN231.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
@@ -27,7 +26,7 @@ namespace PRN231.API.Controllers
             _userService = userService;
         }
 
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllBookings")]
         public async Task<ActionResult<ApiResponse>> GetAllBookings()
         {
             IEnumerable<Booking> bookings = await _bookingService.GetAllBookings();
@@ -37,7 +36,7 @@ namespace PRN231.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("GetAllByStatus")]
+        [HttpGet("GetAllBookingsByStatus")]
         public async Task<ActionResult<ApiResponse>> GetAllBookingsByStatus([FromQuery] string status)
         {
             IEnumerable<Booking> bookings = await _bookingService.GetAllBookingsByStatus(status);
