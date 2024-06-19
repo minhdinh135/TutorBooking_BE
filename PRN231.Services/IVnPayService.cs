@@ -7,6 +7,8 @@ namespace PRN231.Services
     {
         string CreatePayment(CreatePaymentRequest createPaymentRequest);
 
+        string CreatePaymentForUserCredit(CreatePaymentUserRequest createPaymentRequest);
+
         int GetPaymentResult();
     }
 }

@@ -16,6 +16,51 @@ namespace PRN231.Services.Implementations
             _httpContextAccessor = httpContextAccessor;
         }
 
+        public string CreatePaymentForUserCredit(CreatePaymentUserRequest createPaymentRequest)
+        {
+            //Get Config Info
+            string vnp_Returnurl = VnPayConstant.RETURN_URL;
+            string vnp_Url = VnPayConstant.PAY_URL;
+            string vnp_TmnCode = VnPayConstant.TMN_CODE;
+            string vnp_HashSecret = VnPayConstant.HASH_SECRET;
+
+            //Get payment input
+            long orderId = DateTime.Now.Ticks;
+            long amount = createPaymentRequest.Amount;
+            DateTime createdDate = DateTime.Now;
+
+            //Save order to db
+
+            //Build URL for VNPAY
+            VnPayLibrary vnpay = new VnPayLibrary();
+
+            vnpay.AddRequestData("vnp_Version", VnPayConstant.VERSION);
+            vnpay.AddRequestData("vnp_Command", VnPayConstant.PAY_COMMAND);
+            vnpay.AddRequestData("vnp_TmnCode", vnp_TmnCode);
+            vnpay.AddRequestData("vnp_Amount", (amount * 100).ToString());
+            
+            vnpay.AddRequestData("vnp_CreateDate", createdDate.ToString("yyyyMMddHHmmss"));
+            vnpay.AddRequestData("vnp_CurrCode", "VND");
+            vnpay.AddRequestData("vnp_IpAddr", VnPayUtils.GetIpAddress(_httpContextAccessor));
+
+            vnpay.AddRequestData("vnp_Locale", VnPayConstant.LOCALE);
+
+            vnpay.AddRequestData("vnp_OrderInfo", createPaymentRequest.OrderInfo);
+            vnpay.AddRequestData("vnp_OrderType", "other"); //default value: other
+
+            vnpay.AddRequestData("vnp_ReturnUrl", vnp_Returnurl+"/"+createPaymentRequest.UserId);
+            vnpay.AddRequestData("vnp_TxnRef", orderId.ToString());
+
+            //vnpay.AddRequestData("vnp_Bill_Email", createPaymentRequest.UserId.ToString());
+
+            //Add Params of 2.1.0 Version
+            //Billing
+
+            string paymentUrl = vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
+
+            return paymentUrl;
+        }
+
         public string CreatePayment(CreatePaymentRequest createPaymentRequest)
         {
             //Get Config Info
