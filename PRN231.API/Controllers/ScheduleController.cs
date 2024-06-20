@@ -2,8 +2,6 @@
 using PRN231.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using PRN231.Models;
-using PRN231.Models.DTOs;
-using PRN231.Services.Interfaces;
 using PRN231.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,7 +59,7 @@ namespace PRN231.API.Controllers
 
         [HttpPost("Add")]
         //[Authorize]
-        public async Task<IActionResult> Add(ScheduleDTO dto)
+        public async Task<IActionResult> Add([FromBody] ScheduleDTO dto)
         {
             var schedule = await _scheduleService.Add(dto);
             return Ok(schedule);
@@ -69,7 +67,7 @@ namespace PRN231.API.Controllers
 
         [HttpPut("Update")]
         //[Authorize]
-        public async Task<IActionResult> Update(ScheduleDTO dto)
+        public async Task<IActionResult> Update([FromBody] ScheduleDTO dto)
         {
             var schedule = await _scheduleService.Update(dto);
             return Ok(schedule);

@@ -409,15 +409,11 @@ namespace PRN231.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DurationInSeconds")
-                        .HasColumnType("int");
+                    b.Property<TimeOnly>("Duration")
+                        .HasColumnType("time");
 
-                    b.Property<string>("Period")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -485,6 +481,9 @@ namespace PRN231.DAL.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Credit")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)

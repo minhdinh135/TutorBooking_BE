@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PRN231.Models.DTOs
+﻿namespace PRN231.Models.DTOs
 {
     public class ScheduleDTO
     {
@@ -14,13 +8,9 @@ namespace PRN231.Models.DTOs
 
         public string DayOfWeek { get; set; }
 
-        public string Period { get; set; }
+        public TimeOnly Duration { get; set; }
 
-        public int DurationInSeconds { get; set; }
-
-        public DateTime StartTime { get; set; }
-
-        public DateTime EndTime { get; set; }
+        public TimeOnly StartTime { get; set; }
 
         public string Status { get; set; }
     }

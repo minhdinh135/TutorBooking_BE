@@ -61,8 +61,7 @@ namespace PRN231.API.Controllers
             }
 
             dto.ImageUrl = imageUrl;
-            dto.Status = StatusConstant.ACTIVE;
-            // Get the current time
+            dto.Status = StatusConstant.PENDING;
             DateTime currentTime = DateTime.Now;
             dto.CreatedDate = currentTime;
 

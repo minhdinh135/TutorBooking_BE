@@ -7,12 +7,13 @@ namespace PRN231.Services
 {
     public interface IBookingService
     {
-        Task<IEnumerable<Booking>> GetAllBookings();
-        Task<IEnumerable<Booking>> GetAllBookingsByStatus(string status);
+        Task<IEnumerable<BookingDto>> GetAllBookings();
+        Task<IEnumerable<BookingDto>> GetAllBookingsByStatus(string status);
         Task<CreateBookingResponse> CreateBooking(CreateBookingRequest createBookingRequest);
         Task<UpdateBookingResponse> UpdateBooking(UpdateBookingRequest updateBookingRequest);
         Task<bool> ApplyToBooking(int userId, int bookingId);
         Task<bool> AcceptTutor(int bookingId, int tutorId);
         Task<IEnumerable<BookingUserDTO>> GetAllTutorsByBooking(int bookingId);
+        Task<bool> CancelApplication(int userId, int bookingId);
     }
 }

@@ -27,20 +27,20 @@ namespace PRN231.API.Controllers
             _userService = userService;
         }
 
-        [HttpGet("GetAllBookings")]
+        [HttpGet("GetAll")]
         public async Task<ActionResult<ApiResponse>> GetAllBookings()
         {
-            IEnumerable<Booking> bookings = await _bookingService.GetAllBookings();
+            IEnumerable<BookingDto> bookings = await _bookingService.GetAllBookings();
 
             var response = new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookings);
 
             return Ok(response);
         }
 
-        [HttpGet("GetAllBookingsByStatus")]
+        [HttpGet("GetAllByStatus")]
         public async Task<ActionResult<ApiResponse>> GetAllBookingsByStatus([FromQuery] string status)
         {
-            IEnumerable<Booking> bookings = await _bookingService.GetAllBookingsByStatus(status);
+            IEnumerable<BookingDto> bookings = await _bookingService.GetAllBookingsByStatus(status);
 
             return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookings));
         }
@@ -121,6 +121,21 @@ namespace PRN231.API.Controllers
         public async Task<ActionResult<ApiResponse>> AcceptTutor([FromBody] AcceptTutorRequest request)
         {
             bool success = await _bookingService.AcceptTutor(request.BookingId, request.TutorId);
+
+            if (success)
+            {
+                return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, null));
+            }
+            else
+            {
+                return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
+            }
+        }
+
+        [HttpPost("CancelApplication")]
+        public async Task<ActionResult<ApiResponse>> CancelApplication([FromBody] CancelApplicationRequest request)
+        {
+            bool success = await _bookingService.CancelApplication(request.UserId, request.BookingId);
 
             if (success)
             {

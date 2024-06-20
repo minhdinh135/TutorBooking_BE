@@ -16,6 +16,8 @@ public partial class User : IdentityUser<int>
 
     public string Status { get; set; }
 
+    public decimal Credit { get; set; }
+
     public List<Credential>? Credentials { get; set; }
 
     public List<Feedback>? StudentFeedbacks { get; set; }
