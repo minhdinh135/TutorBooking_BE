@@ -62,19 +62,23 @@ namespace PRN231.API.Controllers
 
             dto.ImageUrl = imageUrl;
             dto.Status = StatusConstant.ACTIVE;
+            // Get the current time
+            DateTime currentTime = DateTime.Now;
+            dto.CreatedDate = currentTime;
+
+            var post = await _postService.Add(dto);
+
             var addedDto = new PostDTO
             {
-                Id = dto.Id,
+                Id = post.Id,
                 Description = dto.Description,
                 Status = dto.Status,
                 ImageUrl = imageUrl,
                 Title = dto.Title,
-                UserId = dto.UserId
+                UserId = dto.UserId,
+                CreatedDate = currentTime
             };
-
-            var post = await _postService.Add(dto);
-
-            return Ok(post);
+            return Ok(addedDto);
         }
 
 

@@ -12,6 +12,7 @@ using System.Net;
 namespace PRN231.API.Controllers
 {
     [ApiController]
+    [Route("api/[controller]")]
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
