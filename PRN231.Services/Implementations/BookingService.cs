@@ -216,5 +216,18 @@ namespace PRN231.Services.Implementations
 
             return true;
         }
+        public async Task<bool> CancelApplication(int userId, int bookingId)
+        {
+            var bookingUser = await _bookingUserRepository.GetAll();
+            var bookingUserCancel = bookingUser.FirstOrDefault(bu => bu.UserId == userId && bu.BookingId == bookingId);
+
+            if (bookingUser != null)
+            {
+                await _bookingUserRepository.Delete(bookingUserCancel.Id);
+                return true;
+            }
+
+            return false;
+        }
     }
 }

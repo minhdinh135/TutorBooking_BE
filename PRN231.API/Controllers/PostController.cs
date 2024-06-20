@@ -61,7 +61,7 @@ namespace PRN231.API.Controllers
             }
 
             dto.ImageUrl = imageUrl;
-            dto.Status = StatusConstant.ACTIVE;
+            dto.Status = StatusConstant.PENDING;
             var addedDto = new PostDTO
             {
                 Id = dto.Id,
@@ -69,7 +69,7 @@ namespace PRN231.API.Controllers
                 Status = dto.Status,
                 ImageUrl = imageUrl,
                 Title = dto.Title,
-                UserId = dto.UserId
+                UserId = dto.UserId,
             };
 
             var post = await _postService.Add(dto);

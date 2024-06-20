@@ -14,5 +14,6 @@ namespace PRN231.Services
         Task<bool> ApplyToBooking(int userId, int bookingId);
         Task<bool> AcceptTutor(int bookingId, int tutorId);
         Task<IEnumerable<BookingUserDTO>> GetAllTutorsByBooking(int bookingId);
+        Task<bool> CancelApplication(int userId, int bookingId);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using PRN231.Constant;
 using PRN231.Models;
 using PRN231.Models.DTOs.Request;
@@ -16,13 +17,15 @@ namespace PRN231.API.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IVnPayService _vnPayService;
         private readonly IGenericRepository<User> _userRepo;
+        private readonly UserManager<User> _manager;
 
         public VnPayController(IHttpContextAccessor httpContextAccessor, IVnPayService vnPayService,
-            IGenericRepository<User> userRepo)
+            IGenericRepository<User> userRepo, UserManager<User> manager)
         {
             _httpContextAccessor = httpContextAccessor;
             _vnPayService = vnPayService;
             _userRepo = userRepo;
+            _manager = manager;
         }
 
         [HttpPost("Pay")]
@@ -71,11 +74,16 @@ namespace PRN231.API.Controllers
                 //string userId = context.Request.Query["vnp_Billing_Email"];
 
                 var user = await _userRepo.Get(Id);
-                if(user != null){
+                var roleList = await _manager.GetRolesAsync(user);
+                var role = roleList.FirstOrDefault() ?? "";
+                if (user != null){
                     user.Credit = user.Credit + decimal.Parse(amount)/100;
                     await _userRepo.Update(user);
                 }
-
+                if(role == "Tutor")
+                {
+                    return Redirect("http://localhost:3000/ProfileTutor");
+                }
                 return Redirect("http://localhost:3000/Profile");
             }
             catch (Exception ex)

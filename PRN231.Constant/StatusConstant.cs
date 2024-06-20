@@ -10,5 +10,6 @@ namespace PRN231.Constant
     {
         public const string ACTIVE = "ACTIVE";
         public const string INACTIVE = "INACTIVE";
+        public const string PENDING = "PENDING";
     }
 }
