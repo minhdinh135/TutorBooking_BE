@@ -26,6 +26,7 @@ namespace PRN231.Models.DTOs
         [RegularExpression(@"^[a-zA-Z\sÀ-ỹ]$", ErrorMessage = "Type must be characters, without numbers and special characters")]
         public string Type { get; set; }
 
+        [Required(ErrorMessage = "Type is required")]
         public string Image { get; set; }
 
         public string Status { get; set; }

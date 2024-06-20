@@ -15,6 +15,7 @@ namespace PRN231.Models.DTOs
         public string Description { get; set; }
         public IFormFile ImageFile { get; set; }
         public string? ImageUrl { get; set; }
+        public DateTime CreatedDate { get; set; }
         public string Status { get; set; }
     }
 }

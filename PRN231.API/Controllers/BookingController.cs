@@ -131,5 +131,20 @@ namespace PRN231.API.Controllers
                 return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
             }
         }
+
+        [HttpPost("CancelApplication")]
+        public async Task<ActionResult<ApiResponse>> CancelApplication([FromBody] CancelApplicationRequest request)
+        {
+            bool success = await _bookingService.CancelApplication(request.UserId, request.BookingId);
+
+            if (success)
+            {
+                return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, null));
+            }
+            else
+            {
+                return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
+            }
+        }
     }
 }
