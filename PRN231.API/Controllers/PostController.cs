@@ -111,6 +111,14 @@ namespace PRN231.API.Controllers
             return Ok(updatedPost);
         }
 
+        [HttpDelete("Delete")]
+        //[Authorize]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var post = await _postService.Delete(id);
+            return Ok(post);
+        }
+
 
     }
 }
