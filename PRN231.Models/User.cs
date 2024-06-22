@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace PRN231.Models;
 
-public partial class User : IdentityUser<int>
+public partial class User : IdentityUser<int> 
 {
     public string Address { get; set; }
 
@@ -14,16 +14,16 @@ public partial class User : IdentityUser<int>
 
     public DateTime UpdatedAt { get; set; }
 
-    public bool Status { get; set; }
+    public string Status { get; set; }
+
+    public decimal Credit { get; set; }
 
     public List<Credential>? Credentials { get; set; }
-
-    public List<Service>? Services { get; set; }
 
     public List<Feedback>? StudentFeedbacks { get; set; }
 
     public List<Feedback>? TutorFeedbacks { get; set; }
 
-    public List<Booking>? Bookings { get; set; }
-
+    public List<BookingUser>? BookingUsers { get; set; }
+    public List<Post>? Posts { get; set; }
 }

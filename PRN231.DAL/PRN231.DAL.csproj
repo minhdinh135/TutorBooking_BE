@@ -13,10 +13,18 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PRN231.Constant\PRN231.Constant.csproj" />
     <ProjectReference Include="..\PRN231.Models\PRN231.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

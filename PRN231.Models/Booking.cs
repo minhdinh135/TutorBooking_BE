@@ -1,22 +1,24 @@
 namespace PRN231.Models;
 
-public partial class Booking
+public partial class Booking : BaseModel
 {
-    public int Id { get; set; }
+    public int SubjectId { get; set; }
 
-    public int StudentId { get; set; }
+    public int LevelId { get; set; }
 
-    public decimal Price { get; set; }
+    public decimal? PricePerSlot { get; set; }
 
-    public string PaymentMethod { get; set; }
+    public int NumOfSlots { get; set; }
 
-    public DateTime CreatedDate { get; set; }
+    public string? PaymentMethod { get; set; }
 
-    public DateTime UpdatedDate { get; set; }
+    public string? Description { get; set; }
+    public Level Level { get; set; }
 
-    public bool Status { get; set; }
-
-    public User Student { get; set; }
+    public Subject Subject { get; set; }
 
     public List<Schedule> Schedules { get; set; }
+
+    public List<BookingUser> BookingUsers { get; set; }
+
 }
