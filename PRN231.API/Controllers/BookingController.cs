@@ -37,6 +37,16 @@ namespace PRN231.API.Controllers
             return Ok(response);
         }
 
+        //[HttpGet("Get")]
+        //public async Task<ActionResult<ApiResponse>> GetBookingByBookingId([FromRoute] int bookingId)
+        //{
+        //    Booking booking = await _bookingService.GetBooking(bookingId);
+
+        //    var response = new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, booking);
+
+        //    return Ok(response);
+        //}
+
         [HttpGet("GetAllByStatus")]
         public async Task<ActionResult<ApiResponse>> GetAllBookingsByStatus([FromQuery] string status)
         {

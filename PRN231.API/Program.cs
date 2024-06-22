@@ -205,7 +205,6 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.UseHttpsRedirection();
 app.UseCors("MyAllowPolicy");
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 

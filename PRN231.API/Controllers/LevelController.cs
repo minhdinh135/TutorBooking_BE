@@ -3,6 +3,11 @@ using PRN231.Models.DTOs;
 using PRN231.Models;
 using PRN231.Services.Interfaces;
 using PRN231.Repository.Interfaces;
+using Newtonsoft.Json;
+using PRN231.Models.DTOs.Response;
+using System.Net.Http.Headers;
+using Newtonsoft.Json.Linq;
+
 
 namespace PRN231.API.Controllers
 {
@@ -14,6 +19,7 @@ namespace PRN231.API.Controllers
         private readonly IGenericRepository<Level> _levelRepo;
         private readonly ILogger<LevelController> _logger;
         public IConfiguration _configuration;
+        private readonly HttpClient _httpClient;
 
         public LevelController(IConfiguration config, ILogger<LevelController> logger,
                 IGenericService<Level, LevelDTO> levelService,
@@ -23,7 +29,8 @@ namespace PRN231.API.Controllers
             _configuration = config;
             _levelService = levelService;
             _levelRepo = levelRepo;
-
+            _httpClient = new HttpClient();
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         [HttpGet("GetAll")]
@@ -32,6 +39,17 @@ namespace PRN231.API.Controllers
         {
             var levelList = await _levelService.GetAll();
             return Ok(levelList);
+        }
+
+        [HttpGet]
+        //[Authorize]
+        public async Task<IActionResult> GetFromOdata([FromQuery] string query)
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync("http://localhost:5014/odata/Levels?" + query);
+            string json = await response.Content.ReadAsStringAsync();
+            dynamic allLevels = JsonConvert.DeserializeObject<ODataResponse<IEnumerable<Level>>>(json);
+
+            return Ok(allLevels);
         }
 
         [HttpGet("Get")]

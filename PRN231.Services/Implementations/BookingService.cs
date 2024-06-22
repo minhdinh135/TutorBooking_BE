@@ -14,14 +14,12 @@ namespace PRN231.Services.Implementations
     {
         private readonly IBookingRepository _bookingRepository;
         private readonly IBookingUserRepository _bookingUserRepository;
-        private readonly IGenericService<Schedule, ScheduleDTO> _scheduleService;
 
         public BookingService(IBookingRepository bookingRepository,
-            IBookingUserRepository bookingUserRepository, IGenericService<Schedule, ScheduleDTO> scheduleService)
+            IBookingUserRepository bookingUserRepository)
         {
             _bookingRepository = bookingRepository;
             _bookingUserRepository = bookingUserRepository;
-            _scheduleService = scheduleService;
         }
 
         public async Task<IEnumerable<BookingDto>> GetAllBookings()
@@ -60,6 +58,11 @@ namespace PRN231.Services.Implementations
                     Status = bu.Status
                 })
             });
+        }
+
+        public async Task<Booking> GetBooking(int bookingId)
+        {
+           return await _bookingRepository.Get(bookingId);
         }
 
         public async Task<IEnumerable<BookingDto>> GetAllBookingsByStatus(string status)
