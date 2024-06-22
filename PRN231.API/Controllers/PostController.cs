@@ -13,6 +13,7 @@ namespace PRN231.API.Controllers
     public class PostController : ControllerBase
     {
         private readonly IGenericService<Post, PostDTO> _postService;
+        private readonly IGenericService<User, UserDTO> _userService;
         private readonly ILogger<PostController> _logger;
         public IConfiguration _configuration;
         private readonly IFileStorageService _fileStorageService;
@@ -21,6 +22,7 @@ namespace PRN231.API.Controllers
         public PostController(IConfiguration config, ILogger<PostController> logger,
                 IGenericService<Post, PostDTO> postService,
                 IFileStorageService fileStorageService,
+                IGenericService<User, UserDTO> userService,
                 IMapper mapper)
         {
             _logger = logger;
@@ -28,6 +30,7 @@ namespace PRN231.API.Controllers
             _postService = postService;
             _fileStorageService = fileStorageService;
             _mapper = mapper;
+            _userService = userService;
         }
 
         [HttpGet("GetAll")]
@@ -49,6 +52,16 @@ namespace PRN231.API.Controllers
         [HttpPost("Add")]
         public async Task<IActionResult> Add([FromForm] PostDTO dto)
         {
+            var user = await _userService.Get(dto.UserId);
+            if (user == null)
+            {
+                return NotFound($"User with ID {dto.UserId} not found.");
+            }
+            if(user.Credit < 10000){
+                return BadRequest("Not enough credit");
+            }
+            user.Credit -= 10000;
+
             string imageUrl = null;
             if (dto.ImageFile != null && dto.ImageFile.Length > 0)
             {
