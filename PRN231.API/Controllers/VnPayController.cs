@@ -76,7 +76,7 @@ namespace PRN231.API.Controllers
                 var user = await _userRepo.Get(Id);
                 var roleList = await _manager.GetRolesAsync(user);
                 var role = roleList.FirstOrDefault() ?? "";
-                if (user != null){
+                if (user != null && result == 1){
                     user.Credit = user.Credit + decimal.Parse(amount)/100;
                     await _userRepo.Update(user);
                 }
