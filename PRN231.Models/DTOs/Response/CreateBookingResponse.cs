@@ -16,7 +16,5 @@
         public int NumOfSlots { get; set; }
 
         public decimal PricePerSlot { get; set; }
-
-        //public IEnumerable<ScheduleDTO>? Schedules { get; set; } 
     }
 }

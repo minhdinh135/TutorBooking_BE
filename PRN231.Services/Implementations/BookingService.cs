@@ -14,14 +14,12 @@ namespace PRN231.Services.Implementations
     {
         private readonly IBookingRepository _bookingRepository;
         private readonly IBookingUserRepository _bookingUserRepository;
-        private readonly IGenericService<Schedule, ScheduleDTO> _scheduleService;
 
         public BookingService(IBookingRepository bookingRepository,
-            IBookingUserRepository bookingUserRepository, IGenericService<Schedule, ScheduleDTO> scheduleService)
+            IBookingUserRepository bookingUserRepository)
         {
             _bookingRepository = bookingRepository;
             _bookingUserRepository = bookingUserRepository;
-            _scheduleService = scheduleService;
         }
 
         public async Task<IEnumerable<BookingDto>> GetAllBookings()
@@ -46,9 +44,11 @@ namespace PRN231.Services.Implementations
                 UpdatedDate = booking.UpdatedDate,
                 Schedules = booking.Schedules.Select(s => new ScheduleDTO {
                     Id = s.Id,
+                    BookingId = s.BookingId,
                     DayOfWeek = s.DayOfWeek,
                     StartTime = s.StartTime,
                     Duration = s.Duration,
+                    Status = s.Status
                 }),
                 BookingUsers = booking.BookingUsers.Select(bu => new BookingUserDTO
                 {
@@ -58,6 +58,11 @@ namespace PRN231.Services.Implementations
                     Status = bu.Status
                 })
             });
+        }
+
+        public async Task<Booking> GetBooking(int bookingId)
+        {
+           return await _bookingRepository.Get(bookingId);
         }
 
         public async Task<IEnumerable<BookingDto>> GetAllBookingsByStatus(string status)
@@ -96,11 +101,6 @@ namespace PRN231.Services.Implementations
 
                 BookingUser savedBookingUser = await _bookingUserRepository.Add(bookingUser);
 
-                //createBookingRequest.Schedules.ToList().ForEach(schedule =>
-                //{
-                //    _scheduleService.Add(schedule);
-                //});
-
                 CreateBookingResponse bookingResponse = new CreateBookingResponse
                 {
                     Id = addedBooking.Id,
@@ -111,7 +111,6 @@ namespace PRN231.Services.Implementations
                     Description = addedBooking.Description,
                     NumOfSlots = addedBooking.NumOfSlots,
                     PricePerSlot = (decimal)addedBooking.PricePerSlot,
-                    //Schedules = createBookingRequest.Schedules
                 };
 
                 return bookingResponse;
