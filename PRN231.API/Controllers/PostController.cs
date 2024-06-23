@@ -5,6 +5,7 @@ using PRN231.Services.Interfaces;
 using PRN231.Services;
 using PRN231.Constant;
 using AutoMapper;
+using PRN231.Repository.Interfaces;
 
 namespace PRN231.API.Controllers
 {
@@ -13,6 +14,7 @@ namespace PRN231.API.Controllers
     public class PostController : ControllerBase
     {
         private readonly IGenericService<Post, PostDTO> _postService;
+        private readonly IGenericRepository<Post> _postRepo;
         private readonly IGenericService<User, UserDTO> _userService;
         private readonly ILogger<PostController> _logger;
         public IConfiguration _configuration;
@@ -23,7 +25,7 @@ namespace PRN231.API.Controllers
                 IGenericService<Post, PostDTO> postService,
                 IFileStorageService fileStorageService,
                 IGenericService<User, UserDTO> userService,
-                IMapper mapper)
+                IMapper mapper, IGenericRepository<Post> postRepo)
         {
             _logger = logger;
             _configuration = config;
@@ -31,6 +33,7 @@ namespace PRN231.API.Controllers
             _fileStorageService = fileStorageService;
             _mapper = mapper;
             _userService = userService;
+            _postRepo = postRepo;
         }
 
         [HttpGet("GetAll")]
@@ -49,6 +52,15 @@ namespace PRN231.API.Controllers
             return Ok(postList);
         }
 
+        [HttpGet("GetPostsByUserId")]
+        //[Authorize]
+        public async Task<IActionResult> GetPostsByUserId(int id)
+        {
+            var posts = await _postRepo.GetAll(x => x.Where(p => p.UserId == id));
+            return Ok(posts);
+        }
+
+
         [HttpPost("Add")]
         public async Task<IActionResult> Add([FromForm] PostDTO dto)
         {
@@ -57,7 +69,8 @@ namespace PRN231.API.Controllers
             {
                 return NotFound($"User with ID {dto.UserId} not found.");
             }
-            if(user.Credit < 10000){
+            if (user.Credit < 10000)
+            {
                 return BadRequest("Not enough credit");
             }
             user.Credit -= 10000;
@@ -92,6 +105,7 @@ namespace PRN231.API.Controllers
             };
             return Ok(addedDto);
         }
+
 
 
         [HttpPut("Update")]

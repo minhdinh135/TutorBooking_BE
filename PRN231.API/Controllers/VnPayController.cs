@@ -43,6 +43,65 @@ namespace PRN231.API.Controllers
             }
         }
 
+        [HttpPost("TransferMoney")]
+        public async Task<ActionResult<ApiResponse>> TransferMoney([FromBody] TransferPaymentUserRequest createPaymentRequest)
+        {
+            try
+            {
+                var user = await _userRepo.Get(createPaymentRequest.UserId);
+                var receiver = await _userRepo.Get(createPaymentRequest.ReceiverId);
+                if (user == null)
+                {
+                    return NotFound($"User with ID {createPaymentRequest.UserId} not found.");
+                }
+                if (user.Credit < createPaymentRequest.Amount)
+                {
+                    return BadRequest("Not enough credit");
+                }
+                user.Credit -= createPaymentRequest.Amount;
+                receiver.Credit += createPaymentRequest.Amount;
+
+                await _userRepo.Update(user);
+                await _userRepo.Update(receiver);
+
+                return Ok();
+
+                //string payload = _vnPayService.CreatePayment(createPaymentRequest);
+
+                //return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, payload));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
+            }
+        }
+
+        [HttpPost("CheckUserCredit")]
+        public async Task<ActionResult<ApiResponse>> CheckPaymentForUserCredit([FromBody] CreatePaymentUserRequest createPaymentRequest)
+        {
+            try
+            {
+                var user = await _userRepo.Get(createPaymentRequest.UserId);
+                if (user == null)
+                {
+                    return NotFound($"User with ID {createPaymentRequest.UserId} not found.");
+                }
+                if (user.Credit < createPaymentRequest.Amount)
+                {
+                    return BadRequest(createPaymentRequest.Amount- user.Credit);
+                }
+                else
+                {
+                    return Ok();
+                }
+                //return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, payload));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
+            }
+        }
+
         [HttpPost("PayUserCredit")]
         public async Task<ActionResult<ApiResponse>> CreatePaymentForUserCredit([FromBody] CreatePaymentUserRequest createPaymentRequest)
         {

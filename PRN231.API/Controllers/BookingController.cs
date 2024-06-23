@@ -16,15 +16,18 @@ namespace PRN231.API.Controllers
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
+        private readonly IBookingRepository _bookingRepo;
         private readonly IBookingUserRepository _bookingUserRepository;
         private readonly IGenericService<User, UserDTO> _userService;
 
         public BookingController(IBookingService bookingService, IBookingUserRepository bookingUserRepository,
-            IGenericService<User, UserDTO> userService)
+            IGenericService<User, UserDTO> userService,
+            IBookingRepository bookingRepo)
         {
             _bookingService = bookingService;
             _bookingUserRepository = bookingUserRepository;
             _userService = userService;
+            _bookingRepo = bookingRepo;
         }
 
         [HttpGet("GetAll")]
@@ -77,6 +80,25 @@ namespace PRN231.API.Controllers
                 UpdateBookingResponse bookingResponse = await _bookingService.UpdateBooking(request);
 
                 return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookingResponse));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
+            }
+        }
+
+        [HttpPost("UpdateStatus")]
+        public async Task<ActionResult<ApiResponse>> UpdateBookingStatus([FromBody] UpdateBookingStatusRequest request)
+        {
+            try
+            {
+                var booking = await _bookingService.GetBooking(request.BookingId);
+                booking.Status = request.Status;
+                booking = await _bookingRepo.Update(booking);
+                return Ok(booking);
+                //UpdateBookingResponse bookingResponse = await _bookingService.UpdateBooking(booking);
+
+                //return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, bookingResponse));
             }
             catch (Exception ex)
             {

@@ -96,6 +96,27 @@ namespace PRN231.API.Controllers
             return Ok();
         }
 
+        [HttpPost("SendStatusMailApproveTeaching")]
+        public async Task<IActionResult> SendStatusMailApproveTeaching(SendStatusEmailDTO dto)
+        {
+            var receiver = dto.Email;
+            var subject = "";
+            var message = "";
+            if (dto.Status == "APPROVED")
+            {
+                subject = "Request to teach approved";
+                message = "Your request to teach has been approved. Please check!";
+            }
+            else
+            {
+                subject = "Request to teach rejected";
+                message = "Your request to teach has been rejected. Please check!";
+            }
+
+            await _emailSender.SendEmailAsync(receiver, subject, message);
+            return Ok();
+        }
+
         [HttpPost("SendStatusMailPost")]
         public async Task<IActionResult> SendStatusMailPost(SendStatusEmailDTO dto)
         {
