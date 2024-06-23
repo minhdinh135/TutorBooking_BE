@@ -455,6 +455,49 @@ namespace PRN231.DAL.Migrations
                     b.ToTable("Subjects");
                 });
 
+            modelBuilder.Entity("PRN231.Models.Transaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ReceiverId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Transactions");
+                });
+
             modelBuilder.Entity("PRN231.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -695,6 +738,24 @@ namespace PRN231.DAL.Migrations
                     b.Navigation("Booking");
                 });
 
+            modelBuilder.Entity("PRN231.Models.Transaction", b =>
+                {
+                    b.HasOne("PRN231.Models.User", "Receiver")
+                        .WithMany("ReceivedTransactions")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("PRN231.Models.User", "User")
+                        .WithMany("SentTransactions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PRN231.Models.Booking", b =>
                 {
                     b.Navigation("BookingUsers");
@@ -721,6 +782,10 @@ namespace PRN231.DAL.Migrations
                     b.Navigation("Credentials");
 
                     b.Navigation("Posts");
+
+                    b.Navigation("ReceivedTransactions");
+
+                    b.Navigation("SentTransactions");
 
                     b.Navigation("StudentFeedbacks");
 
