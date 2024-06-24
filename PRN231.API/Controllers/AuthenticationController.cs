@@ -96,6 +96,20 @@ namespace PRN231.API.Controllers
             return Ok();
         }
 
+        [HttpPost("SendStatusMailTransfermoneyForTeaching")]
+        public async Task<IActionResult> SendStatusMailTransfermoneyForTeaching(SendEmailDTO dto)
+        {
+            var receiver = dto.Email;
+            var subject = "";
+            var message = "";
+            
+            subject = "Your money is transferred to your wallet.";
+            message = "Your money will be transferred to your wallet after the lesson is finished. Please check!";
+            
+            await _emailSender.SendEmailAsync(receiver, subject, message);
+            return Ok();
+        }
+
         [HttpPost("SendStatusMailApproveTeaching")]
         public async Task<IActionResult> SendStatusMailApproveTeaching(SendStatusEmailDTO dto)
         {
@@ -105,7 +119,7 @@ namespace PRN231.API.Controllers
             if (dto.Status == "APPROVED")
             {
                 subject = "Request to teach approved";
-                message = "Your request to teach has been approved. Please check!";
+                message = "Your request to teach has been approved. Your money will be transferred to your wallet after the lesson is finished. Please check!";
             }
             else
             {
@@ -579,6 +593,11 @@ namespace PRN231.API.Controllers
     {
         public string Email { get; set; }
         public string Status { get; set; }
+    }
+
+    public class SendEmailDTO
+    {
+        public string Email { get; set; }
     }
 
     public class RegisterTutorDTO{
