@@ -65,10 +65,6 @@ namespace PRN231.API.Controllers
                 await _userRepo.Update(receiver);
 
                 return Ok();
-
-                //string payload = _vnPayService.CreatePayment(createPaymentRequest);
-
-                //return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, payload));
             }
             catch (Exception ex)
             {
