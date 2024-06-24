@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using PRN231.Constant;
 using PRN231.Models;
+using PRN231.Models.DTOs;
 using PRN231.Models.DTOs.Request;
 using PRN231.Models.DTOs.Response;
 using PRN231.Repository.Interfaces;
 using PRN231.Services;
+using PRN231.Services.Interfaces;
 using System.Net;
 
 namespace PRN231.API.Controllers
@@ -17,14 +19,17 @@ namespace PRN231.API.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IVnPayService _vnPayService;
         private readonly IGenericRepository<User> _userRepo;
+        private readonly IGenericService<Transaction, TransactionDTO> _transactionService;
         private readonly UserManager<User> _manager;
 
         public VnPayController(IHttpContextAccessor httpContextAccessor, IVnPayService vnPayService,
-            IGenericRepository<User> userRepo, UserManager<User> manager)
+            IGenericRepository<User> userRepo, UserManager<User> manager,
+            IGenericService<Transaction, TransactionDTO> transactionService)
         {
             _httpContextAccessor = httpContextAccessor;
             _vnPayService = vnPayService;
             _userRepo = userRepo;
+            _transactionService = transactionService;
             _manager = manager;
         }
 
@@ -49,7 +54,7 @@ namespace PRN231.API.Controllers
             try
             {
                 var user = await _userRepo.Get(createPaymentRequest.UserId);
-                var receiver = await _userRepo.Get(createPaymentRequest.ReceiverId);
+                //var receiver = await _userRepo.Get(createPaymentRequest.ReceiverId);
                 if (user == null)
                 {
                     return NotFound($"User with ID {createPaymentRequest.UserId} not found.");
@@ -58,11 +63,78 @@ namespace PRN231.API.Controllers
                 {
                     return BadRequest("Not enough credit");
                 }
+
+                var adminUsers = await _manager.GetUsersInRoleAsync("Admin");
+                var admin = adminUsers.FirstOrDefault();
+                if(admin == null) return BadRequest("Admin not found");
+
+                var transaction = new TransactionDTO{
+                    UserId = createPaymentRequest.UserId,
+                    ReceiverId = admin.Id,
+                    Amount = createPaymentRequest.Amount,
+                    Message = "Transfer credit to admin",
+                    Type = TransactionConstant.TRANSFER,
+                    Status = StatusConstant.ACTIVE,
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                await _transactionService.Add(transaction);
+
                 user.Credit -= createPaymentRequest.Amount;
-                receiver.Credit += createPaymentRequest.Amount;
+                admin.Credit += createPaymentRequest.Amount;
 
                 await _userRepo.Update(user);
-                await _userRepo.Update(receiver);
+                await _userRepo.Update(admin);
+
+                return Ok();
+
+                //string payload = _vnPayService.CreatePayment(createPaymentRequest);
+
+                //return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, payload));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
+            }
+        }
+
+        [HttpPost("TransferMoneyTutor")]
+        public async Task<ActionResult<ApiResponse>> TransferMoneyTutor([FromBody] CreatePaymentUserRequest createPaymentRequest)
+        {
+            try
+            {
+                var user = await _userRepo.Get(createPaymentRequest.UserId);
+                var adminUsers = await _manager.GetUsersInRoleAsync("Admin");
+                var admins = adminUsers.FirstOrDefault();
+
+                if(admins == null) return BadRequest("Admin not found");
+
+                var admin = await _userRepo.Get(admins.Id);
+                //var receiver = await _userRepo.Get(createPaymentRequest.ReceiverId);
+                if (admin.Credit < createPaymentRequest.Amount)
+                {
+                    return BadRequest("Not enough credit");
+                }
+
+                var transaction = new TransactionDTO{
+                    UserId = admin.Id,
+                    ReceiverId = user.Id,
+                    Amount = createPaymentRequest.Amount - (createPaymentRequest.Amount*10/100),
+                    Message = "Transfer credit to tutor",
+                    Type = TransactionConstant.TRANSFER,
+                    Status = StatusConstant.ACTIVE,
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                await _transactionService.Add(transaction);
+
+                user.Credit += createPaymentRequest.Amount - (createPaymentRequest.Amount*10/100);
+                admin.Credit -= createPaymentRequest.Amount - (createPaymentRequest.Amount*10/100);
+
+                await _userRepo.Update(user);
+                await _userRepo.Update(admin);
 
                 return Ok();
             }
@@ -132,6 +204,18 @@ namespace PRN231.API.Controllers
                 var roleList = await _manager.GetRolesAsync(user);
                 var role = roleList.FirstOrDefault() ?? "";
                 if (user != null && result == 1){
+                    var transaction = new TransactionDTO{
+                        UserId = Id,
+                        Amount = decimal.Parse(amount)/100,
+                        Message = "Charge credit for user",
+                        Type = TransactionConstant.CHARGE,
+                        Status = StatusConstant.ACTIVE,
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+
+                    await _transactionService.Add(transaction);
+
                     user.Credit = user.Credit + decimal.Parse(amount)/100;
                     await _userRepo.Update(user);
                 }

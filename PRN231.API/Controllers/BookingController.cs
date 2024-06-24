@@ -72,7 +72,7 @@ namespace PRN231.API.Controllers
             }
         }
 
-        [HttpPost("Update")]
+        [HttpPut("Update")]
         public async Task<ActionResult<ApiResponse>> UpdateBooking([FromBody] UpdateBookingRequest request)
         {
             try
@@ -87,7 +87,7 @@ namespace PRN231.API.Controllers
             }
         }
 
-        [HttpPost("UpdateStatus")]
+        [HttpPut("UpdateStatus")]
         public async Task<ActionResult<ApiResponse>> UpdateBookingStatus([FromBody] UpdateBookingStatusRequest request)
         {
             try
