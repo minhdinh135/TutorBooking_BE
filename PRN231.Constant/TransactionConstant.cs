@@ -10,6 +10,8 @@ namespace PRN231.Constant
     {
         public const string CHARGE = "CHARGE";
         public const string TRANSFER = "TRANSFER";
+        public const string POST = "POST";
         public const string PURCHASE = "PURCHASE";
+        public const string REFUND = "REFUND";
     }
 }

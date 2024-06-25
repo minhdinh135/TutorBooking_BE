@@ -73,7 +73,7 @@ namespace PRN231.API.Controllers
                     ReceiverId = admin.Id,
                     Amount = createPaymentRequest.Amount,
                     Message = "Transfer credit to admin",
-                    Type = TransactionConstant.TRANSFER,
+                    Type = TransactionConstant.PURCHASE,
                     Status = StatusConstant.ACTIVE,
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now

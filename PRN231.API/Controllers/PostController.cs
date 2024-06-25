@@ -122,7 +122,7 @@ namespace PRN231.API.Controllers
                 ReceiverId = admin.Id,
                 Amount = 10000,
                 Message = "Transfer credit to admin",
-                Type = TransactionConstant.TRANSFER,
+                Type = TransactionConstant.POST,
                 Status = StatusConstant.ACTIVE,
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
@@ -136,8 +136,6 @@ namespace PRN231.API.Controllers
 
             return Ok(addedDto);
         }
-
-
 
         [HttpPut("Update")]
         public async Task<IActionResult> Update([FromForm] PostDTO dto)
@@ -177,6 +175,39 @@ namespace PRN231.API.Controllers
             return Ok(post);
         }
 
+        [HttpPost("Refund")]
+        public async Task<IActionResult> Refund([FromBody]PostDTO dto)
+        {
+            var user = await _userService.Get(dto.UserId);
+            if (user == null)
+            {
+                return NotFound($"User with ID {dto.UserId} not found.");
+            }
+
+            var adminUsers = await _manager.GetUsersInRoleAsync("Admin");
+            var admins = adminUsers.FirstOrDefault();
+            if (admins == null) return BadRequest("Admin not found");
+            var admin = await _userRepo.Get(admins.Id);
+            var transaction = new TransactionDTO
+            {
+                UserId = admin.Id,
+                ReceiverId = user.Id,
+                Amount = 10000,
+                Message = "Transfer credit to user",
+                Type = TransactionConstant.REFUND,
+                Status = StatusConstant.ACTIVE,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
+            await _transactionService.Add(transaction);
+
+            user.Credit += 10000;
+            admin.Credit -= 10000;
+            await _userRepo.Update(user);
+            await _userRepo.Update(admin);
+
+            return Ok();
+        }
 
     }
 }

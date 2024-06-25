@@ -145,7 +145,7 @@ namespace PRN231.API.Controllers
             else
             {
                 subject = "Post rejected";
-                message = "Your post has been rejected. We will delete this post! Please check!";
+                message = "Your post has been rejected. We will refund money to your wallet! We will delete this post! Please check!";
             }
 
             await _emailSender.SendEmailAsync(receiver, subject, message);

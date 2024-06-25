@@ -41,13 +41,13 @@ namespace PRN231.API.Controllers
             return Ok(transactionList);
         }
 
-        [HttpGet("GetAllByTypeTransaction")]
-        public async Task<ActionResult<ApiResponse>> GetAllByTypeTransaction( string type)
+        [HttpPost("GetAllByTypeTransaction")]
+        public async Task<ActionResult<ApiResponse>> GetAllByTypeTransaction( string[] type)
         {
             try
             {
                 var transactions = await _transactionService.GetAll();
-                transactions = transactions.Where(x => x.Type == type);
+                transactions = transactions.Where(x => type.Contains( x.Type));
 
                 return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, transactions));
             }
