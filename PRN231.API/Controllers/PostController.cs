@@ -5,6 +5,9 @@ using PRN231.Services.Interfaces;
 using PRN231.Services;
 using PRN231.Constant;
 using AutoMapper;
+using PRN231.Repository.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using PRN231.Models.DTOs.Request;
 
 namespace PRN231.API.Controllers
 {
@@ -13,17 +16,23 @@ namespace PRN231.API.Controllers
     public class PostController : ControllerBase
     {
         private readonly IGenericService<Post, PostDTO> _postService;
+        private readonly IGenericRepository<Post> _postRepo;
+        private readonly IGenericRepository<User> _userRepo;
         private readonly IGenericService<User, UserDTO> _userService;
         private readonly ILogger<PostController> _logger;
         public IConfiguration _configuration;
         private readonly IFileStorageService _fileStorageService;
         private readonly IMapper _mapper;
+        private readonly UserManager<User> _manager;
+        private readonly IGenericService<Transaction, TransactionDTO> _transactionService;
+
 
         public PostController(IConfiguration config, ILogger<PostController> logger,
                 IGenericService<Post, PostDTO> postService,
                 IFileStorageService fileStorageService,
                 IGenericService<User, UserDTO> userService,
-                IMapper mapper)
+                IMapper mapper, IGenericRepository<Post> postRepo,
+                UserManager<User> manager, IGenericService<Transaction, TransactionDTO> transactionService, IGenericRepository<User> userRepo)
         {
             _logger = logger;
             _configuration = config;
@@ -31,6 +40,10 @@ namespace PRN231.API.Controllers
             _fileStorageService = fileStorageService;
             _mapper = mapper;
             _userService = userService;
+            _postRepo = postRepo;
+            _manager = manager;
+            _transactionService = transactionService;
+            _userRepo = userRepo;
         }
 
         [HttpGet("GetAll")]
@@ -48,6 +61,15 @@ namespace PRN231.API.Controllers
             var postList = await _postService.Get(id);
             return Ok(postList);
         }
+
+        [HttpGet("GetPostsByUserId")]
+        //[Authorize]
+        public async Task<IActionResult> GetPostsByUserId(int id)
+        {
+            var posts = await _postRepo.GetAll(x => x.Where(p => p.UserId == id));
+            return Ok(posts);
+        }
+
 
         [HttpPost("Add")]
         public async Task<IActionResult> Add([FromForm] PostDTO dto)
@@ -78,7 +100,7 @@ namespace PRN231.API.Controllers
                 }
             }
 
-            dto.ImageUrl = imageUrls;
+            dto.ImageUrlList = imageUrls;
             dto.Status = StatusConstant.PENDING;
             DateTime currentTime = DateTime.Now;
             dto.CreatedDate = currentTime;
@@ -90,11 +112,33 @@ namespace PRN231.API.Controllers
                 Id = post.Id,
                 Description = dto.Description,
                 Status = dto.Status,
-                ImageUrl = imageUrls,
+                ImageUrlList = imageUrls,
                 Title = dto.Title,
                 UserId = dto.UserId,
                 CreatedDate = currentTime
             };
+            var adminUsers = await _manager.GetUsersInRoleAsync("Admin");
+            var admins = adminUsers.FirstOrDefault();
+            if (admins == null) return BadRequest("Admin not found");
+            var admin = await _userRepo.Get(admins.Id);
+            var transaction = new TransactionDTO
+            {
+                UserId = user.Id,
+                ReceiverId = admin.Id,
+                Amount = 10000,
+                Message = "Transfer credit to admin",
+                Type = TransactionConstant.TRANSFER,
+                Status = StatusConstant.ACTIVE,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
+            await _transactionService.Add(transaction);
+
+            user.Credit -= 10000;
+            admin.Credit += 10000;
+            await _userRepo.Update(user);
+            await _userRepo.Update(admin);
+
             return Ok(addedDto);
         }
 
@@ -115,15 +159,15 @@ namespace PRN231.API.Controllers
                     newImageurl.Add(newImageUrl);
                 }
 
-                if (dto.ImageUrl != null && dto.ImageUrl.Count > 0)
+                if (dto.ImageUrl != null && dto.ImageUrlList.Count > 0)
                 {
-                    foreach (var oldImageUrl in dto.ImageUrl)
+                    foreach (var oldImageUrl in dto.ImageUrlList)
                     {
                         await _fileStorageService.DeleteFileAsync(oldImageUrl);
                     }
                 }
 
-                dto.ImageUrl = newImageurl;
+                dto.ImageUrlList = newImageurl;
             }
 
             dto.Status = StatusConstant.ACTIVE;

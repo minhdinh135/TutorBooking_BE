@@ -11,4 +11,10 @@
         public string PaymentMethod { get; set; }
         public string Status { get; set; }
     }
+
+    public class UpdateBookingStatusRequest
+    {
+        public int BookingId { get; set; }
+        public string Status { get; set; }
+    }
 }

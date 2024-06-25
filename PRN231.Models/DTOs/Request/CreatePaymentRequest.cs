@@ -12,4 +12,12 @@
         public long Amount { get; set; }
         public string OrderInfo { get; set; }
     }
+
+    public class TransferPaymentUserRequest
+    {
+        public int UserId { get; set; }
+        public int ReceiverId { get; set; }
+        public long Amount { get; set; }
+        public string OrderInfo { get; set; }
+    }
 }

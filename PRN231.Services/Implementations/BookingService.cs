@@ -78,7 +78,7 @@ namespace PRN231.Services.Implementations
                 LevelId = createBookingRequest.LevelId,
                 PricePerSlot = createBookingRequest.PricePerSlot,
                 NumOfSlots = createBookingRequest.NumOfSlots,
-                PaymentMethod = PaymentMethodConstant.UNDEFINED,
+                PaymentMethod = PaymentMethodConstant.VNPAY,
                 Description = createBookingRequest.Description,
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now,
@@ -195,9 +195,11 @@ namespace PRN231.Services.Implementations
 
         public async Task<bool> AcceptTutor(int bookingId, int tutorId)
         {
+            
             var bookingUsers = await _bookingUserRepository.GetAll(
                 query => query.Where(bu => bu.BookingId == bookingId && bu.Role == RoleEnum.TUTOR)
             );
+
 
             foreach (var bu in bookingUsers)
             {

@@ -48,7 +48,7 @@ namespace PRN231.API.Controllers.OData
                 }
             }
 
-            dto.ImageUrl = imageUrls;
+            dto.ImageUrlList = imageUrls;
             dto.Status = StatusConstant.ACTIVE;
 
             var post = await _postService.Add(dto);
@@ -73,15 +73,15 @@ namespace PRN231.API.Controllers.OData
                     newImageUrls.Add(newImageUrl);
                 }
 
-                if (dto.ImageUrl != null && dto.ImageUrl.Count > 0)
+                if (dto.ImageUrl != null && dto.ImageUrlList.Count > 0)
                 {
-                    foreach (var oldImageUrl in dto.ImageUrl)
+                    foreach (var oldImageUrl in dto.ImageUrlList)
                     {
                         await _fileStorageService.DeleteFileAsync(oldImageUrl);
                     }
                 }
 
-                dto.ImageUrl = newImageUrls;
+                dto.ImageUrlList = newImageUrls;
             }
 
             dto.Status = StatusConstant.ACTIVE;

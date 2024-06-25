@@ -26,4 +26,7 @@ public partial class User : IdentityUser<int>
 
     public List<BookingUser>? BookingUsers { get; set; }
     public List<Post>? Posts { get; set; }
+
+    public List<Transaction>? SentTransactions { get; set; }
+    public List<Transaction>? ReceivedTransactions { get; set; }
 }
