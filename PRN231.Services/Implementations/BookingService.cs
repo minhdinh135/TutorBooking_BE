@@ -195,7 +195,11 @@ namespace PRN231.Services.Implementations
 
         public async Task<bool> AcceptTutor(int bookingId, int tutorId)
         {
-            
+            Booking booking = await _bookingRepository.Get(bookingId);
+            booking.Status = BookingStatusConstant.APPROVED;
+
+            await _bookingRepository.Update(booking);
+
             var bookingUsers = await _bookingUserRepository.GetAll(
                 query => query.Where(bu => bu.BookingId == bookingId && bu.Role == RoleEnum.TUTOR)
             );
