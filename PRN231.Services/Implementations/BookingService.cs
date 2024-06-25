@@ -78,7 +78,7 @@ namespace PRN231.Services.Implementations
                 LevelId = createBookingRequest.LevelId,
                 PricePerSlot = createBookingRequest.PricePerSlot,
                 NumOfSlots = createBookingRequest.NumOfSlots,
-                PaymentMethod = PaymentMethodConstant.UNDEFINED,
+                PaymentMethod = PaymentMethodConstant.VNPAY,
                 Description = createBookingRequest.Description,
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now,

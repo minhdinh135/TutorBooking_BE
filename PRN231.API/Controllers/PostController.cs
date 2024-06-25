@@ -6,6 +6,8 @@ using PRN231.Services;
 using PRN231.Constant;
 using AutoMapper;
 using PRN231.Repository.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using PRN231.Models.DTOs.Request;
 
 namespace PRN231.API.Controllers
 {
@@ -15,17 +17,22 @@ namespace PRN231.API.Controllers
     {
         private readonly IGenericService<Post, PostDTO> _postService;
         private readonly IGenericRepository<Post> _postRepo;
+        private readonly IGenericRepository<User> _userRepo;
         private readonly IGenericService<User, UserDTO> _userService;
         private readonly ILogger<PostController> _logger;
         public IConfiguration _configuration;
         private readonly IFileStorageService _fileStorageService;
         private readonly IMapper _mapper;
+        private readonly UserManager<User> _manager;
+        private readonly IGenericService<Transaction, TransactionDTO> _transactionService;
+
 
         public PostController(IConfiguration config, ILogger<PostController> logger,
                 IGenericService<Post, PostDTO> postService,
                 IFileStorageService fileStorageService,
                 IGenericService<User, UserDTO> userService,
-                IMapper mapper, IGenericRepository<Post> postRepo)
+                IMapper mapper, IGenericRepository<Post> postRepo,
+                UserManager<User> manager, IGenericService<Transaction, TransactionDTO> transactionService, IGenericRepository<User> userRepo)
         {
             _logger = logger;
             _configuration = config;
@@ -34,6 +41,9 @@ namespace PRN231.API.Controllers
             _mapper = mapper;
             _userService = userService;
             _postRepo = postRepo;
+            _manager = manager;
+            _transactionService = transactionService;
+            _userRepo = userRepo;
         }
 
         [HttpGet("GetAll")]
@@ -73,8 +83,7 @@ namespace PRN231.API.Controllers
             {
                 return BadRequest("Not enough credit");
             }
-            user.Credit -= 10000;
-
+            
             string imageUrl = null;
             if (dto.ImageFile != null && dto.ImageFile.Length > 0)
             {
@@ -103,6 +112,28 @@ namespace PRN231.API.Controllers
                 UserId = dto.UserId,
                 CreatedDate = currentTime
             };
+            var adminUsers = await _manager.GetUsersInRoleAsync("Admin");
+            var admins = adminUsers.FirstOrDefault();
+            if (admins == null) return BadRequest("Admin not found");
+            var admin = await _userRepo.Get(admins.Id);
+            var transaction = new TransactionDTO
+            {
+                UserId = user.Id,
+                ReceiverId = admin.Id,
+                Amount = 10000,
+                Message = "Transfer credit to admin",
+                Type = TransactionConstant.TRANSFER,
+                Status = StatusConstant.ACTIVE,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
+            await _transactionService.Add(transaction);
+
+            user.Credit -= 10000;
+            admin.Credit += 10000;
+            await _userRepo.Update(user);
+            await _userRepo.Update(admin);
+
             return Ok(addedDto);
         }
 
