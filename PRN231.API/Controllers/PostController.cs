@@ -57,23 +57,28 @@ namespace PRN231.API.Controllers
             {
                 return NotFound($"User with ID {dto.UserId} not found.");
             }
-            if(user.Credit < 10000){
+            if (user.Credit < 10000)
+            {
                 return BadRequest("Not enough credit");
             }
             user.Credit -= 10000;
 
-            string imageUrl = null;
-            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+            var imageUrls = new List<string>();
+            if (dto.ImageFiles != null && dto.ImageFiles.Count > 0)
             {
-                imageUrl = await _fileStorageService.StoreFileAsync(dto.ImageFile);
-                if (imageUrl == null)
+                foreach (var file in dto.ImageFiles)
                 {
-                    return BadRequest("Failed to store file.");
+                    var imageUrl = await _fileStorageService.StoreFileAsync(file);
+                    if (imageUrl == null)
+                    {
+                        return BadRequest("Failed to store one or more files.");
+                    }
+                    imageUrl = $"http://localhost:5176/{imageUrl}";
+                    imageUrls.Add(imageUrl);
                 }
-                imageUrl = $"http://localhost:5176/{imageUrl}";
             }
 
-            dto.ImageUrl = imageUrl;
+            dto.ImageUrl = imageUrls;
             dto.Status = StatusConstant.PENDING;
             DateTime currentTime = DateTime.Now;
             dto.CreatedDate = currentTime;
@@ -85,7 +90,7 @@ namespace PRN231.API.Controllers
                 Id = post.Id,
                 Description = dto.Description,
                 Status = dto.Status,
-                ImageUrl = imageUrl,
+                ImageUrl = imageUrls,
                 Title = dto.Title,
                 UserId = dto.UserId,
                 CreatedDate = currentTime
@@ -93,28 +98,32 @@ namespace PRN231.API.Controllers
             return Ok(addedDto);
         }
 
-
         [HttpPut("Update")]
         public async Task<IActionResult> Update([FromForm] PostDTO dto)
         {
-
-            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+            var newImageurl = new List<string>();
+            if (dto.ImageFiles != null && dto.ImageFiles.Count > 0)
             {
-                string newImageUrl = await _fileStorageService.StoreFileAsync(dto.ImageFile);
-
-                if (newImageUrl == null)
+                foreach (var file in dto.ImageFiles)
                 {
-                    return BadRequest("Failed to store file.");
-                }
-                newImageUrl = $"http://localhost:5176/{newImageUrl}";
-
-                if (!string.IsNullOrEmpty(dto.ImageUrl))
-                {
-                    await _fileStorageService.DeleteFileAsync(dto.ImageUrl);
+                    var newImageUrl = await _fileStorageService.StoreFileAsync(file);
+                    if (newImageUrl == null)
+                    {
+                        return BadRequest("Failed to store one or more files.");
+                    }
+                    newImageUrl = $"http://localhost:5176/{newImageUrl}";
+                    newImageurl.Add(newImageUrl);
                 }
 
-                dto.ImageUrl = newImageUrl;
+                if (dto.ImageUrl != null && dto.ImageUrl.Count > 0)
+                {
+                    foreach (var oldImageUrl in dto.ImageUrl)
+                    {
+                        await _fileStorageService.DeleteFileAsync(oldImageUrl);
+                    }
+                }
 
+                dto.ImageUrl = newImageurl;
             }
 
             dto.Status = StatusConstant.ACTIVE;
@@ -123,6 +132,7 @@ namespace PRN231.API.Controllers
 
             return Ok(updatedPost);
         }
+
 
         [HttpDelete("Delete")]
         //[Authorize]

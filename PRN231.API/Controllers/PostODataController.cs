@@ -31,26 +31,24 @@ namespace PRN231.API.Controllers.OData
         }
 
         [EnableQuery]
-        public async Task<ActionResult<Post>> Get(int key)
-        {
-            var post = await _postService.Get(key);
-            return post != null ? Ok(post) : NotFound();
-        }
-
         public async Task<ActionResult<Post>> Post([FromForm] PostDTO dto)
         {
-            string imageUrl = null;
-            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+            var imageUrls = new List<string>();
+            if (dto.ImageFiles != null && dto.ImageFiles.Count > 0)
             {
-                imageUrl = await _fileStorageService.StoreFileAsync(dto.ImageFile);
-                if (imageUrl == null)
+                foreach (var file in dto.ImageFiles)
                 {
-                    return BadRequest("Failed to store file.");
+                    var imageUrl = await _fileStorageService.StoreFileAsync(file);
+                    if (imageUrl == null)
+                    {
+                        return BadRequest("Failed to store one or more files.");
+                    }
+                    imageUrl = $"http://localhost:5176/{imageUrl}";
+                    imageUrls.Add(imageUrl);
                 }
-                imageUrl = $"http://localhost:5176/{imageUrl}";
             }
 
-            dto.ImageUrl = imageUrl;
+            dto.ImageUrl = imageUrls;
             dto.Status = StatusConstant.ACTIVE;
 
             var post = await _postService.Add(dto);
@@ -61,21 +59,29 @@ namespace PRN231.API.Controllers.OData
         {
             if (key != dto.Id) return BadRequest();
 
-            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+            var newImageUrls = new List<string>();
+            if (dto.ImageFiles != null && dto.ImageFiles.Count > 0)
             {
-                string newImageUrl = await _fileStorageService.StoreFileAsync(dto.ImageFile);
-                if (newImageUrl == null)
+                foreach (var file in dto.ImageFiles)
                 {
-                    return BadRequest("Failed to store file.");
+                    var newImageUrl = await _fileStorageService.StoreFileAsync(file);
+                    if (newImageUrl == null)
+                    {
+                        return BadRequest("Failed to store one or more files.");
+                    }
+                    newImageUrl = $"http://localhost:5176/{newImageUrl}";
+                    newImageUrls.Add(newImageUrl);
                 }
-                newImageUrl = $"http://localhost:5176/{newImageUrl}";
 
-                if (!string.IsNullOrEmpty(dto.ImageUrl))
+                if (dto.ImageUrl != null && dto.ImageUrl.Count > 0)
                 {
-                    await _fileStorageService.DeleteFileAsync(dto.ImageUrl);
+                    foreach (var oldImageUrl in dto.ImageUrl)
+                    {
+                        await _fileStorageService.DeleteFileAsync(oldImageUrl);
+                    }
                 }
 
-                dto.ImageUrl = newImageUrl;
+                dto.ImageUrl = newImageUrls;
             }
 
             dto.Status = StatusConstant.ACTIVE;
@@ -84,13 +90,5 @@ namespace PRN231.API.Controllers.OData
             return Updated(updatedPost);
         }
 
-       public async Task<IActionResult> Delete(int key)
-        {
-            var post = await _postService.Get(key);
-            if (post == null) return NotFound();
-
-            await _postService.Delete(key);
-            return NoContent();
-        }
     }
 }
