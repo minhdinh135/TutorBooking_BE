@@ -49,6 +49,12 @@ namespace PRN231.API.Controllers
                     x.Booking.BookingUsers
                     .Any(y => 
                         y.UserId == userId));
+            foreach(var schedule in scheduleList)
+            {
+                schedule.Booking.Subject.Bookings = null;
+                schedule.Booking.Level.Bookings = null;
+
+            }
             return Ok(scheduleList);
         }
 
