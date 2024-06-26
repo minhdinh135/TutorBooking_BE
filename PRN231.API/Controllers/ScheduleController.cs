@@ -38,17 +38,34 @@ namespace PRN231.API.Controllers
         //[Authorize]
         public async Task<IActionResult> GetAllByUserId(int userId)
         {
+            //var scheduleList = await _scheduleRepo.GetAll(x => x.Include(x => x.Booking)
+            //        .ThenInclude(x => x.BookingUsers)
+            //        .ThenInclude(x => x.User),
+            //        x => x.Include(x => x.Booking)
+            //        .ThenInclude(x => x.Level),
+            //        x => x.Include(x => x.Booking)
+            //        .ThenInclude(x => x.Subject));
+
             var scheduleList = await _scheduleRepo.GetAll(x => x.Include(x => x.Booking)
                     .ThenInclude(x => x.BookingUsers)
-                    .ThenInclude(x => x.User),
-                    x => x.Include(x => x.Booking)
-                    .ThenInclude(x => x.Level),
-                    x => x.Include(x => x.Booking)
-                    .ThenInclude(x => x.Subject));
-            scheduleList = scheduleList.Where(x => 
-                    x.Booking.BookingUsers
-                    .Any(y => 
-                        y.UserId == userId));
+                    .ThenInclude(x => x.User));
+
+            scheduleList = scheduleList.Where(x => x.Booking.BookingUsers.Any(y => y.UserId == userId))
+                .Select(s => new Schedule
+                {
+                    Id = s.Id,
+                    DayOfWeek = s.DayOfWeek,
+                    StartTime = s.StartTime,
+                    Duration = s.Duration,
+                    BookingId = s.BookingId,
+                    Booking = new Booking
+                    {
+                        NumOfSlots = s.Booking.NumOfSlots,
+                        PricePerSlot = s.Booking.PricePerSlot,
+                        Status = s.Booking.Status
+                    },
+                });
+
             return Ok(scheduleList);
         }
 

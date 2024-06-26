@@ -9,7 +9,7 @@
         public string DayOfWeek { get; set; }
 
         public TimeOnly Duration { get; set; }
-
+        
         public TimeOnly StartTime { get; set; }
 
         public string Status { get; set; }
