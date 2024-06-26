@@ -117,6 +117,7 @@ namespace PRN231.API.Controllers
                 UserId = dto.UserId,
                 CreatedDate = currentTime
             };
+
             var adminUsers = await _manager.GetUsersInRoleAsync("Admin");
             var admins = adminUsers.FirstOrDefault();
             if (admins == null) return BadRequest("Admin not found");
@@ -141,6 +142,7 @@ namespace PRN231.API.Controllers
 
             return Ok(addedDto);
         }
+
 
         [HttpPut("Update")]
         public async Task<IActionResult> Update([FromForm] PostDTO dto)
