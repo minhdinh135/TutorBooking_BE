@@ -172,8 +172,8 @@ namespace PRN231.API.Controllers
                 dto.ImageUrlList = newImageurl;
             }
 
-            dto.Status = StatusConstant.ACTIVE;
-
+            dto.Status = StatusConstant.PENDING;
+            dto.CreatedDate = DateTime.Now;
             var updatedPost = await _postService.Update(dto);
 
             return Ok(updatedPost);
