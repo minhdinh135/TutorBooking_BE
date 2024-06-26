@@ -83,19 +83,24 @@ namespace PRN231.API.Controllers
             {
                 return BadRequest("Not enough credit");
             }
-            
-            string imageUrl = null;
-            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+            user.Credit -= 10000;
+
+            var imageUrls = new List<string>();
+            if (dto.ImageFiles != null && dto.ImageFiles.Count > 0)
             {
-                imageUrl = await _fileStorageService.StoreFileAsync(dto.ImageFile);
-                if (imageUrl == null)
+                foreach (var file in dto.ImageFiles)
                 {
-                    return BadRequest("Failed to store file.");
+                    var imageUrl = await _fileStorageService.StoreFileAsync(file);
+                    if (imageUrl == null)
+                    {
+                        return BadRequest("Failed to store one or more files.");
+                    }
+                    imageUrl = $"http://localhost:5176/{imageUrl}";
+                    imageUrls.Add(imageUrl);
                 }
-                imageUrl = $"http://localhost:5176/{imageUrl}";
             }
 
-            dto.ImageUrl = imageUrl;
+            dto.ImageUrlList = imageUrls;
             dto.Status = StatusConstant.PENDING;
             DateTime currentTime = DateTime.Now;
             dto.CreatedDate = currentTime;
@@ -107,11 +112,12 @@ namespace PRN231.API.Controllers
                 Id = post.Id,
                 Description = dto.Description,
                 Status = dto.Status,
-                ImageUrl = imageUrl,
+                ImageUrlList = imageUrls,
                 Title = dto.Title,
                 UserId = dto.UserId,
                 CreatedDate = currentTime
             };
+
             var adminUsers = await _manager.GetUsersInRoleAsync("Admin");
             var admins = adminUsers.FirstOrDefault();
             if (admins == null) return BadRequest("Admin not found");
@@ -137,27 +143,33 @@ namespace PRN231.API.Controllers
             return Ok(addedDto);
         }
 
+
         [HttpPut("Update")]
         public async Task<IActionResult> Update([FromForm] PostDTO dto)
         {
-
-            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+            var newImageurl = new List<string>();
+            if (dto.ImageFiles != null && dto.ImageFiles.Count > 0)
             {
-                string newImageUrl = await _fileStorageService.StoreFileAsync(dto.ImageFile);
-
-                if (newImageUrl == null)
+                foreach (var file in dto.ImageFiles)
                 {
-                    return BadRequest("Failed to store file.");
-                }
-                newImageUrl = $"http://localhost:5176/{newImageUrl}";
-
-                if (!string.IsNullOrEmpty(dto.ImageUrl))
-                {
-                    await _fileStorageService.DeleteFileAsync(dto.ImageUrl);
+                    var newImageUrl = await _fileStorageService.StoreFileAsync(file);
+                    if (newImageUrl == null)
+                    {
+                        return BadRequest("Failed to store one or more files.");
+                    }
+                    newImageUrl = $"http://localhost:5176/{newImageUrl}";
+                    newImageurl.Add(newImageUrl);
                 }
 
-                dto.ImageUrl = newImageUrl;
+                if (dto.ImageUrl != null && dto.ImageUrlList.Count > 0)
+                {
+                    foreach (var oldImageUrl in dto.ImageUrlList)
+                    {
+                        await _fileStorageService.DeleteFileAsync(oldImageUrl);
+                    }
+                }
 
+                dto.ImageUrlList = newImageurl;
             }
 
             dto.Status = StatusConstant.ACTIVE;
@@ -166,6 +178,7 @@ namespace PRN231.API.Controllers
 
             return Ok(updatedPost);
         }
+
 
         [HttpDelete("Delete")]
         //[Authorize]
@@ -208,6 +221,5 @@ namespace PRN231.API.Controllers
 
             return Ok();
         }
-
     }
 }
