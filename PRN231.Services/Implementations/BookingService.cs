@@ -22,7 +22,7 @@ namespace PRN231.Services.Implementations
             _bookingUserRepository = bookingUserRepository;
         }
 
-        public async Task<IEnumerable<BookingDto>> GetAllBookings()
+        public async Task<IEnumerable<GetAllBookingDto>> GetAllBookings()
         {
             var bookings = await _bookingRepository.GetAll(
                     query => query.Include(b => b.Subject)
@@ -30,10 +30,11 @@ namespace PRN231.Services.Implementations
                                   .Include(b => b.BookingUsers)
                                   .Include(b => b.Schedules));
 
-            return bookings.Select(booking => new BookingDto
+            return bookings.Select(booking => new GetAllBookingDto
             {
                 Id = booking.Id,
                 SubjectName = booking.Subject.Name,
+                SubjectId = booking.Subject.Id,
                 LevelName = booking.Level.LevelName,
                 NumOfSlots = booking.NumOfSlots,
                 PricePerSlot = booking.PricePerSlot,
@@ -65,7 +66,7 @@ namespace PRN231.Services.Implementations
            return await _bookingRepository.Get(bookingId);
         }
 
-        public async Task<IEnumerable<BookingDto>> GetAllBookingsByStatus(string status)
+        public async Task<IEnumerable<GetAllBookingDto>> GetAllBookingsByStatus(string status)
         {
             return GetAllBookings().Result.Where(b => b.Status.Equals(status));
         }

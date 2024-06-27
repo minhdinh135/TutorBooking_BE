@@ -5,6 +5,7 @@ public partial class Transaction : BaseModel
     public int UserId { get; set; }
 
     public int? ReceiverId { get; set; }
+    public string TransactionCode { get; set; }
 
     public decimal Amount { get; set; }
 

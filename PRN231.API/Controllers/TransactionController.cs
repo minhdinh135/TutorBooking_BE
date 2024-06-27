@@ -56,5 +56,22 @@ namespace PRN231.API.Controllers
                 return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
             }
         }
+
+        [HttpGet("GetAllTransactionByUserId")]
+        public async Task<ActionResult<ApiResponse>> GetAllTransactionByUserId(int userId)
+        {
+            try
+            {
+                var transactions = await _transactionService.GetAll();
+                transactions = transactions.Where(x => x.UserId == userId);
+
+                return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, transactions));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
+            }
+        }
+
     }
 }

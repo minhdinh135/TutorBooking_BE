@@ -7,9 +7,9 @@ namespace PRN231.Services
 {
     public interface IBookingService
     {
-        Task<IEnumerable<BookingDto>> GetAllBookings();
+        Task<IEnumerable<GetAllBookingDto>> GetAllBookings();
         Task<Booking> GetBooking(int bookingId);
-        Task<IEnumerable<BookingDto>> GetAllBookingsByStatus(string status);
+        Task<IEnumerable<GetAllBookingDto>> GetAllBookingsByStatus(string status);
         Task<CreateBookingResponse> CreateBooking(CreateBookingRequest createBookingRequest);
         Task<UpdateBookingResponse> UpdateBooking(UpdateBookingRequest updateBookingRequest);
         Task<bool> ApplyToBooking(int userId, int bookingId);

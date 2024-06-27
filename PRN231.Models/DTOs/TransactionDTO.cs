@@ -6,6 +6,8 @@ namespace PRN231.Models.DTOs
 
         public int? ReceiverId { get; set; }
 
+        public string TransactionCode { get; set; }
+
         public decimal Amount { get; set; }
 
         public string? Message { get; set; }

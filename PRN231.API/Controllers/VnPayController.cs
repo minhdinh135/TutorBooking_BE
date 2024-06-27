@@ -198,6 +198,7 @@ namespace PRN231.API.Controllers
                 string amount = context.Request.Query["vnp_Amount"];
                 string orderInfo = context.Request.Query["vnp_OrderInfo"];
                 string payDate = context.Request.Query["vnp_PayDate"];
+                string transactionCode = context.Request.Query["vnp_TransactionNo"];
                 //string userId = context.Request.Query["vnp_Billing_Email"];
 
                 var user = await _userRepo.Get(Id);
@@ -206,7 +207,9 @@ namespace PRN231.API.Controllers
                 if (user != null && result == 1){
                     var transaction = new TransactionDTO{
                         UserId = Id,
+                        ReceiverId = Id,
                         Amount = decimal.Parse(amount)/100,
+                        TransactionCode = transactionCode,
                         Message = "Charge credit for user",
                         Type = TransactionConstant.CHARGE,
                         Status = StatusConstant.ACTIVE,
