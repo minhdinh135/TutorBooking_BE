@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PRN231.Models.DTOs;
 using PRN231.Models;
 using PRN231.Models.DTOs;
+using PRN231.Constant;
 
 namespace PRN231.API.Controllers
 {
@@ -42,6 +43,7 @@ namespace PRN231.API.Controllers
         //[Authorize]
         public async Task<IActionResult> Add(FeedbackDTO dto)
         {
+            dto.Status = StatusConstant.PENDING;
             var feedback = await _feedbackService.Add(dto);
             return Ok(feedback);
         }
@@ -50,6 +52,7 @@ namespace PRN231.API.Controllers
         //[Authorize]
         public async Task<IActionResult> Update(FeedbackDTO dto)
         {
+            dto.Status = StatusConstant.PENDING;
             var feedback = await _feedbackService.Update(dto);
             return Ok(feedback);
         }
