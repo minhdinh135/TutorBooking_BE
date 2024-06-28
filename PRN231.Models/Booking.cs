@@ -8,6 +8,8 @@ public partial class Booking : BaseModel
 
     public decimal? PricePerSlot { get; set; }
 
+    public DateTime StartDate { get; set; }
+
     public int NumOfSlots { get; set; }
 
     public string? PaymentMethod { get; set; }
