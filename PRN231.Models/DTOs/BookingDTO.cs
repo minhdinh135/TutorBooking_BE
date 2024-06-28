@@ -31,7 +31,6 @@
         public string SubjectName { get; set; }
         public int SubjectId { get; set; }
 
-
         public string LevelName { get; set; }
 
         public decimal? PricePerSlot { get; set; }

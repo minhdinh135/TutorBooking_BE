@@ -51,8 +51,8 @@ namespace PRN231.API.Controllers
         [HttpPost("TransferMoney")]
         public async Task<ActionResult<ApiResponse>> TransferMoney([FromBody] TransferPaymentUserRequest createPaymentRequest)
         {
-            try
-            {
+            //try
+            //{
                 var user = await _userRepo.Get(createPaymentRequest.UserId);
                 //var receiver = await _userRepo.Get(createPaymentRequest.ReceiverId);
                 if (user == null)
@@ -72,6 +72,7 @@ namespace PRN231.API.Controllers
                     UserId = createPaymentRequest.UserId,
                     ReceiverId = admin.Id,
                     Amount = createPaymentRequest.Amount,
+                    TransactionCode = "",
                     Message = "Transfer credit to admin",
                     Type = TransactionConstant.PURCHASE,
                     Status = StatusConstant.ACTIVE,
@@ -92,11 +93,11 @@ namespace PRN231.API.Controllers
                 //string payload = _vnPayService.CreatePayment(createPaymentRequest);
 
                 //return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, payload));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    return BadRequest(new ApiResponse((int)HttpStatusCode.BadRequest, MessageConstant.FAILED, null));
+            //}
         }
 
         [HttpPost("TransferMoneyTutor")]

@@ -43,7 +43,7 @@ namespace PRN231.API.Controllers
         //[Authorize]
         public async Task<IActionResult> Add(FeedbackDTO dto)
         {
-            dto.Status = StatusConstant.PENDING;
+            dto.Status = StatusConstant.ACTIVE;
             var feedback = await _feedbackService.Add(dto);
             return Ok(feedback);
         }
@@ -52,7 +52,7 @@ namespace PRN231.API.Controllers
         //[Authorize]
         public async Task<IActionResult> Update(FeedbackDTO dto)
         {
-            dto.Status = StatusConstant.PENDING;
+            dto.Status = StatusConstant.ACTIVE;
             var feedback = await _feedbackService.Update(dto);
             return Ok(feedback);
         }
