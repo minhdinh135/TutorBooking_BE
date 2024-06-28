@@ -151,6 +151,9 @@ namespace PRN231.DAL.Migrations
                     b.Property<decimal?>("PricePerSlot")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

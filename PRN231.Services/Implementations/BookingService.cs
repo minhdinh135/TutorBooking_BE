@@ -22,7 +22,7 @@ namespace PRN231.Services.Implementations
             _bookingUserRepository = bookingUserRepository;
         }
 
-        public async Task<IEnumerable<GetAllBookingDto>> GetAllBookings()
+        public async Task<IEnumerable<BookingDto>> GetAllBookings()
         {
             var bookings = await _bookingRepository.GetAll(
                     query => query.Include(b => b.Subject)
@@ -30,12 +30,13 @@ namespace PRN231.Services.Implementations
                                   .Include(b => b.BookingUsers)
                                   .Include(b => b.Schedules));
 
-            return bookings.Select(booking => new GetAllBookingDto
+            return bookings.Select(booking => new BookingDto
             {
                 Id = booking.Id,
                 SubjectName = booking.Subject.Name,
                 SubjectId = booking.Subject.Id,
                 LevelName = booking.Level.LevelName,
+                StartDate = booking.StartDate,
                 NumOfSlots = booking.NumOfSlots,
                 PricePerSlot = booking.PricePerSlot,
                 PaymentMethod = booking.PaymentMethod,
@@ -66,7 +67,7 @@ namespace PRN231.Services.Implementations
            return await _bookingRepository.Get(bookingId);
         }
 
-        public async Task<IEnumerable<GetAllBookingDto>> GetAllBookingsByStatus(string status)
+        public async Task<IEnumerable<BookingDto>> GetAllBookingsByStatus(string status)
         {
             return GetAllBookings().Result.Where(b => b.Status.Equals(status));
         }
@@ -78,6 +79,7 @@ namespace PRN231.Services.Implementations
                 SubjectId = createBookingRequest.SubjectId,
                 LevelId = createBookingRequest.LevelId,
                 PricePerSlot = createBookingRequest.PricePerSlot,
+                StartDate = createBookingRequest.StartDate,
                 NumOfSlots = createBookingRequest.NumOfSlots,
                 PaymentMethod = PaymentMethodConstant.VNPAY,
                 Description = createBookingRequest.Description,
@@ -108,6 +110,7 @@ namespace PRN231.Services.Implementations
                     SubjectId = addedBooking.SubjectId,
                     LevelId = addedBooking.LevelId,
                     UserId = savedBookingUser.UserId,
+                    StartDate = addedBooking.StartDate,
                     Role = savedBookingUser.Role,
                     Description = addedBooking.Description,
                     NumOfSlots = addedBooking.NumOfSlots,
@@ -131,6 +134,8 @@ namespace PRN231.Services.Implementations
                 existingBooking.SubjectId = updateBookingRequest.SubjectId;
                 existingBooking.LevelId = updateBookingRequest.LevelId;
                 existingBooking.PricePerSlot = updateBookingRequest.PricePerSlot;
+                existingBooking.NumOfSlots = updateBookingRequest.NumOfSlots;
+                existingBooking.StartDate = updateBookingRequest.StartDate;
                 existingBooking.PaymentMethod = updateBookingRequest.PaymentMethod;
                 existingBooking.Description = updateBookingRequest.Description;
                 existingBooking.Status = updateBookingRequest.Status;
@@ -142,6 +147,7 @@ namespace PRN231.Services.Implementations
                     SubjectId = updatedBooking.SubjectId,
                     LevelId = updatedBooking.LevelId,
                     PricePerSlot = (decimal)updatedBooking.PricePerSlot,
+                    StartDate = updatedBooking.StartDate,
                     NumOfSlots = updatedBooking.NumOfSlots,
                     PaymentMethod = updatedBooking.PaymentMethod,
                     Status = updatedBooking.Status
