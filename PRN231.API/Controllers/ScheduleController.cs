@@ -62,6 +62,7 @@ namespace PRN231.API.Controllers
                     {
                         NumOfSlots = s.Booking.NumOfSlots,
                         PricePerSlot = s.Booking.PricePerSlot,
+                        StartDate = s.Booking.StartDate,
                         Status = s.Booking.Status,
                         Subject = new Subject {
                             Name = s.Booking.Subject.Name
