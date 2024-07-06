@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.OData.ModelBuilder;
 using PRN231.DAL;
 using PRN231.Models;
@@ -16,6 +17,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 var modelBuilder = new ODataConventionModelBuilder();
 modelBuilder.EntitySet<Level>("Levels");
+modelBuilder.EntitySet<Booking>("Bookings");
+modelBuilder.EntitySet<BookingUser>("BookingUsers");
+modelBuilder.EntitySet<Credential>("Credentials");
+modelBuilder.EntitySet<Feedback>("Feedbacks");
+modelBuilder.EntitySet<Post>("Posts");
+modelBuilder.EntitySet<Role>("Roles");
+modelBuilder.EntitySet<Schedule>("Schedules");
+modelBuilder.EntitySet<Subject>("Subjects");
+modelBuilder.EntitySet<User>("Users");
 var edmModel = modelBuilder.GetEdmModel();
 
 builder.Services.AddControllers()

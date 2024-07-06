@@ -33,6 +33,8 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
     
     public virtual DbSet<Post> Posts { get; set; }
 
+    public virtual DbSet<Transaction> Transactions { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
         IConfigurationRoot configuration = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -78,6 +80,18 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
             .HasOne(f => f.User)
             .WithMany(x => x.BookingUsers)
             .HasForeignKey(f => f.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Transaction>()
+            .HasOne(f => f.User)
+            .WithMany(x => x.SentTransactions)
+            .HasForeignKey(f => f.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Transaction>()
+            .HasOne(f => f.Receiver)
+            .WithMany(x => x.ReceivedTransactions)
+            .HasForeignKey(f => f.ReceiverId)
             .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Schedule>(entity =>

@@ -10,17 +10,23 @@ namespace PRN231.API.Controllers
     [Route("api/[controller]")]
     public class BookingUserController : ControllerBase
     {
+        private readonly IGenericService<Level, LevelDTO> _levelService;
+        private readonly IGenericService<Subject, SubjectDTO> _subjectService;
         private readonly IGenericService<BookingUser, BookingUserDTO> _bookingUserService;
         private readonly IGenericRepository<BookingUser> _bookingUserRepo;
         private readonly ILogger<BookingUserController> _logger;
 
         public BookingUserController(ILogger<BookingUserController> logger,
                 IGenericRepository<BookingUser> bookingUserRepo,
-                IGenericService<BookingUser, BookingUserDTO> bookingUserService)
+                IGenericService<BookingUser, BookingUserDTO> bookingUserService,
+                IGenericService<Level, LevelDTO> levelService,
+                IGenericService<Subject, SubjectDTO> subjectService)
         {
             _logger = logger;
             _bookingUserRepo = bookingUserRepo;
             _bookingUserService = bookingUserService;
+            _levelService = levelService;
+            _subjectService = subjectService;
         }
 
         [HttpGet("GetAll")]
@@ -70,6 +76,49 @@ namespace PRN231.API.Controllers
         {
             var bookingUser = await _bookingUserService.Delete(id);
             return Ok(bookingUser);
+        }
+
+        [HttpGet("GetBookingUserByUserIdFeedback")]
+        public async Task<IActionResult> GetBookingUserByUserIdFeedback(int id)
+        {
+            var bookingUserList = await _bookingUserRepo.GetAll(x => x.Include(a => a.User), x => x.Include(a => a.Booking));
+            var bookingIdList = bookingUserList.Where(c => c.UserId == id && c.Booking.Status == "PAID").Select(x => x.BookingId);
+            List<BookingUser> bookingUsers = new List<BookingUser>();
+            foreach (var BookingId in  bookingIdList)
+            {
+                var bookingUser = await _bookingUserRepo.GetAll();
+                bookingUser = bookingUser.Where(b => b.BookingId == BookingId && b.Role == "TUTOR" && b.Status == "APPROVED");
+                bookingUsers.AddRange(bookingUser);
+            }
+
+            foreach (var bookingUser in bookingUsers)
+            {
+                bookingUser.User.BookingUsers = null;
+                bookingUser.Booking.BookingUsers = null;
+                var subject = await _subjectService.Get(bookingUser.Booking.SubjectId);
+                var level = await _levelService.Get(bookingUser.Booking.LevelId);
+                bookingUser.Booking.Subject = new Subject();
+                bookingUser.Booking.Level = new Level();
+                bookingUser.Booking.Subject.Name = subject.Name;
+                bookingUser.Booking.Level.LevelName = level.LevelName;
+                
+            }
+            return Ok(bookingUsers);
+            
+
+            //return Ok(bookingUserList.Select(x => new BookingUser
+            //{
+            //    UserId = x.UserId,
+            //    Role = x.Role,
+            //    Status = x.Status,
+            //    BookingId = x.BookingId,
+            //    Description = x.Description,
+            //    User = new User
+            //    {
+            //        Id = x.UserId,
+
+            //    }
+            //}));
         }
     }
 }

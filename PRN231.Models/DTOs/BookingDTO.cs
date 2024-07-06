@@ -4,10 +4,12 @@
     {
         public int Id { get; set; }
         public string SubjectName { get; set; }
+        public int SubjectId { get; set; }
 
         public string LevelName { get; set; }
 
         public decimal? PricePerSlot { get; set; }
+        public DateTime StartDate { get; set; }
 
         public int NumOfSlots { get; set; }
 

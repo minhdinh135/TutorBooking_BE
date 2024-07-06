@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PRN231.DAL;
 
@@ -11,9 +12,11 @@ using PRN231.DAL;
 namespace PRN231.DAL.Migrations
 {
     [DbContext(typeof(SmartHeadContext))]
-    partial class SmartHeadContextModelSnapshot : ModelSnapshot
+    [Migration("20240622050515_des")]
+    partial class des
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -151,9 +154,6 @@ namespace PRN231.DAL.Migrations
                     b.Property<decimal?>("PricePerSlot")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -272,10 +272,6 @@ namespace PRN231.DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("LevelName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
@@ -285,10 +281,6 @@ namespace PRN231.DAL.Migrations
 
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
-
-                    b.Property<string>("SubjectName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TutorId")
                         .HasColumnType("int");
@@ -464,53 +456,6 @@ namespace PRN231.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Subjects");
-                });
-
-            modelBuilder.Entity("PRN231.Models.Transaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ReceiverId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TransactionCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReceiverId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("PRN231.Models.User", b =>
@@ -753,24 +698,6 @@ namespace PRN231.DAL.Migrations
                     b.Navigation("Booking");
                 });
 
-            modelBuilder.Entity("PRN231.Models.Transaction", b =>
-                {
-                    b.HasOne("PRN231.Models.User", "Receiver")
-                        .WithMany("ReceivedTransactions")
-                        .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("PRN231.Models.User", "User")
-                        .WithMany("SentTransactions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Receiver");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("PRN231.Models.Booking", b =>
                 {
                     b.Navigation("BookingUsers");
@@ -797,10 +724,6 @@ namespace PRN231.DAL.Migrations
                     b.Navigation("Credentials");
 
                     b.Navigation("Posts");
-
-                    b.Navigation("ReceivedTransactions");
-
-                    b.Navigation("SentTransactions");
 
                     b.Navigation("StudentFeedbacks");
 

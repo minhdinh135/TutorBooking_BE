@@ -34,7 +34,9 @@ namespace PRN231.Services.Implementations
             {
                 Id = booking.Id,
                 SubjectName = booking.Subject.Name,
+                SubjectId = booking.Subject.Id,
                 LevelName = booking.Level.LevelName,
+                StartDate = booking.StartDate,
                 NumOfSlots = booking.NumOfSlots,
                 PricePerSlot = booking.PricePerSlot,
                 PaymentMethod = booking.PaymentMethod,
@@ -77,8 +79,9 @@ namespace PRN231.Services.Implementations
                 SubjectId = createBookingRequest.SubjectId,
                 LevelId = createBookingRequest.LevelId,
                 PricePerSlot = createBookingRequest.PricePerSlot,
+                StartDate = createBookingRequest.StartDate,
                 NumOfSlots = createBookingRequest.NumOfSlots,
-                PaymentMethod = PaymentMethodConstant.UNDEFINED,
+                PaymentMethod = PaymentMethodConstant.VNPAY,
                 Description = createBookingRequest.Description,
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now,
@@ -107,6 +110,7 @@ namespace PRN231.Services.Implementations
                     SubjectId = addedBooking.SubjectId,
                     LevelId = addedBooking.LevelId,
                     UserId = savedBookingUser.UserId,
+                    StartDate = addedBooking.StartDate,
                     Role = savedBookingUser.Role,
                     Description = addedBooking.Description,
                     NumOfSlots = addedBooking.NumOfSlots,
@@ -130,6 +134,8 @@ namespace PRN231.Services.Implementations
                 existingBooking.SubjectId = updateBookingRequest.SubjectId;
                 existingBooking.LevelId = updateBookingRequest.LevelId;
                 existingBooking.PricePerSlot = updateBookingRequest.PricePerSlot;
+                existingBooking.NumOfSlots = updateBookingRequest.NumOfSlots;
+                existingBooking.StartDate = updateBookingRequest.StartDate;
                 existingBooking.PaymentMethod = updateBookingRequest.PaymentMethod;
                 existingBooking.Description = updateBookingRequest.Description;
                 existingBooking.Status = updateBookingRequest.Status;
@@ -141,6 +147,7 @@ namespace PRN231.Services.Implementations
                     SubjectId = updatedBooking.SubjectId,
                     LevelId = updatedBooking.LevelId,
                     PricePerSlot = (decimal)updatedBooking.PricePerSlot,
+                    StartDate = updatedBooking.StartDate,
                     NumOfSlots = updatedBooking.NumOfSlots,
                     PaymentMethod = updatedBooking.PaymentMethod,
                     Status = updatedBooking.Status
@@ -195,9 +202,15 @@ namespace PRN231.Services.Implementations
 
         public async Task<bool> AcceptTutor(int bookingId, int tutorId)
         {
+            Booking booking = await _bookingRepository.Get(bookingId);
+            booking.Status = BookingStatusConstant.APPROVED;
+
+            await _bookingRepository.Update(booking);
+
             var bookingUsers = await _bookingUserRepository.GetAll(
                 query => query.Where(bu => bu.BookingId == bookingId && bu.Role == RoleEnum.TUTOR)
             );
+
 
             foreach (var bu in bookingUsers)
             {

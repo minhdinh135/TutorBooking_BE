@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SmartHeadBackEnd\PRN231.Services\PRN231.Services.csproj" />
+    <ProjectReference Include="..\..\PRN231.Services\PRN231.Services.csproj" />
   </ItemGroup>
 
 </Project>

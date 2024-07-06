@@ -45,10 +45,36 @@ namespace PRN231.API.Controllers
                     .ThenInclude(x => x.Level),
                     x => x.Include(x => x.Booking)
                     .ThenInclude(x => x.Subject));
-            scheduleList = scheduleList.Where(x => 
-                    x.Booking.BookingUsers
-                    .Any(y => 
-                        y.UserId == userId));
+
+            //var scheduleList = await _scheduleRepo.GetAll(x => x.Include(x => x.Booking)
+            //        .ThenInclude(x => x.BookingUsers)
+            //        .ThenInclude(x => x.User));
+
+            scheduleList = scheduleList.Where(x => x.Booking.BookingUsers.Any(y => y.UserId == userId))
+                .Select(s => new Schedule
+                {
+                    Id = s.Id,
+                    DayOfWeek = s.DayOfWeek,
+                    StartTime = s.StartTime,
+                    Duration = s.Duration,
+                    BookingId = s.BookingId,
+                    Booking = new Booking
+                    {
+                        NumOfSlots = s.Booking.NumOfSlots,
+                        PricePerSlot = s.Booking.PricePerSlot,
+                        StartDate = s.Booking.StartDate,
+                        Status = s.Booking.Status,
+                        Subject = new Subject {
+                            Name = s.Booking.Subject.Name
+                        },
+                        Level = new Level
+                        {
+                            LevelName = s.Booking.Level.LevelName
+                        }
+                    },
+                    
+                });
+
             return Ok(scheduleList);
         }
 

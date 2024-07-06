@@ -8,7 +8,8 @@
         public int LevelId { get; set; }
 
         public int UserId { get; set; }
-
+        
+        public DateTime StartDate { get; set; }
         public string Role { get; set; }
 
         public string Description { get; set; }

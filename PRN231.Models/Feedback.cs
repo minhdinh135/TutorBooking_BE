@@ -5,6 +5,8 @@ public partial class Feedback : BaseModel
     public int TutorId { get; set; }
 
     public int StudentId { get; set; }
+    public string SubjectName { get; set; }
+    public string LevelName { get; set; }
 
     public string Content { get; set; }
 
