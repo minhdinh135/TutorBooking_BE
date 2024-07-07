@@ -121,6 +121,7 @@ namespace PRN231.API.Controllers
                 var transaction = new TransactionDTO{
                     UserId = admin.Id,
                     ReceiverId = user.Id,
+                    TransactionCode = "",
                     Amount = createPaymentRequest.Amount - (createPaymentRequest.Amount*20/100),
                     Message = "Transfer credit to tutor",
                     Type = TransactionConstant.TRANSFER,
