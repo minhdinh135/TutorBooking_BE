@@ -15,6 +15,7 @@ namespace PRN231.Models.DTOs
         public string Content { get; set; }
 
         public int Rating { get; set; }
+        public int BookingId { get; set; }
 
         public string Status { get; set; }
     }

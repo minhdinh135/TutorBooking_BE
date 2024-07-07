@@ -15,4 +15,5 @@ public partial class Feedback : BaseModel
     public User Tutor { get; set; }
 
     public User Student { get; set; }
+    public int BookingId { get; set; }
 }
