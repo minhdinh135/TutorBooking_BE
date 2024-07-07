@@ -82,7 +82,7 @@ namespace PRN231.API.Controllers
         public async Task<IActionResult> GetBookingUserByUserIdFeedback(int id)
         {
             var bookingUserList = await _bookingUserRepo.GetAll(x => x.Include(a => a.User), x => x.Include(a => a.Booking));
-            var bookingIdList = bookingUserList.Where(c => c.UserId == id && c.Booking.Status == "PAID").Select(x => x.BookingId);
+            var bookingIdList = bookingUserList.Where(c => c.UserId == id && c.Booking.Status == "DONE").Select(x => x.BookingId);
             List<BookingUser> bookingUsers = new List<BookingUser>();
             foreach (var BookingId in  bookingIdList)
             {

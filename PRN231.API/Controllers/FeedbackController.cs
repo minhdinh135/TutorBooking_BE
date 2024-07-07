@@ -4,6 +4,7 @@ using PRN231.Models.DTOs;
 using PRN231.Models;
 using PRN231.Models.DTOs;
 using PRN231.Constant;
+using PRN231.API.Controllers.OData;
 
 namespace PRN231.API.Controllers
 {
@@ -31,6 +32,16 @@ namespace PRN231.API.Controllers
             return Ok(feedbackList);
         }
 
+        [HttpGet("GetAllFeedbackByTutorId")]
+        //[Authorize]
+        public async Task<IActionResult> GetAllFeedbackByTutorId(int id)
+        {
+            
+            var feedbackList = await _feedbackService.GetAll();
+            feedbackList = feedbackList.Where(f => f.TutorId == id);
+            return Ok(feedbackList);
+        }
+
         [HttpGet("Get")]
         //[Authorize]
         public async Task<IActionResult> Get(int id)
@@ -44,6 +55,12 @@ namespace PRN231.API.Controllers
         public async Task<IActionResult> Add(FeedbackDTO dto)
         {
             dto.Status = StatusConstant.ACTIVE;
+            var feedbacks = await _feedbackService.GetAll();
+            feedbacks = feedbacks.Where(f => f.BookingId == dto.BookingId);
+            if(feedbacks != null)
+            {
+                return BadRequest("You can only feedback once");
+            }
             var feedback = await _feedbackService.Add(dto);
             return Ok(feedback);
         }

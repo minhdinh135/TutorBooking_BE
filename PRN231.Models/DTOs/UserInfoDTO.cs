@@ -7,7 +7,7 @@ namespace PRN231.Models.DTOs
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Receiver Name is required")]
-        [RegularExpression(@"^[a-zA-Z\sÀ-ỹ]$", ErrorMessage = "Receiver Name must contain only letters and cannot contain special characters or numbers")]
+        [RegularExpression(@"^[a-zA-Z\sÀ-ỹ]+$", ErrorMessage = "Receiver Name must contain only letters and cannot contain special characters or numbers")]
         public string ReceiverName { get; set; }
 
         [Required(ErrorMessage = "Email is required")]
