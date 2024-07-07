@@ -126,6 +126,7 @@ namespace PRN231.API.Controllers
             {
                 UserId = user.Id,
                 ReceiverId = admin.Id,
+                TransactionCode = "",
                 Amount = 10000,
                 Message = "Transfer credit to admin",
                 Type = TransactionConstant.POST,
