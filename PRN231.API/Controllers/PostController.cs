@@ -110,7 +110,7 @@ namespace PRN231.API.Controllers
             var addedDto = new PostDTO
             {
                 Id = post.Id,
-                Description = dto.Description,
+                Description = dto.Description == null?"":dto.Description,
                 Status = dto.Status,
                 ImageUrlList = imageUrls,
                 Title = dto.Title,
@@ -180,6 +180,17 @@ namespace PRN231.API.Controllers
             return Ok(updatedPost);
         }
 
+        [HttpPut("UpdateApprove")]
+        public async Task<IActionResult> UpdateApprove([FromForm] PostDTO dto)
+        {
+            dto.Description = dto.Description == "null" ? "" : dto.Description;
+            dto.Status = StatusConstant.ACTIVE;
+            dto.CreatedDate = DateTime.Now;
+            var updatedPost = await _postService.Update(dto);
+
+            return Ok(updatedPost);
+        }
+
 
         [HttpDelete("Delete")]
         //[Authorize]
@@ -207,6 +218,7 @@ namespace PRN231.API.Controllers
                 UserId = admin.Id,
                 ReceiverId = user.Id,
                 Amount = 10000,
+                TransactionCode = "",
                 Message = "Transfer credit to user",
                 Type = TransactionConstant.REFUND,
                 Status = StatusConstant.ACTIVE,
