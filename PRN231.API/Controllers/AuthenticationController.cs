@@ -89,7 +89,7 @@ namespace PRN231.API.Controllers
             else
             {
                 subject = "Credential rejected";
-                message = "Your credential has been rejected. Please check!";
+                message = "Your credential has been rejected. Please check, thank you!";
             }
 
             await _emailSender.SendEmailAsync(receiver, subject, message);
@@ -104,7 +104,7 @@ namespace PRN231.API.Controllers
             var message = "";
             
             subject = "Your money is transferred to your wallet.";
-            message = "Your money will be transferred to your wallet after the lesson is finished. Please check!";
+            message = "Your money will be transferred to your wallet after the lesson is finished. Please check, thank you!";
             
             await _emailSender.SendEmailAsync(receiver, subject, message);
             return Ok();
@@ -123,8 +123,8 @@ namespace PRN231.API.Controllers
             }
             else
             {
-                subject = "Request to teach rejected";
-                message = "Your request to teach has been rejected. Please check!";
+                subject = "The request you applied for has already been accepted.";
+                message = "Your request to teach has been rejected. Please apply another request! Thank you!";
             }
 
             await _emailSender.SendEmailAsync(receiver, subject, message);
@@ -145,7 +145,7 @@ namespace PRN231.API.Controllers
             else
             {
                 subject = "Post rejected";
-                message = "Your post has been rejected. We will refund money to your wallet! We will delete this post! Please check!";
+                message = "Your post has been rejected. We will refund money to your wallet! We will delete this post! Please check, thank you!";
             }
 
             await _emailSender.SendEmailAsync(receiver, subject, message);
@@ -170,7 +170,7 @@ namespace PRN231.API.Controllers
             else
             {
                 subject = "Account rejected";
-                message = "Your account has been rejected. Please check!";
+                message = "Your account has been rejected. Please check, thank you!";
             }
 
             await _emailSender.SendEmailAsync(receiver, subject, message);
