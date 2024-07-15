@@ -13,5 +13,6 @@ namespace PRN231.Models
         public string? Description { get; set; }
         public string ImageUrl { get; set; }
         public User User { get; set; }
+        public List<PostRating> Ratings { get; set; } = new List<PostRating>();
     }
 }

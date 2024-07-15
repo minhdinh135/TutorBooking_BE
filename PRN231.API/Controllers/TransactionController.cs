@@ -63,7 +63,7 @@ namespace PRN231.API.Controllers
             try
             {
                 var transactions = await _transactionService.GetAll();
-                transactions = transactions.Where(x => x.UserId == userId);
+                transactions = transactions.Where(x => x.UserId == userId || x.ReceiverId == userId);
 
                 return Ok(new ApiResponse((int)HttpStatusCode.OK, MessageConstant.SUCCESSFUL, transactions));
             }

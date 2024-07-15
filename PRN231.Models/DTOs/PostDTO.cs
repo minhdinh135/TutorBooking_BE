@@ -26,5 +26,6 @@ namespace PRN231.Models.DTOs
             get => string.IsNullOrEmpty(ImageUrl) ? new List<string>() : JsonConvert.DeserializeObject<List<string>>(ImageUrl);
             set => ImageUrl = JsonConvert.SerializeObject(value);
         }
+        public List<PostRatingDTO> Ratings { get; set; }
     }
 }

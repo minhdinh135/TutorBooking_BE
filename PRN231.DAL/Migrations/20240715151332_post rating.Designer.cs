@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PRN231.DAL;
 
@@ -11,9 +12,11 @@ using PRN231.DAL;
 namespace PRN231.DAL.Migrations
 {
     [DbContext(typeof(SmartHeadContext))]
-    partial class SmartHeadContextModelSnapshot : ModelSnapshot
+    [Migration("20240715151332_post rating")]
+    partial class postrating
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
