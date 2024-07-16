@@ -72,7 +72,7 @@ namespace PRN231.API
 
             if (userPosts.Count == 0)
             {
-                return NotFound("No posts found for this user.");
+                return Ok("No posts found for this user.");
             }
 
             var ratings = await _ratingService.GetAll();

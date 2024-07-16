@@ -72,7 +72,7 @@ namespace PRN231.API.Controllers
                     UserId = createPaymentRequest.UserId,
                     ReceiverId = admin.Id,
                     Amount = createPaymentRequest.Amount,
-                    TransactionCode = "",
+                    TransactionCode = "TRANSFER",
                     Message = "Transfer credit to admin",
                     Type = TransactionConstant.PURCHASE,
                     Status = StatusConstant.ACTIVE,
@@ -121,8 +121,8 @@ namespace PRN231.API.Controllers
                 var transaction = new TransactionDTO{
                     UserId = admin.Id,
                     ReceiverId = user.Id,
-                    TransactionCode = "",
-                    Amount = createPaymentRequest.Amount - (createPaymentRequest.Amount*20/100),
+                    TransactionCode = "TRANSFER",
+                    Amount = (decimal)(createPaymentRequest.Amount - (decimal)(createPaymentRequest.Amount*20/100)),
                     Message = "Transfer credit to tutor",
                     Type = TransactionConstant.TRANSFER,
                     Status = StatusConstant.ACTIVE,
@@ -132,8 +132,8 @@ namespace PRN231.API.Controllers
 
                 await _transactionService.Add(transaction);
 
-                user.Credit += createPaymentRequest.Amount - (createPaymentRequest.Amount*20/100);
-                admin.Credit -= createPaymentRequest.Amount - (createPaymentRequest.Amount*20/100);
+                user.Credit += createPaymentRequest.Amount - (decimal)(createPaymentRequest.Amount*20/100);
+                admin.Credit -= createPaymentRequest.Amount - (decimal)(createPaymentRequest.Amount*20/100);
 
                 await _userRepo.Update(user);
                 await _userRepo.Update(admin);
