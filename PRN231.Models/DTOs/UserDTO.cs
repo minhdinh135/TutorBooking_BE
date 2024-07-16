@@ -18,5 +18,8 @@ namespace PRN231.Models.DTOs
 
         public string Status { get; set; }
 
+        public string? Otp { get; set; }
+        public DateTime? OtpExpiration { get; set; }
+
     }
 }
