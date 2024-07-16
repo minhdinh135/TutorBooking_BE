@@ -218,7 +218,7 @@ namespace PRN231.API.Controllers
                 UserId = admin.Id,
                 ReceiverId = user.Id,
                 Amount = 10000,
-                TransactionCode = "",
+                TransactionCode = "REFUND",
                 Message = "Transfer credit to user",
                 Type = TransactionConstant.REFUND,
                 Status = StatusConstant.ACTIVE,
