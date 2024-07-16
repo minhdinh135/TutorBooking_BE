@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PRN231.Services.Implementations;
 using PRN231.Constant;
 using Microsoft.AspNetCore.WebUtilities;
+using EXE101.Services.Utils;
+using PRN231.Repository.Interfaces;
 
 namespace PRN231.API.Controllers
 {
@@ -26,6 +28,7 @@ namespace PRN231.API.Controllers
         private readonly ILogger<AuthenticationController> _logger;
         private readonly IGenericService<User, UserDTO> _userService;
         private readonly IGenericService<Role, RoleDTO> _roleService;
+        private readonly IGenericRepository<User> _userRepo;
         private readonly SignInManager<User> _signIn;
         private readonly UserManager<User> _manager;
         private readonly RoleManager<Role> _roleManager;
@@ -45,6 +48,7 @@ namespace PRN231.API.Controllers
                 UserManager<User> manager,
                 RoleManager<Role> roleManager, SignInManager<User> signIn,
                 IEmailService emailSender,
+                IGenericRepository<User> userRepo,
                 OtpService otpService,
                 JWTService jwtService,
                 IGenericService<Credential, CredentialDTO> credentialService,
@@ -62,6 +66,7 @@ namespace PRN231.API.Controllers
             _otpService = otpService;
             _credentialService = credentialService;
             _fileStorageService = fileStorageService;
+            _userRepo = userRepo;
         }
 
         [HttpPost("SendMail")]
@@ -370,65 +375,60 @@ namespace PRN231.API.Controllers
             return Ok(token);
         }
 
-        [HttpPost("ForgotPassword")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
+        [HttpPost("RequestOtp")]
+        public async Task<IActionResult> RequestOtp([FromBody] RequestOtpDTO model)
         {
-            if (!ModelState.IsValid)
+            var user = (await _userService.GetAll()).FirstOrDefault(u => u.Email == model.Email);
+            if (user == null)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { Message = "Email not found" });
             }
 
-            var user = await _manager.FindByEmailAsync(model.Email);
-            if (user == null || !(await _manager.IsEmailConfirmedAsync(user)))
+            var otp = new Random().Next(100000, 999999).ToString();
+            var hashedOtp = PasswordManager.HashPassword(otp);
+
+            HttpContext.Session.SetString($"HashedOtp_{model.Email}", hashedOtp);
+
+            await _emailSender.SendEmailAsync(model.Email, "OTP", $"Your OTP is {otp}");
+
+            return Ok(new { Message = "OTP sent to email" });
+        }
+
+        [HttpPost("VerifyOtp")]
+        public IActionResult VerifyOtp([FromBody] VerifyOtpDTO model)
+        {
+            var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{model.Email}");
+            Console.WriteLine(hashedOtp);
+            if (hashedOtp == null || !PasswordManager.VerifyPassword(model.Otp, hashedOtp))
             {
-                return Ok(new { Message = "Password reset email sent if the email exists and is confirmed." });
+                return Unauthorized(new { Message = "Invalid OTP. Please try again." });
             }
 
-            var token = await _manager.GeneratePasswordResetTokenAsync(user);
-            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-
-            var callbackUrl = Url.Action(
-                action: "ResetPassword",
-                controller: "Authentication",
-                values: new { token, email = user.Email },
-                protocol: Request.Scheme);
-
-            await _emailSender.SendEmailAsync(
-                user.Email,
-                "Reset Password",
-                $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
-
-            return Ok(new { Message = "Password reset email sent if the email exists and is confirmed." });
+            return Ok(new { Message = "OTP verified successfully!" });
         }
 
         [HttpPost("ResetPassword")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO model)
         {
-            if (!ModelState.IsValid)
+            var hashedOtp = HttpContext.Session.GetString($"HashedOtp_{model.Email}");
+            if (hashedOtp == null || !PasswordManager.VerifyPassword(model.Otp, hashedOtp))
             {
-                return BadRequest(ModelState);
+                return Unauthorized(new { Message = "Invalid OTP. Please try again." });
             }
 
-            var user = await _manager.FindByEmailAsync(model.Email);
+            var user = (await _userService.GetAll()).FirstOrDefault(u => u.Email == model.Email);
             if (user == null)
             {
-                return Ok(new { Message = "Password reset successful if email and token were valid." });
+                return BadRequest(new { Message = "Email not found" });
             }
+            var resetToken = await _manager.GeneratePasswordResetTokenAsync(user);
+            var result = await _manager.ResetPasswordAsync(user, resetToken,model.NewPassword);
+            //user.PasswordHash = PasswordManager.HashPassword(model.NewPassword);
+            //await _userRepo.Update(user);
 
-            var decodedTokenBytes = WebEncoders.Base64UrlDecode(model.Token);
-            var token = Encoding.UTF8.GetString(decodedTokenBytes);
+            HttpContext.Session.Remove($"HashedOtp_{model.Email}");
 
-            var result = await _manager.ResetPasswordAsync(user, token, model.Password);
-            if (result.Succeeded)
-            {
-                return Ok(new { Message = "Password reset successful if email and token were valid." });
-            }
-            else
-            {
-                return BadRequest(new { Message = "Invalid token or expired token." });
-            }
+            return Ok(new { Message = "Password reset successfully!" });
         }
 
         [HttpPost("RegisterModerator")]
@@ -582,13 +582,38 @@ namespace PRN231.API.Controllers
         public required string Otp {get;set;}
     }
 
-
-    public class ForgotPasswordModel
+    public class RequestOtpDTO
     {
         [Required]
         [EmailAddress]
         public string Email { get; set; }
     }
+
+    public class VerifyOtpDTO
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        public string Otp { get; set; }
+    }
+
+    public class ResetPasswordDTO
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        public string Otp { get; set; }
+
+        [Required]
+        [MinLength(3, ErrorMessage = "Password must be at least 3 characters")]
+        public string NewPassword { get; set; }
+    }
+
+    
     public class SendStatusEmailDTO
     {
         public string Email { get; set; }
