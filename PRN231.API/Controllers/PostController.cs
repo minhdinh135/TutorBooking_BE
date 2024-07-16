@@ -83,7 +83,7 @@ namespace PRN231.API.Controllers
             {
                 return BadRequest("Not enough credit");
             }
-            user.Credit -= 10000;
+            //user.Credit -= 10000;
 
             var imageUrls = new List<string>();
             if (dto.ImageFiles != null && dto.ImageFiles.Count > 0)
