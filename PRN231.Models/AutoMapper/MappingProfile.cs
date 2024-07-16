@@ -37,6 +37,9 @@ namespace PRN231.Models.AutoMapper
             CreateMap<PostDTO, Post>();
             CreateMap<Post, PostDTO>();
 
+            CreateMap<PostRating, PostRatingDTO>();
+            CreateMap<PostRatingDTO, PostRating>();
+
             CreateMap<TransactionDTO, Transaction>();
             CreateMap<Transaction, TransactionDTO>();
 

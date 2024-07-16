@@ -94,6 +94,12 @@ public partial class SmartHeadContext :IdentityDbContext<User, Role, int>
             .HasForeignKey(f => f.ReceiverId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        modelBuilder.Entity<PostRating>()
+            .HasOne(f => f.Post)
+            .WithMany(x => x.Ratings)
+            .HasForeignKey(f => f.PostId)
+            .OnDelete(DeleteBehavior.NoAction);
+
         modelBuilder.Entity<Schedule>(entity =>
         {
             entity.Property(e => e.StartTime).HasColumnType("time");
