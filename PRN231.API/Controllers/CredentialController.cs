@@ -5,6 +5,7 @@ using PRN231.Services.Interfaces;
 using PRN231.Services;
 using PRN231.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using PRN231.Constant;
 
 namespace PRN231.API.Controllers
 {
@@ -105,7 +106,17 @@ namespace PRN231.API.Controllers
         //[Authorize]
         public async Task<IActionResult> Update(CredentialDTO dto)
         {
+            dto.Status = StatusConstant.PENDING;
             var credential = await _credentialService.Update(dto);
+            return Ok(credential);
+        }
+
+        [HttpPut("UpdateApprove")]
+        public async Task<IActionResult> UpdateApprove([FromForm] CredentialDTO dto)
+        {
+            dto.Status = StatusConstant.ACTIVE;
+            var credential = await _credentialService.Update(dto);
+
             return Ok(credential);
         }
 
