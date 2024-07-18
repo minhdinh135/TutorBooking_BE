@@ -152,6 +152,14 @@ namespace PRN231.API.Controllers
         [HttpPost("AcceptTutor")]
         public async Task<ActionResult<ApiResponse>> AcceptTutor([FromBody] AcceptTutorRequest request)
         {
+            var requests = await _bookingService.GetAllBookingsByStatus(BookingStatusConstant.APPROVED);
+            var acceptedRequest = requests.FirstOrDefault(r => r.Id == request.BookingId);
+
+            if (acceptedRequest != null)
+            {
+                return BadRequest("Request is already approved!");
+            }
+
             bool success = await _bookingService.AcceptTutor(request.BookingId, request.TutorId);
 
             if (success)
