@@ -14,6 +14,7 @@ namespace PRN231.API.Controllers
     public class CredentialController : ControllerBase
     {
         private readonly IGenericService<Credential, CredentialDTO> _credentialService;
+        private readonly IGenericRepository<User> _userRepo;
         private readonly IGenericRepository<Credential> _credentialRepo;
         private readonly ILogger<CredentialController> _logger;
         public IConfiguration _configuration;
@@ -23,14 +24,15 @@ namespace PRN231.API.Controllers
         public CredentialController(IConfiguration config, ILogger<CredentialController> logger,
                 IGenericRepository<Credential> credentialRepo,
                 IGenericService<Credential, CredentialDTO> credentialService,
-                IFileStorageService fileStorageService)
+                IFileStorageService fileStorageService,
+                IGenericRepository<User> userRepo)
         {
             _logger = logger;
             _configuration = config;
             _credentialService = credentialService;
             _credentialRepo = credentialRepo;
             _fileStorageService = fileStorageService;
-
+            _userRepo = userRepo;
         }
 
         [HttpPost("UploadImage")]
@@ -112,7 +114,7 @@ namespace PRN231.API.Controllers
         }
 
         [HttpPut("UpdateApprove")]
-        public async Task<IActionResult> UpdateApprove([FromForm] CredentialDTO dto)
+        public async Task<IActionResult> UpdateApprove([FromBody] CredentialDTO dto)
         {
             dto.Status = StatusConstant.ACTIVE;
             var credential = await _credentialService.Update(dto);

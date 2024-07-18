@@ -14,19 +14,22 @@ namespace PRN231.API.Controllers
         private readonly IGenericService<Subject, SubjectDTO> _subjectService;
         private readonly IGenericService<BookingUser, BookingUserDTO> _bookingUserService;
         private readonly IGenericRepository<BookingUser> _bookingUserRepo;
+        private readonly IGenericRepository<Credential> _credentialRepo;
         private readonly ILogger<BookingUserController> _logger;
 
         public BookingUserController(ILogger<BookingUserController> logger,
                 IGenericRepository<BookingUser> bookingUserRepo,
                 IGenericService<BookingUser, BookingUserDTO> bookingUserService,
                 IGenericService<Level, LevelDTO> levelService,
-                IGenericService<Subject, SubjectDTO> subjectService)
+                IGenericService<Subject, SubjectDTO> subjectService,
+                IGenericRepository<Credential> credentialRepo)
         {
             _logger = logger;
             _bookingUserRepo = bookingUserRepo;
             _bookingUserService = bookingUserService;
             _levelService = levelService;
             _subjectService = subjectService;
+            _credentialRepo = credentialRepo;
         }
 
         [HttpGet("GetAll")]
@@ -53,6 +56,27 @@ namespace PRN231.API.Controllers
             bookingUserList = bookingUserList.Where(c => c.UserId == id);
             return Ok(bookingUserList);
         }
+
+        [HttpGet("GetCredentialStatusByUserId")]
+        //[Authorize]
+        public async Task<IActionResult> GetCredentialStatusByUserId(int id)
+        {
+            
+            var credentialList = await _credentialRepo.GetAll();
+            credentialList = credentialList.Where(x => x.TutorId == id);
+            var credentialDic = new Dictionary<int, string>();
+            foreach(var credential in credentialList){
+                var bookingUserList = await _bookingUserRepo.GetAll(x => x
+                    .Include(a => a.Booking)
+                    .ThenInclude(b => b.Subject));
+                bookingUserList = bookingUserList.Where(c => 
+                    c.Booking.SubjectId == credential.SubjectId && c.Role == "TUTOR");
+                var status = bookingUserList.Count() == 0 ? "No Booking" : "Has Booking";
+                credentialDic.Add(credential.Id, status);
+            }
+            return Ok(credentialDic);
+        }
+
 
         [HttpPost("Add")]
         //[Authorize]
