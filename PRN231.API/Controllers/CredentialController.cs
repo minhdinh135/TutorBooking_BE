@@ -15,6 +15,7 @@ namespace PRN231.API.Controllers
     {
         private readonly IGenericService<Credential, CredentialDTO> _credentialService;
         private readonly IGenericRepository<User> _userRepo;
+        private readonly IGenericRepository<BookingUser> _bookingUserRepo;
         private readonly IGenericRepository<Credential> _credentialRepo;
         private readonly ILogger<CredentialController> _logger;
         public IConfiguration _configuration;
@@ -25,6 +26,7 @@ namespace PRN231.API.Controllers
                 IGenericRepository<Credential> credentialRepo,
                 IGenericService<Credential, CredentialDTO> credentialService,
                 IFileStorageService fileStorageService,
+                IGenericRepository<BookingUser> bookingUserRepo,
                 IGenericRepository<User> userRepo)
         {
             _logger = logger;
@@ -33,6 +35,7 @@ namespace PRN231.API.Controllers
             _credentialRepo = credentialRepo;
             _fileStorageService = fileStorageService;
             _userRepo = userRepo;
+            _bookingUserRepo = bookingUserRepo;
         }
 
         [HttpPost("UploadImage")]
@@ -108,6 +111,14 @@ namespace PRN231.API.Controllers
         //[Authorize]
         public async Task<IActionResult> Update(CredentialDTO dto)
         {
+            var bookingUserList = await _bookingUserRepo.GetAll(x => x
+                    .Include(a => a.Booking)
+                    .ThenInclude(b => b.Subject));
+            bookingUserList = bookingUserList.Where(c => 
+                    c.Booking.SubjectId == dto.SubjectId && c.Role == "TUTOR");
+            if(bookingUserList.Count() != 0){
+                return BadRequest(new {Message = "Credential already in use"});
+            }
             dto.Status = StatusConstant.PENDING;
             var credential = await _credentialService.Update(dto);
             return Ok(credential);
